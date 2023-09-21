@@ -34,6 +34,9 @@ from ncConverter import *
 import landCover as lc
 import parameterSoilAndTopo as parSoilAndTopo
 
+import water_demand
+import water_management
+
 class LandSurface(object):
     
     def getState(self):
@@ -139,7 +142,7 @@ class LandSurface(object):
                           'satDegUppTotal',
                           'satDegLowTotal',
                           'satDegTotal']
-        #
+        #i
         # flux variables (unit: m/day)
         self.fluxVars  = ['infiltration','gwRecharge','netLqWaterToSoil',
                           'totalPotET',
@@ -316,6 +319,12 @@ class LandSurface(object):
             logger.info(msg)
  
 
+        # instantiate water demand
+        self.water_demand = water_demand.WaterDemand(iniItems, landmask)
+        
+        # instantiate water management
+        self.water_management = water_management.WaterManagement(iniItems, landmask)
+        
         # instantiate self.landCoverObj[coverType]
         self.landCoverObj = {}
         for coverType in self.coverTypes: 
@@ -1229,7 +1238,19 @@ class LandSurface(object):
         # rescale land cover fractions (for all land cover types):
         self.scaleModifiedLandCoverFractions()
         
+
     def update(self,meteo,groundwater,routing,currTimeStep):
+		
+		# calculate water demand
+		self.water_demand.update()
+		
+		# pool the demands and do the allocation on the available storages at the land surface level / water allocation model and then pass the withdrawals to the surface and groundwater
+		self.water_management.update()
+		# - This will be replaced by pcrLite
+		
+		self.old_update(meteo,groundwater,routing,currTimeStep)
+
+    def old_update(self,meteo,groundwater,routing,currTimeStep):
         
         # updating regional groundwater abstraction limit (at the begining of the year or at the beginning of simulation)
         if groundwater.limitRegionalAnnualGroundwaterAbstraction:
