@@ -379,17 +379,67 @@ class LandSurface(object):
                     self.landCoverObj[coverType].irrTypeFracOverIrr = vos.getValDivZero(self.landCoverObj[coverType].fracVegCover,\
                                                                                         totalIrrAreaFrac, vos.smallNumber) 
 
-        
-        # option to consider water quality
+        #############################################################################################################################################
+        # Surface water quality option: Water allocation based on sectoral water quality requirements
+        #
+        # Evaluating if surface water quality will be considered for water allocation
         self.consider_water_quality = False
+        self.wq_threshold = {}
         if ("considerWaterQuality" in list(iniItems.landSurfaceOptions.keys()) and iniItems.landSurfaceOptions["considerWaterQuality"] == "True"):
             logger.info('Water use in this model run considers water quality.')
             self.consider_water_quality = True
-            # - input files and values (e.g. thresholds) that are related to water quality 
-            self.inputFileBOD = iniItems.landSurfaceOptions["inputFileBOD"]
-            self.thresholdBODForIrrigation = float(iniItems.landSurfaceOptions["thresholdBODForIrrigation"])
-             
-        
+            
+            # - input files with surface water quality concentrations 
+            self.inputFileSWT = iniItems.landSurfaceOptions["inputFileSWTemperature"]
+            self.inputFileBOD = iniItems.landSurfaceOptions["inputFileBiochemOxigenDemand"]
+            self.inputFileTDS = iniItems.landSurfaceOptions["inputFileTotalDissolvedSolid"]
+            self.inputFileFC  = iniItems.landSurfaceOptions["inputFileFecalColiform"]
+            
+            # - threshold values of water quality constituents 
+#            self.wq_threshold["sw_temperature"] = {}
+#            self.wq_threshold["sw_temperature"]["irrigation"] = eval(iniItems.landSurfaceOptions["thresholdSWTForIrrigation"])
+#            self.wq_threshold["sw_temperature"]["livestock"]  = eval(iniItems.landSurfaceOptions["thresholdSWTForLivestock"])
+#            self.wq_threshold["sw_temperature"]["domestic"]   = eval(iniItems.landSurfaceOptions["thresholdSWTForDomestic"])
+#            self.wq_threshold["sw_temperature"]["industrial"] = eval(iniItems.landSurfaceOptions["thresholdSWTForIndustrial"])
+#            self.wq_threshold["bio_o2_demand"] = {}
+#            self.wq_threshold["bio_o2_demand"]["irrigation"]  = eval(iniItems.landSurfaceOptions["thresholdBODForIrrigation"])
+#            self.wq_threshold["bio_o2_demand"]["livestock"]   = eval(iniItems.landSurfaceOptions["thresholdBODForLivestock"])
+#            self.wq_threshold["bio_o2_demand"]["domestic"]    = eval(iniItems.landSurfaceOptions["thresholdBODForDomestic"])
+#            self.wq_threshold["bio_o2_demand"]["industrial"]  = eval(iniItems.landSurfaceOptions["thresholdBODForIndustrial"])
+#            self.wq_threshold["tot_dis_solid"] = {}
+#            self.wq_threshold["tot_dis_solid"]["irrigation"]  = eval(iniItems.landSurfaceOptions["thresholdTDSForIrrigation"])
+#            self.wq_threshold["tot_dis_solid"]["livestock"]   = eval(iniItems.landSurfaceOptions["thresholdTDSForLivestock"])
+#            self.wq_threshold["tot_dis_solid"]["domestic"]    = eval(iniItems.landSurfaceOptions["thresholdTDSForDomestic"])
+#            self.wq_threshold["tot_dis_solid"]["industrial"]  = eval(iniItems.landSurfaceOptions["thresholdTDSForIndustrial"])
+#            self.wq_threshold["fecal_coliform"] = {}
+#            self.wq_threshold["fecal_coliform"]["irrigation"] = eval(iniItems.landSurfaceOptions["thresholdFCForIrrigation"])
+#            self.wq_threshold["fecal_coliform"]["livestock"]  = eval(iniItems.landSurfaceOptions["thresholdFCForLivestock"])
+#            self.wq_threshold["fecal_coliform"]["domestic"]   = eval(iniItems.landSurfaceOptions["thresholdFCForDomestic"])
+#            self.wq_threshold["fecal_coliform"]["industrial"] = eval(iniItems.landSurfaceOptions["thresholdFCForIndustrial"])
+            
+            self.wq_threshold["irrigation"] = {}
+            self.wq_threshold["irrigation"]["sw_temperature"] = eval(iniItems.landSurfaceOptions["thresholdSWTForIrrigation"])
+            self.wq_threshold["irrigation"]["bio_o2_demand"]  = eval(iniItems.landSurfaceOptions["thresholdBODForIrrigation"])
+            self.wq_threshold["irrigation"]["tot_dis_solid"]  = eval(iniItems.landSurfaceOptions["thresholdTDSForIrrigation"])
+            self.wq_threshold["irrigation"]["fecal_coliform"] = eval(iniItems.landSurfaceOptions["thresholdFCForIrrigation"])
+            self.wq_threshold["livestock"] = {}
+            self.wq_threshold["livestock"]["sw_temperature"]  = eval(iniItems.landSurfaceOptions["thresholdSWTForLivestock"])
+            self.wq_threshold["livestock"]["bio_o2_demand"]   = eval(iniItems.landSurfaceOptions["thresholdBODForLivestock"])
+            self.wq_threshold["livestock"]["tot_dis_solid"]   = eval(iniItems.landSurfaceOptions["thresholdTDSForLivestock"])
+            self.wq_threshold["livestock"]["fecal_coliform"]  = eval(iniItems.landSurfaceOptions["thresholdFCForLivestock"])
+            self.wq_threshold["domestic"] = {}
+            self.wq_threshold["domestic"]["sw_temperature"]   = eval(iniItems.landSurfaceOptions["thresholdSWTForDomestic"])
+            self.wq_threshold["domestic"]["bio_o2_demand"]    = eval(iniItems.landSurfaceOptions["thresholdBODForDomestic"])
+            self.wq_threshold["domestic"]["tot_dis_solid"]    = eval(iniItems.landSurfaceOptions["thresholdTDSForDomestic"])
+            self.wq_threshold["domestic"]["fecal_coliform"]   = eval(iniItems.landSurfaceOptions["thresholdFCForDomestic"])
+            self.wq_threshold["industrial"] = {}
+            self.wq_threshold["industrial"]["sw_temperature"] = eval(iniItems.landSurfaceOptions["thresholdSWTForIndustrial"])
+            self.wq_threshold["industrial"]["bio_o2_demand"]  = eval(iniItems.landSurfaceOptions["thresholdBODForIndustrial"])
+            self.wq_threshold["industrial"]["tot_dis_solid"]  = eval(iniItems.landSurfaceOptions["thresholdTDSForIndustrial"])
+            self.wq_threshold["industrial"]["fecal_coliform"] = eval(iniItems.landSurfaceOptions["thresholdFCForIndustrial"])
+        #
+        #     
+        #############################################################################################################################################
         
         # get the initial conditions (for every land cover type)
         self.getInitialConditions(iniItems, initialState)
@@ -1244,15 +1294,19 @@ class LandSurface(object):
     def update(self,meteo,groundwater,routing,currTimeStep):
         
         # updating any information related to water quality
-        if self.consider_water_quality == True:
-        
-            # - read BOD for every time step 
-            self.inputBOD = vos.netcdf2PCRobjClone(ncFile  = self.inputFileBOD,\
-                            varName = "automatic" , \
-                            dateInput = currTimeStep.fulldate,\
-                            useDoy = "daily",
-                            cloneMapFileName  = self.cloneMap)
-                            
+        self.wq_state = {}
+        if self.consider_water_quality:
+            # converting .nc files to .map per timestep
+            self.wq_state["sw_temperature"] = vos.netcdf2PCRobjClone(ncFile=self.inputFileSWT, varName="automatic", dateInput=currTimeStep.fulldate, useDoy="daily", cloneMapFileName=self.cloneMap)
+            self.wq_state["bio_o2_demand"]  = vos.netcdf2PCRobjClone(ncFile=self.inputFileBOD, varName="automatic", dateInput=currTimeStep.fulldate, useDoy="daily", cloneMapFileName=self.cloneMap)
+            self.wq_state["tot_dis_solid"]  = vos.netcdf2PCRobjClone(ncFile=self.inputFileTDS, varName="automatic", dateInput=currTimeStep.fulldate, useDoy="daily", cloneMapFileName=self.cloneMap)
+            self.wq_state["fecal_coliform"] = vos.netcdf2PCRobjClone(ncFile=self.inputFileFC , varName="automatic", dateInput=currTimeStep.fulldate, useDoy="daily", cloneMapFileName=self.cloneMap)
+            
+            # filling nans with zero values
+            self.wq_state["sw_temperature"] = pcr.cover(self.wq_state["sw_temperature"],0.0)
+            self.wq_state["bio_o2_demand"]  = pcr.cover(self.wq_state["bio_o2_demand"], 0.0)
+            self.wq_state["tot_dis_solid"]  = pcr.cover(self.wq_state["tot_dis_solid"], 0.0)
+            self.wq_state["fecal_coliform"] = pcr.cover(self.wq_state["fecal_coliform"],0.0)
         
         # updating regional groundwater abstraction limit (at the begining of the year or at the beginning of simulation)
         if groundwater.limitRegionalAnnualGroundwaterAbstraction:
@@ -1457,9 +1511,7 @@ class LandSurface(object):
                                                   self.allocSegments,\
                                                   self.desalinationWaterUse,\
                                                   self.groundwater_pumping_region_ids,self.regionalAnnualGroundwaterAbstractionLimit,\
-                                                  self.consider_water_quality,
-                                                  self.inputBOD,
-                                                  self.thresholdBODForIrrigation)
+                                                  self.wq_state, self.wq_threshold, self.consider_water_quality)
             # TODO: Please organize how we will deal with water quality problems (e.g. self.inputBOD)                                     
             
         # first, we set all aggregated values/variables to zero: 
