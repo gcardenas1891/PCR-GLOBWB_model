@@ -34,7 +34,8 @@ from ncConverter import *
 import landCover as lc
 import parameterSoilAndTopo as parSoilAndTopo
 
-import water_demand
+import water_demand.main_water_demand as water_demand
+
 import water_management
 
 class LandSurface(object):
@@ -1242,7 +1243,7 @@ class LandSurface(object):
     def update(self,meteo,groundwater,routing,currTimeStep):
 		
 		# calculate water demand
-		self.water_demand.update()
+		self.water_demand.update(currTimeStep)
 		
 		# pool the demands and do the allocation on the available storages at the land surface level / water allocation model and then pass the withdrawals to the surface and groundwater
 		self.water_management.update()
