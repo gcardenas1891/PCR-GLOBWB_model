@@ -602,43 +602,43 @@ class LandSurface(object):
 
     def waterDemandOptions(self,iniItems):
 
-        # domestic water demand (unit: m/day)
-        #
-        self.domesticWaterDemandOption = False
-        if iniItems.landSurfaceOptions['includeDomesticWaterDemand']  == "True":
-            logger.info("Domestic water demand is included in the calculation.")
-            self.domesticWaterDemandOption = True  
-        else:
-            logger.info("Domestic water demand is NOT included in the calculation.")
-        #
-        if self.domesticWaterDemandOption:
-            self.domesticWaterDemandFile = vos.getFullPath(\
-             iniItems.landSurfaceOptions['domesticWaterDemandFile'],self.inputDir,False)
+        # # domestic water demand (unit: m/day)
+        # #
+        # self.domesticWaterDemandOption = False
+        # if iniItems.landSurfaceOptions['includeDomesticWaterDemand']  == "True":
+            # logger.info("Domestic water demand is included in the calculation.")
+            # self.domesticWaterDemandOption = True  
+        # else:
+            # logger.info("Domestic water demand is NOT included in the calculation.")
+        # #
+        # if self.domesticWaterDemandOption:
+            # self.domesticWaterDemandFile = vos.getFullPath(\
+             # iniItems.landSurfaceOptions['domesticWaterDemandFile'],self.inputDir,False)
 
-        # industry water demand (unit: m/day)
-        #
-        self.industryWaterDemandOption = False
-        if iniItems.landSurfaceOptions['includeIndustryWaterDemand']  == "True":
-            logger.info("Industry water demand is included in the calculation.")
-            self.industryWaterDemandOption = True  
-        else:
-            logger.info("Industry water demand is NOT included in the calculation.")
-        #
-        if self.industryWaterDemandOption:
-            self.industryWaterDemandFile = vos.getFullPath(\
-             iniItems.landSurfaceOptions['industryWaterDemandFile'],self.inputDir,False)
+        # # industry water demand (unit: m/day)
+        # #
+        # self.industryWaterDemandOption = False
+        # if iniItems.landSurfaceOptions['includeIndustryWaterDemand']  == "True":
+            # logger.info("Industry water demand is included in the calculation.")
+            # self.industryWaterDemandOption = True  
+        # else:
+            # logger.info("Industry water demand is NOT included in the calculation.")
+        # #
+        # if self.industryWaterDemandOption:
+            # self.industryWaterDemandFile = vos.getFullPath(\
+             # iniItems.landSurfaceOptions['industryWaterDemandFile'],self.inputDir,False)
 
-        # livestock water demand (unit: m/day)
-        self.livestockWaterDemandOption = False
-        if iniItems.landSurfaceOptions['includeLivestockWaterDemand']  == "True":
-            logger.info("Livestock water demand is included in the calculation.")
-            self.livestockWaterDemandOption = True  
-        else:
-            logger.info("Livestock water demand is NOT included in the calculation.")
-        #
-        if self.livestockWaterDemandOption:
-            self.livestockWaterDemandFile = vos.getFullPath(\
-             iniItems.landSurfaceOptions['livestockWaterDemandFile'],self.inputDir,False)
+        # # livestock water demand (unit: m/day)
+        # self.livestockWaterDemandOption = False
+        # if iniItems.landSurfaceOptions['includeLivestockWaterDemand']  == "True":
+            # logger.info("Livestock water demand is included in the calculation.")
+            # self.livestockWaterDemandOption = True  
+        # else:
+            # logger.info("Livestock water demand is NOT included in the calculation.")
+        # #
+        # if self.livestockWaterDemandOption:
+            # self.livestockWaterDemandFile = vos.getFullPath(\
+             # iniItems.landSurfaceOptions['livestockWaterDemandFile'],self.inputDir,False)
         
         # historical irrigation area (unit: hectar)
         self.dynamicIrrigationArea = False
@@ -1238,18 +1238,21 @@ class LandSurface(object):
 
         # rescale land cover fractions (for all land cover types):
         self.scaleModifiedLandCoverFractions()
-        
+
+
 
     def update(self,meteo,groundwater,routing,currTimeStep):
-		
-		# calculate water demand
-		self.water_demand.update(currTimeStep)
-		
-		# pool the demands and do the allocation on the available storages at the land surface level / water allocation model and then pass the withdrawals to the surface and groundwater
-		self.water_management.update()
-		# - This will be replaced by pcrLite
-		
-		self.old_update(meteo,groundwater,routing,currTimeStep)
+        
+        # calculate water demand
+        self.water_demand.update(currTimeStep)
+        
+        # pool the demands and do the allocation on the available storages at the land surface level / water allocation model and then pass the withdrawals to the surface and groundwater
+        self.water_management.update()
+        # - This will be replaced by pcrLite
+        
+        self.old_update(meteo,groundwater,routing,currTimeStep)
+
+
 
     def old_update(self,meteo,groundwater,routing,currTimeStep):
         

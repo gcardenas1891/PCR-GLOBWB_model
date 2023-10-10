@@ -31,6 +31,10 @@ sys.path.append("..")
 import virtualOS as vos
 
 import domestic_water_demand
+import industry_water_demand
+import livestock_water_demand
+import manufacture_water_demand
+import thermoelectric_water_demand
 
 
 
@@ -38,7 +42,7 @@ class WaterDemand(object):
 
     def __init__(self, iniItems, landmask):
         object.__init__(self)
-
+        
         # cloneMap, tmpDir, inputDir based on the configuration/setting given in the ini/configuration file
         self.cloneMap = iniItems.cloneMap
         self.tmpDir   = iniItems.tmpDir
@@ -46,18 +50,24 @@ class WaterDemand(object):
         self.landmask = landmask
         
         # initiate sectoral water demand objects
-        self.water_demand_domestic = domestic_water_demand.DomesticWaterDemand(iniItems, self.landmask)
-
-        # to be added later: livestock, industry and electricity
-        # ~ self.water_demand_industry = 
+        self.water_demand_domestic  = domestic_water_demand.DomesticWaterDemand(iniItems, self.landmask)
+        self.water_demand_industry  = industry_water_demand.IndustryWaterDemand(iniItems, self.landmask)
+        self.water_demand_livestock = livestock_water_demand.LivestockWaterDemand(iniItems, self.landmask)
+        
+        #self.water_demand_manufacture    = manufacture_water_demand.ManufactureWaterDemand(iniItems, self.landmask)
+        #self.water_demand_thermoelectric = thermoelectric_water_demand.ThermoelectricWaterDemand(iniItems, self.landmask)
         
     def update(self, currTimeStep):
-		
-		# get not irrigation demand
-		# - the content of this is based on the landSurface.py
-		self.water_demand_domestic.update(currTimeStep)
-        # ~ self.water_demand_industry.update() 
-		
-		
-		# get irrigation demand
-		# the content of this will be taken from the landCover.py
+        
+        # get not irrigation demand
+        # - the content of this is based on the landSurface.py
+        self.water_demand_domestic.update(currTimeStep)
+        self.water_demand_industry.update(currTimeStep)
+        self.water_demand_livestock.update(currTimeStep)
+        
+        #self.water_demand_manufacture.update(currTimeStep)
+        #self.water_demand_thermoelectric.update(currTimeStep)
+        
+        # get irrigation demand
+        # the content of this will be taken from the landCover.py
+        

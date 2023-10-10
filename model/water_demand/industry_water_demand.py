@@ -31,7 +31,7 @@ sys.path.append("..")
 import virtualOS as vos
 
 
-class DomesticWaterDemand(object):
+class IndustryWaterDemand(object):
 
     def __init__(self, iniItems, landmask):
         object.__init__(self)
@@ -45,18 +45,18 @@ class DomesticWaterDemand(object):
         self.inputDir = iniItems.globalOptions['inputDir']
         self.landmask = landmask
         
-        # get the file information for domestic water demand (unit: m/day)
-        self.domesticWaterDemandOption = False
-        if iniItems.landSurfaceOptions['includeDomesticWaterDemand'] == "True":
-            self.domesticWaterDemandOption = True
-            logger.info("Domestic water demand is included in the calculation.")
+        # get the file information for industry water demand (unit: m/day)
+        self.industryWaterDemandOption = False
+        if iniItems.landSurfaceOptions['includeIndustryWaterDemand']  == "True":
+            self.industryWaterDemandOption = True  
+            logger.info("Industry water demand is included in the calculation.")
         else:
-            logger.info("Domestic water demand is NOT included in the calculation.")
+            logger.info("Industry water demand is NOT included in the calculation.")
         
-        if self.domesticWaterDemandOption:
-            self.domesticWaterDemandFile = \
+        if self.industryWaterDemandOption:
+            self.industryWaterDemandFile = \
                 vos.getFullPath(\
-                    inputPath        = iniItems.landSurfaceOptions['domesticWaterDemandFile'], \
+                    inputPath        = iniItems.landSurfaceOptions['industryWaterDemandFile'], \
                     absolutePath     = self.inputDir, \
                     completeFileName = False)
 
@@ -65,36 +65,36 @@ class DomesticWaterDemand(object):
     def update(self, currTimeStep, read_file):
         read_file = True
         if read_file:
-            self.read_domestic_water_demand_from_files(currTimeStep)
+            self.read_industry_water_demand_from_files(currTimeStep)
         else:
-            self.calculate_domestic_water_demand_for_date(currTimeStep)
+            self.calculate_industry_water_demand_for_date(currTimeStep)
 
 
 
-    def read_domestic_water_demand_from_files(self, currTimeStep):
-        # read domestic water demand
+    def read_industry_water_demand_from_files(self, currTimeStep):
+        # read industry water demand
         if currTimeStep.timeStepPCR == 1 or currTimeStep.day == 1:
-            if self.domesticWaterDemandOption:
+            if self.industryWaterDemandOption:
                 
                 # reading from a netcdf file
-                if self.domesticWaterDemandFile.endswith(vos.netcdf_suffixes):  
-                    self.domesticGrossDemand = \
+                if self.industryWaterDemandFile.endswith(vos.netcdf_suffixes):  
+                    self.industryGrossDemand = \
                         pcr.max(0.0, \
                                 pcr.cover( \
                                           vos.netcdf2PCRobjClone( \
-                                              ncFile           = self.domesticWaterDemandFile, \
-                                              varName          = 'domesticGrossDemand', \
+                                              ncFile           = self.industryWaterDemandFile, \
+                                              varName          = 'industryGrossDemand', \
                                               dateInput        = currTimeStep.fulldate, \
                                               useDoy           = 'monthly',\
                                               cloneMapFileName = self.cloneMap), \
                                           0.0))
                     
-                    self.domesticNettoDemand = \
+                    self.industryNettoDemand = \
                         pcr.max(0.0, \
                                 pcr.cover( \
                                           vos.netcdf2PCRobjClone( \
-                                              ncFile           = self.domesticWaterDemandFile, \
-                                              varName          = 'domesticNettoDemand', \
+                                              ncFile           = self.industryWaterDemandFile, \
+                                              varName          = 'industryNettoDemand', \
                                               dateInput        = currTimeStep.fulldate, \
                                               useDoy           = 'monthly', \
                                               cloneMapFileName = self.cloneMap), \
@@ -102,12 +102,8 @@ class DomesticWaterDemand(object):
                 
                 # reading from pcraster maps
                 else:
-                    string_month = str(currTimeStep.month)
-                    if currTimeStep.month < 10:
-                        string_month = "0" + str(currTimeStep.month)
-                    
-                    grossFileName = self.domesticWaterDemandFile + "w" + str(currTimeStep.year) + ".0" + string_month
-                    self.domesticGrossDemand = \
+                    grossFileName = self.industryWaterDemandFile + "w" + str(currTimeStep.year) + ".map"
+                    self.industryGrossDemand = \
                         pcr.max(0.0, \
                                 pcr.cover( \
                                           vos.readPCRmapClone( 
@@ -116,8 +112,8 @@ class DomesticWaterDemand(object):
                                               tmpDir           = self.tmpDir), \
                                           0.0)
                     
-                    nettoFileName = self.domesticWaterDemandFile + "n" + str(currTimeStep.year) + ".0" + string_month
-                    self.domesticNettoDemand = \
+                    nettoFileName = self.industryWaterDemandFile + "n" + str(currTimeStep.year) + ".map"
+                    self.industryNettoDemand = \
                         pcr.max(0.0, \
                                 pcr.cover( \
                                           vos.readPCRmapClone( \
@@ -126,17 +122,18 @@ class DomesticWaterDemand(object):
                                               tmpDir           = self.tmpDir), \
                                           0.0))
             else:
-                self.domesticGrossDemand = pcr.spatial(pcr.scalar(0.0))
-                self.domesticNettoDemand = pcr.spatial(pcr.scalar(0.0))
-                logger.debug("Domestic water demand is NOT included.")
+                self.industryGrossDemand = pcr.spatial(pcr.scalar(0.0))
+                self.industryNettoDemand = pcr.spatial(pcr.scalar(0.0))
+                logger.debug("Industry water demand is NOT included.")
             
-            # gross and netto domestic water demand in m/day
-            self.domesticGrossDemand = pcr.cover(self.domesticGrossDemand, 0.0)
-            self.domesticNettoDemand = pcr.cover(self.domesticNettoDemand, 0.0)
-            self.domesticNettoDemand = pcr.min(self.domesticGrossDemand, self.domesticNettoDemand)
+            # gross and netto industrial water demand in m/day
+            self.industryGrossDemand = pcr.cover(self.industryGrossDemand, 0.0)
+            self.industryNettoDemand = pcr.cover(self.industryNettoDemand, 0.0)
+            self.industryNettoDemand = pcr.min(self.industryGrossDemand, self.industryNettoDemand)  
 
 
 
-    def calculate_domestic_water_demand_for_date(self, currTimeStep):
-        # TODO: We may want to calculate domestic water demand on the fly (read_file = False)
+
+    def calculate_industrial_water_demand_for_date(self, currTimeStep):
+        # TODO: We may want to calculate industry water demand on the fly (read_file = False)
         pass
