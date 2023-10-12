@@ -229,6 +229,7 @@ class LandSurface(object):
             self.coverTypes = iniItems.landSurfaceOptions['landCoverTypes'].split(",")
 
         # water demand options: irrigation efficiency, non irrigation water demand, and desalination supply 
+        # - TODO: The following line will be deactivated due to the new development of water_demand and water_management modules.
         self.waterDemandOptions(iniItems)
         
         # TODO: Make an option so that users can easily perform natural runs (without water user, without reservoirs).
@@ -320,12 +321,6 @@ class LandSurface(object):
             logger.info(msg)
  
 
-        # instantiate water demand
-        self.water_demand = water_demand.WaterDemand(iniItems, landmask)
-        
-        # instantiate water management
-        self.water_management = water_management.WaterManagement(iniItems, landmask)
-        
         # instantiate self.landCoverObj[coverType]
         self.landCoverObj = {}
         for coverType in self.coverTypes: 
@@ -391,6 +386,12 @@ class LandSurface(object):
 
         # get the initial conditions (for every land cover type)
         self.getInitialConditions(iniItems, initialState)
+
+        # instantiate water demand
+        self.water_demand = water_demand.WaterDemand(iniItems, landmask, self.coverTypes, self.landCoverObj)
+        
+        # instantiate water management
+        self.water_management = water_management.WaterManagement(iniItems, landmask)
 
         # initiate old style reporting (this is useful for debuging)
         self.initiate_old_style_land_surface_reporting(iniItems)
@@ -1244,7 +1245,7 @@ class LandSurface(object):
     def update(self,meteo,groundwater,routing,currTimeStep):
         
         # calculate water demand
-        self.water_demand.update(currTimeStep)
+        self.water_demand.update(meteo = meteo, landSurface = self, groundwater = groundwater, routing = routing, currTimeStep = currTimeStep)
         
         # pool the demands and do the allocation on the available storages at the land surface level / water allocation model and then pass the withdrawals to the surface and groundwater
         self.water_management.update()

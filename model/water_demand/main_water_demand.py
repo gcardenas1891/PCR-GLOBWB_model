@@ -36,11 +36,12 @@ import livestock_water_demand
 import manufacture_water_demand
 import thermoelectric_water_demand
 
+import irrigation_water_demand
 
 
 class WaterDemand(object):
 
-    def __init__(self, iniItems, landmask):
+    def __init__(self, iniItems, landmask, landCoverTypeNames, landCoverObjects):
         object.__init__(self)
         
         # cloneMap, tmpDir, inputDir based on the configuration/setting given in the ini/configuration file
@@ -49,7 +50,7 @@ class WaterDemand(object):
         self.inputDir = iniItems.globalOptions['inputDir']
         self.landmask = landmask
         
-        # initiate sectoral water demand objects
+        # initiate non-irrigation sectoral water demand objects
         self.water_demand_domestic  = domestic_water_demand.DomesticWaterDemand(iniItems, self.landmask)
         self.water_demand_industry  = industry_water_demand.IndustryWaterDemand(iniItems, self.landmask)
         self.water_demand_livestock = livestock_water_demand.LivestockWaterDemand(iniItems, self.landmask)
@@ -57,7 +58,16 @@ class WaterDemand(object):
         #self.water_demand_manufacture    = manufacture_water_demand.ManufactureWaterDemand(iniItems, self.landmask)
         #self.water_demand_thermoelectric = thermoelectric_water_demand.ThermoelectricWaterDemand(iniItems, self.landmask)
         
-    def update(self, currTimeStep):
+        # initiate irrigation sectoral water demand objects
+        # - for every irrigation land cover type
+        self.water_demand_irrigation = {}
+        self.coverTypes = landCoverTypeNames
+        for coverType in self.coverTypes: 
+            # - note loop will only be done for the land cover types that start with "irr" (irrigation)
+            if startswith("irr"): self.water_demand_irrigation[coverType] = irrigation_water_demand.IrrigationWaterDemand(iniItems, coverType+str("Options"), self.landmask, landCoverObjects[coverType])
+        # UNTIL_THIS    
+        
+    def update(self, meteo, landSurface, groundwater, routing, currTimeStep):
         
         # get not irrigation demand
         # - the content of this is based on the landSurface.py
@@ -69,5 +79,8 @@ class WaterDemand(object):
         #self.water_demand_thermoelectric.update(currTimeStep)
         
         # get irrigation demand
-        # the content of this will be taken from the landCover.py
+        # - for every irrigation land cover type
+        for coverType in self.coverTypes: 
+            # - note loop will only be done for the land cover types that start with "irr" (irrigation)
+            if startswith("irr"): self.water_demand_irrigation[coverType].update(meteo, landSurface, groundwater, routing, currTimeStep)
         
