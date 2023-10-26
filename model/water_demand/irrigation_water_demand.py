@@ -101,24 +101,66 @@ class IrrigationWaterDemand(object):
         return design_percolation_loss      
 
 
+    def calculateTotAvlWaterCapacityInRootZone(self):
+
+        # total water capacity in the root zone (upper soil layers)
+        # Note: This is dependent on the land cover type.
+
+        if self.numberOfLayers == 2: 
+
+            self.totAvlWater = \
+                               (pcr.max(0.,\
+                               self.parameters.effSatAtFieldCapUpp - self.parameters.effSatAtWiltPointUpp))*\
+                               (self.parameters.satVolMoistContUpp -   self.parameters.resVolMoistContUpp )*\
+                        pcr.min(self.parameters.thickUpp,self.maxRootDepth)  + \
+                               (pcr.max(0.,\
+                               self.parameters.effSatAtFieldCapLow - self.parameters.effSatAtWiltPointLow))*\
+                               (self.parameters.satVolMoistContLow -   self.parameters.resVolMoistContLow )*\
+                        pcr.min(self.parameters.thickLow,\
+                        pcr.max(self.maxRootDepth-self.parameters.thickUpp,0.))      # Edwin modified this line. Edwin uses soil thickness thickUpp and thickLow (instead of storCapUpp and storCapLow). 
+                                                                                     # And Rens support this. 
+            self.totAvlWater = pcr.min(self.totAvlWater, \
+                            self.parameters.storCapUpp + self.parameters.storCapLow)
+
+        if self.numberOfLayers == 3: 
+
+            self.totAvlWater = \
+                               (pcr.max(0.,\
+                               self.parameters.effSatAtFieldCapUpp000005 - self.parameters.effSatAtWiltPointUpp000005))*\
+                               (self.parameters.satVolMoistContUpp000005 -   self.parameters.resVolMoistContUpp000005 )*\
+                        pcr.min(self.parameters.thickUpp000005,self.maxRootDepth)  + \
+                               (pcr.max(0.,\
+                               self.parameters.effSatAtFieldCapUpp005030 - self.parameters.effSatAtWiltPointUpp005030))*\
+                               (self.parameters.satVolMoistContUpp005030 -   self.parameters.resVolMoistContUpp005030 )*\
+                        pcr.min(self.parameters.thickUpp005030,\
+                        pcr.max(self.maxRootDepth-self.parameters.thickUpp000005))  + \
+                               (pcr.max(0.,\
+                               self.parameters.effSatAtFieldCapLow030150 - self.parameters.effSatAtWiltPointLow030150))*\
+                               (self.parameters.satVolMoistContLow030150 -   self.parameters.resVolMoistContLow030150 )*\
+                        pcr.min(self.parameters.thickLow030150,\
+                        pcr.max(self.maxRootDepth-self.parameters.thickUpp005030,0.)) 
+            #
+            self.totAvlWater = pcr.min(self.totAvlWater, \
+                               self.parameters.storCapUpp000005 + \
+                               self.parameters.storCapUpp005030 + \
+                               self.parameters.storCapLow030150)
+
     def update(self, meteo, landSurface, groundwater, routing, currTimeStep):
 		
 		# get irrigation efficiency
 		self.irrigation_efficiency = self.get_irrigation_efficiency(iniItems, landmask)
 		# - TODO: We still have to fill in the function.
 		
-		# TODO: PLEASE CONTINUE HERE!!!
-		
 		# for non paddy and paddy irrigation fields - TODO: to split between paddy and non-paddy fields
         # irrigation water demand (unit: m/day) for paddy and non-paddy
         self.irrGrossDemand = pcr.scalar(0.)
-        if (self.name == 'irrPaddy' or self.name == 'irr_paddy'):
+        if (self.name == 'irrPaddy' or self.name == 'irr_paddy'): 
             self.irrGrossDemand = \
                   pcr.ifthenelse(landSurface.landCoverObj.cropKC > 0.75, \
                      pcr.max(0.0,self.minTopWaterLayer - \
                                 (self.topWaterLayer )), 0.)                # a function of cropKC (evaporation and transpiration),
                                                                            #               topWaterLayer (water available in the irrigation field)
-            
+        
         if (self.name == 'irrNonPaddy' or self.name == 'irr_non_paddy' or self.name ==  "irr_non_paddy_crops") and self.includeIrrigation:
 
             #~ adjDeplFactor = \

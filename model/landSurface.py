@@ -1244,12 +1244,19 @@ class LandSurface(object):
 
     def update(self,meteo,groundwater,routing,currTimeStep):
         
+        # get land cover parameters
+        # TODO: CONTINUE FROM THIS!
+
+
         # calculate water demand
+        # - based on the 'soil moisture' conditions after the above land cover update
         self.water_demand.update(meteo = meteo, landSurface = self, groundwater = groundwater, routing = routing, currTimeStep = currTimeStep)
         
         # pool the demands and do the allocation on the available storages at the land surface level / water allocation model and then pass the withdrawals to the surface and groundwater
         self.water_management.update()
         # - This will be replaced by pcrLite
+        # - output: - water abstraction from surface water, groundwater and etc
+        #           - water allocation, including irrigation supply - this will be given to the next time step
         
         self.old_update(meteo,groundwater,routing,currTimeStep)
 
