@@ -1244,8 +1244,17 @@ class LandSurface(object):
 
     def update(self,meteo,groundwater,routing,currTimeStep):
         
-        # get land cover parameters
-        # TODO: CONTINUE FROM THIS!
+        # set land cover parameters for this land cover object
+        # - for this will return the following:
+        #   fracVegCover, arnoBeta, rootZoneWaterStorageMin, rootZoneWaterStorageRange, \
+        #                           maxRootDepth, adjRootFrUpp, adjRootFrLow
+        #   effSatAt50 and effPoreSizeBetaAt50
+        #   cropKc
+        #   coverFraction and interceptCap
+        # - loop per each land cover type):
+        for coverType in self.coverTypes:
+            logger.info("Setting land cover parameters: "+str(coverType))
+            self.landCoverObj[coverType].set_land_cover_parameters(currTimeStep)
 
 
         # calculate water demand
@@ -1258,6 +1267,7 @@ class LandSurface(object):
         # - output: - water abstraction from surface water, groundwater and etc
         #           - water allocation, including irrigation supply - this will be given to the next time step
         
+
         self.old_update(meteo,groundwater,routing,currTimeStep)
 
 

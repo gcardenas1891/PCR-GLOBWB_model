@@ -49,17 +49,13 @@ class IrrigationWaterDemand(object):
         # - name of this land cover type
         self.name = self.iniItemsLC['name']
         
-        # the land cover object (containing land cover model states and parameters)
-        self.landCoverObject = landCoverObject
-        
         # crop depletion factor
         self.cropDeplFactor = vos.readPCRmapClone(self.iniItemsIrrLC['cropDeplFactor'], self.cloneMap, \
                                                   self.tmpDir, self.inputDir)
              
-             
         # infiltration/percolation losses for paddy fields
-        if self.name == 'irrPaddy' or self.name == 'irr_paddy': self.design_percolation_loss = self.estimate_paddy_infiltration_loss(self.iniItemsIrrLC, self.landCoverObject)
-        
+        if self.name == 'irrPaddy' or self.name == 'irr_paddy': self.design_percolation_loss = self.estimate_paddy_infiltration_loss(self.iniItemsIrrLC, landCoverObject)
+        # TODO: Can we simplify this? Currently, we pass this 'entire' landCoverObject, but actually we may need only few variables from it.
 
 
     def get_irrigation_efficiency(self, iniItems, landmask):
@@ -73,9 +69,9 @@ class IrrigationWaterDemand(object):
         # Due to compaction infiltration/percolation loss rate can be much smaller than original soil saturated conductivity
         # - Wada et al. (2014) assume it will be 10 times smaller
         if self.numberOfLayers == 2:\
-           design_percolation_loss = self.landCoverObject.parameters.kSatUpp/10.           # unit: m/day 
+           design_percolation_loss = landCoverObject.parameters.kSatUpp/10.           # unit: m/day 
         if self.numberOfLayers == 3:\
-           design_percolation_loss = self.landCoverObject.parameters.kSatUpp000005/10.     # unit: m/day 
+           design_percolation_loss = landCoverObject.parameters.kSatUpp000005/10.     # unit: m/day 
 
         # However, it can also be much smaller especially in well-puddled paddy fields and should avoid salinization problems.
         # - Default minimum and maximum percolation loss values based on FAO values Reference: http://www.fao.org/docrep/s2022e/s2022e08.htm
@@ -93,9 +89,9 @@ class IrrigationWaterDemand(object):
                                   pcr.min(max_percolation_loss, design_percolation_loss))
         # - if soil condition is already 'good', we will use its original infiltration/percolation rate
         if self.numberOfLayers == 2:\
-           design_percolation_loss = pcr.min(self.landCoverObject.parameters.kSatUpp      , design_percolation_loss) 
+           design_percolation_loss = pcr.min(landCoverObject.parameters.kSatUpp      , design_percolation_loss) 
         if self.numberOfLayers == 3:\
-           design_percolation_loss = pcr.min(self.landCoverObject.parameters.kSatUpp000005, design_percolation_loss)
+           design_percolation_loss = pcr.min(landCoverObject.parameters.kSatUpp000005, design_percolation_loss)
         
         # PS: The 'design_percolation_loss' is the maximum loss occuring in paddy fields.
         return design_percolation_loss      
@@ -103,6 +99,8 @@ class IrrigationWaterDemand(object):
 
     def calculateTotAvlWaterCapacityInRootZone(self):
 
+        # TODO: Continue from THIS.
+        
         # total water capacity in the root zone (upper soil layers)
         # Note: This is dependent on the land cover type.
 

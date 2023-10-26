@@ -65,7 +65,6 @@ class WaterDemand(object):
         for coverType in self.coverTypes: 
             # - note loop will only be done for the land cover types that start with "irr" (irrigation)
             if startswith("irr"): self.water_demand_irrigation[coverType] = irrigation_water_demand.IrrigationWaterDemand(iniItems, coverType+str("Options"), self.landmask, landCoverObjects[coverType])
-        # UNTIL_THIS    
         
     def update(self, meteo, landSurface, groundwater, routing, currTimeStep):
         

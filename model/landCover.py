@@ -954,6 +954,44 @@ class LandCover(object):
             # ~ # - 
             # ~ if self.includeIrrigation: self.calculateTotAvlWaterCapacityInRootZone()
 
+        # get cropKC / crop coefficient:
+        if self.iniItemsLC['cropCoefficientNC'] == "None":
+            cropKC = pcr.ifthen(self.landmask, pcr.spatial(pcr.scalar(0.0)))
+        else:
+            cropKC = pcr.cover(
+                     vos.netcdf2PCRobjClone(self.cropCoefficientNC,'kc', \
+                                            currTimeStep.fulldate, useDoy = 'daily_seasonal',\
+                                            cloneMapFileName = self.cloneMap), 0.0)
+        self.inputCropKC = cropKC                                               # This line is needed for debugging. (Can we remove this?)
+        self.cropKC = pcr.max(cropKC, self.minCropKC)
+        
+        # get interceptCap and coverFraction:
+        interceptCap  = pcr.scalar(self.minInterceptCap)
+        coverFraction = pcr.scalar(1.0)
+        if self.interceptCapNC != None and self.coverFractionNC != None:
+            interceptCap = \
+                     pcr.cover(
+                     vos.netcdf2PCRobjClone(self.interceptCapNC,\
+                                    'interceptCapInput',\
+                                     currTimeStep.fulldate, useDoy = 'daily_seasonal',\
+                                     cloneMapFileName = self.cloneMap), 0.0)
+            self.interceptCapInput = interceptCap                        # This line is needed for debugging. 
+            coverFraction = \
+                     pcr.cover(
+                     vos.netcdf2PCRobjClone(self.coverFractionNC,\
+                                    'coverFractionInput',\
+                                     currTimeStep.fulldate, useDoy = 'daily_seasonal',\
+                                     cloneMapFileName = self.cloneMap), 0.0)
+            coverFraction = pcr.cover(coverFraction, 0.0)
+            interceptCap = coverFraction * interceptCap                  # original Rens line: ICC[TYPE] = CFRAC[TYPE]*INTCMAX[TYPE];                                
+        # - canopy/cover fraction over the entire cell area (unit: m2)
+        self.coverFraction = coverFraction
+        # - intecerption capacity (unit: m2, Edwin added the following line to extend the interception definition).
+        self.interceptCap = pcr.max(interceptCap, self.minInterceptCap) 
+        
+        # Note: There are some other land cover parameters that are set on the "__init__" (e.g. snow module parameters); these parameters are just constant during the model simulation.
+
+
     def updateLC(self,meteo,groundwater,routing,\
                  capRiseFrac,\
                  nonIrrGrossDemandDict,swAbstractionFractionDict,\
@@ -963,16 +1001,9 @@ class LandCover(object):
                  groundwater_pumping_region_ids,\
                  regionalAnnualGroundwaterAbstractionLimit):
 
-
-        # set land cover parameters for this land cover object
-        # - this will return the following:
-        #   self.fracVegCover, self.arnoBeta, self.rootZoneWaterStorageMin, self.rootZoneWaterStorageRange, \
-        #                           self.maxRootDepth, self.adjRootFrUpp, self.adjRootFrLow
-        #   self.effSatAt50 and self.effPoreSizeBetaAt50
-        self.set_land_cover_parameters(currTimeStep)
         
         # calculate total PotET (based on meteo and cropKC)
-        self.getPotET(meteo,currTimeStep) 
+        self.getPotET(meteo, currTimeStep) 
         
         # calculate interception evaporation flux (m/day) and update interception storage (m)
         self.interceptionUpdate(meteo, currTimeStep)         
@@ -1119,16 +1150,7 @@ class LandCover(object):
 
     def getPotET(self, meteo, currTimeStep):
 
-        # get crop coefficient:
-        if self.iniItemsLC['cropCoefficientNC'] == "None":
-            cropKC = pcr.ifthen(self.landmask, pcr.spatial(pcr.scalar(0.0)))
-        else:
-            cropKC = pcr.cover(
-                     vos.netcdf2PCRobjClone(self.cropCoefficientNC,'kc', \
-                                            currTimeStep.fulldate, useDoy = 'daily_seasonal',\
-                                            cloneMapFileName = self.cloneMap), 0.0)
-        self.inputCropKC = cropKC                                               # This line is needed for debugging. (Can we remove this?)
-        self.cropKC = pcr.max(cropKC, self.minCropKC)                                
+        # THIS IS DISACTIVATED as we read cropKC in set_land_cover_parameters.
 
         # calculate potential ET (unit: m/day)
         self.totalPotET = pcr.ifthen(self.landmask,\
@@ -1155,31 +1177,34 @@ class LandCover(object):
         if self.debugWaterBalance:
             prevStates = [self.interceptStor]
        
-        # get interceptCap:
-        interceptCap  = pcr.scalar(self.minInterceptCap)
-        coverFraction = pcr.scalar(1.0)
-        if self.interceptCapNC != None and self.coverFractionNC != None:
-            interceptCap = \
-                     pcr.cover(
-                     vos.netcdf2PCRobjClone(self.interceptCapNC,\
-                                    'interceptCapInput',\
-                                     currTimeStep.fulldate, useDoy = 'daily_seasonal',\
-                                     cloneMapFileName = self.cloneMap), 0.0)
-            self.interceptCapInput = interceptCap                        # This line is needed for debugging. 
-            coverFraction = \
-                     pcr.cover(
-                     vos.netcdf2PCRobjClone(self.coverFractionNC,\
-                                    'coverFractionInput',\
-                                     currTimeStep.fulldate, useDoy = 'daily_seasonal',\
-                                     cloneMapFileName = self.cloneMap), 0.0)
-            coverFraction = pcr.cover(coverFraction, 0.0)
-            interceptCap = coverFraction * interceptCap                  # original Rens line: ICC[TYPE] = CFRAC[TYPE]*INTCMAX[TYPE];                                
+        # ~ # the following is DISACTIVATED as self.coverFraction and self.interceptCap values are set in "set_land_cover_parameters"
+        # ~ # get interceptCap:
+        # ~ interceptCap  = pcr.scalar(self.minInterceptCap)
+        # ~ coverFraction = pcr.scalar(1.0)
+        # ~ if self.interceptCapNC != None and self.coverFractionNC != None:
+            # ~ interceptCap = \
+                     # ~ pcr.cover(
+                     # ~ vos.netcdf2PCRobjClone(self.interceptCapNC,\
+                                    # ~ 'interceptCapInput',\
+                                     # ~ currTimeStep.fulldate, useDoy = 'daily_seasonal',\
+                                     # ~ cloneMapFileName = self.cloneMap), 0.0)
+            # ~ self.interceptCapInput = interceptCap                        # This line is needed for debugging. 
+            # ~ coverFraction = \
+                     # ~ pcr.cover(
+                     # ~ vos.netcdf2PCRobjClone(self.coverFractionNC,\
+                                    # ~ 'coverFractionInput',\
+                                     # ~ currTimeStep.fulldate, useDoy = 'daily_seasonal',\
+                                     # ~ cloneMapFileName = self.cloneMap), 0.0)
+            # ~ coverFraction = pcr.cover(coverFraction, 0.0)
+            # ~ interceptCap = coverFraction * interceptCap                  # original Rens line: ICC[TYPE] = CFRAC[TYPE]*INTCMAX[TYPE];                                
 
-        # canopy/cover fraction over the entire cell area (unit: m2)
-        self.coverFraction = coverFraction
+        # ~ # the following is DISACTIVATED as self.coverFraction and self.interceptCap values are set in "set_land_cover_parameters"
+        # ~ # canopy/cover fraction over the entire cell area (unit: m2)
+        # ~ self.coverFraction = coverFraction
 
-        # Edwin added the following line to extend the interception definition.
-        self.interceptCap = pcr.max(interceptCap, self.minInterceptCap) 
+        # ~ # the following is DISACTIVATED as self.coverFraction and self.interceptCap values are set in "set_land_cover_parameters"
+        # ~ # Edwin added the following line to extend the interception definition.
+        # ~ self.interceptCap = pcr.max(interceptCap, self.minInterceptCap) 
         
         # throughfall = surplus above the interception storage threshold 
         if self.interceptionModuleType == "Modified":
