@@ -29,6 +29,9 @@ import pcraster as pcr
 
 import .virtualOS as vos
 
+import logging
+logger = logging.getLogger(__name__)
+
 
 class IrrigationWaterDemand(object):
 
@@ -53,6 +56,9 @@ class IrrigationWaterDemand(object):
         # set the 'static' parameters (mainly soil and topo)
         self.parameters = landCoverObject.parameters
 
+        # height of inundation that is allowed within this land cover 
+        self.minTopWaterLayer = landCoverObject.minTopWaterLayer
+        
         # crop depletion factor
         self.cropDeplFactor = vos.readPCRmapClone(self.iniItemsIrrLC['cropDeplFactor'], self.cloneMap, \
                                                   self.tmpDir, self.inputDir)
@@ -70,8 +76,14 @@ class IrrigationWaterDemand(object):
         # infiltration/percolation losses for paddy fields
         if self.name == 'irrPaddy' or self.name == 'irr_paddy': self.design_percolation_loss = self.estimate_paddy_infiltration_loss(iniPaddyOptions = self.iniItemsIrrLC)
         
-        # get default irrigation efficiency
-        if 'irrigationEfficiency' in iniItems.landSurfaceOptions.keys(): ini_items_for_irrigation_efficiency = iniItems.landSurfaceOptions['irrigationEfficiency']
+        # irrigation efficiency input (string or file name)
+        self.ini_items_for_irrigation_efficiency = None
+        if 'irrigationEfficiency' in iniItems.landSurfaceOptions.keys(): self.ini_items_for_irrigation_efficiency = iniItems.landSurfaceOptions['irrigationEfficiency']
+        if 'irrigationEfficiency' in self.iniItemsIrrLC.keys(): self.ini_items_for_irrigation_efficiency = iniItems.landSurfaceOptions['irrigationEfficiency']
+        if self.ini_items_for_irrigation_efficiency is None:
+            logger.info("'irrigationEfficiency' is not defined, we set this to 1.0")
+            self.ini_items_for_irrigation_efficiency = "1.0"
+        
         
         # TODO: Continue from this!
         
@@ -88,12 +100,38 @@ class IrrigationWaterDemand(object):
     def get_irrigation_efficiency(self, iniItems, landmask):
 
         # irrigation efficiency map (in percentage)                     # TODO: Using the time series of efficiency (considering historical technological development).         
-        self.irrigationEfficiency = vos.readPCRmapClone(\
-                                    iniItems.landSurfaceOptions['irrigationEfficiency'],
-                                    self.cloneMap,self.tmpDir,self.inputDir)
+        
+        # - for the case with pcraster map
+        if self.ini_items_for_irrigation_efficiency.endswith(".map"):
+            self.irrigationEfficiency = vos.readPCRmapClone(\
+                                        self.ini_items_for_irrigation_efficiency,
+                                        self.cloneMap, self.tmpDir, self.inputDir)
+        # - for the case with netcdf file
+        if 'nc' in os.path.splitext(self.ini_items_for_irrigation_efficiency)[1]:
+            try:
+                # - netCDF file with time dimension
+                ncFileIn = vos.getFullPath(self.ini_items_for_irrigation_efficiency, self.inputDir)
+                self.irrigationEfficiency = vos.netcdf2PCRobjClone(ncFileIn, "automatic", \
+                                                                   currTimeStep, \
+                                                                   useDoy = 'yearly',\
+                                                                   cloneMapFileName = self.cloneMap)
+
+            except:
+                # - netCDF file without time dimension
+                msg = "The file " + (ncFileIn) "has no time dimension. Constant values will be used."
+                logger.warning(msg)
+                self.irrigationEfficiency = vos.readPCRmapClone(\
+                                            self.ini_items_for_irrigation_efficiency,
+                                            self.cloneMap, self.tmpDir, self.inputDir)
+            # TODO: Remove "try" and "except"!                               
+        else:
+        # - for the case with floating value
+             self.irrigationEfficiency = float(self.ini_items_for_irrigation_efficiency)
+
 
         extrapolate = True
         if "noParameterExtrapolation" in iniItems.landSurfaceOptions.keys() and iniItems.landSurfaceOptions["noParameterExtrapolation"] == "True": extrapolate = False
+
 
         if extrapolate:
 
@@ -202,16 +240,28 @@ class IrrigationWaterDemand(object):
 
     def update(self, meteo, landSurface, groundwater, routing, currTimeStep):
 		
-		# get irrigation efficiency
-		self.irrigation_efficiency = self.get_irrigation_efficiency(iniItems, landmask)
-		# - TODO: We still have to fill in the function.
+        # get variables/values from the landSurface.landCoverObj
+        self.cropKC        = landSurface.landCoverObj[self.name].cropKC
+        self.topWaterLayer = landSurface.landCoverObj[self.name].topWaterLayer
+        self.totalPotET    = landSurface.landCoverObj[self.name].totalPotET
+        
+        # Contine from this!! get readAvlWater (this is in the function "getSoilStates of landCover.py")
+        readAvlWater       
+        
+        
+        # get irrigation efficiency
+        # - this will be done on the yearly basis
+        if currTimeStep.doy == 1 or currTimeStep.timeStepPCR == 1):
+            # - this will return self.irrigationEfficiency
+            self.get_irrigation_efficiency(iniItems, landmask, currTimeStep)
 		
+
 		# for non paddy and paddy irrigation fields - TODO: to split between paddy and non-paddy fields
         # irrigation water demand (unit: m/day) for paddy and non-paddy
         self.irrGrossDemand = pcr.scalar(0.)
         if (self.name == 'irrPaddy' or self.name == 'irr_paddy'): 
             self.irrGrossDemand = \
-                  pcr.ifthenelse(landSurface.landCoverObj.cropKC > 0.75, \
+                  pcr.ifthenelse(self.cropKC > 0.75, \
                      pcr.max(0.0,self.minTopWaterLayer - \
                                 (self.topWaterLayer )), 0.)                # a function of cropKC (evaporation and transpiration),
                                                                            #               topWaterLayer (water available in the irrigation field)

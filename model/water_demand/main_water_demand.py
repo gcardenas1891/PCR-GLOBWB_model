@@ -27,8 +27,7 @@ import sys
 
 import pcraster as pcr
 
-sys.path.append("..")
-import virtualOS as vos
+import .virtualOS as vos
 
 import domestic_water_demand
 import industry_water_demand
@@ -38,6 +37,8 @@ import thermoelectric_water_demand
 
 import irrigation_water_demand
 
+import logging
+logger = logging.getLogger(__name__)
 
 class WaterDemand(object):
 

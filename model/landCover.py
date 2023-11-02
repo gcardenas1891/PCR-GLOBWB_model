@@ -314,7 +314,7 @@ class LandCover(object):
                                                     var,"undefined")
 
 
-    def updateIrrigationWaterEfficiency(self,currTimeStep):
+    def updateIrrigationWaterEfficiency(self, currTimeStep):
         #-RvB: irrigation water efficiency
         # this reads in the irrigation water efficiency from the configuration file
         # at the start of each calendar year - it can optionally handle netCDF files,
