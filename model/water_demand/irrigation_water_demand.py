@@ -46,32 +46,88 @@ class IrrigationWaterDemand(object):
         
         # configuration for this land cover type
         self.iniItemsIrrLC = iniItems.__getattribute__(nameOfSectionInIniFileThatIsRellevantForThisIrrLC)
+
         # - name of this land cover type
         self.name = self.iniItemsLC['name']
         
+        # set the 'static' parameters (mainly soil and topo)
+        self.parameters = landCoverObject.parameters
+
         # crop depletion factor
         self.cropDeplFactor = vos.readPCRmapClone(self.iniItemsIrrLC['cropDeplFactor'], self.cloneMap, \
                                                   self.tmpDir, self.inputDir)
              
+        # number of soil layers
+        self.numberOfLayers = landCoverObject.numberOfLayers
+        
+        # root zone depth (m)
+        self.maxRootDepth   = landCoverObject.maxRootDepth
+        
+        # get water capacity within the root zone (z)
+        # - this will return self.totAvlWater
+        self.calculateTotAvlWaterCapacityInRootZone()
+        
         # infiltration/percolation losses for paddy fields
-        if self.name == 'irrPaddy' or self.name == 'irr_paddy': self.design_percolation_loss = self.estimate_paddy_infiltration_loss(self.iniItemsIrrLC, landCoverObject)
-        # TODO: Can we simplify this? Currently, we pass this 'entire' landCoverObject, but actually we may need only few variables from it.
+        if self.name == 'irrPaddy' or self.name == 'irr_paddy': self.design_percolation_loss = self.estimate_paddy_infiltration_loss(iniPaddyOptions = self.iniItemsIrrLC)
+        
+        # get default irrigation efficiency
+        if 'irrigationEfficiency' in iniItems.landSurfaceOptions.keys(): ini_items_for_irrigation_efficiency = iniItems.landSurfaceOptions['irrigationEfficiency']
+        
+        # TODO: Continue from this!
+        
+        ini_items_for_irrigation_efficiency = 
+
+        # - if not defined, just set it to to 
+        
+
+        
+        # - using the one defined in the landSurfaceOptions (if defined there)
+        # - using the one defined in the landCoverOptions   (if defined there)
 
 
     def get_irrigation_efficiency(self, iniItems, landmask):
 
-        pass
+        # irrigation efficiency map (in percentage)                     # TODO: Using the time series of efficiency (considering historical technological development).         
+        self.irrigationEfficiency = vos.readPCRmapClone(\
+                                    iniItems.landSurfaceOptions['irrigationEfficiency'],
+                                    self.cloneMap,self.tmpDir,self.inputDir)
+
+        extrapolate = True
+        if "noParameterExtrapolation" in iniItems.landSurfaceOptions.keys() and iniItems.landSurfaceOptions["noParameterExtrapolation"] == "True": extrapolate = False
+
+        if extrapolate:
+
+             # extrapolate efficiency map:   # TODO: Make a better extrapolation algorithm (considering cell size, etc.). 
+
+             window_size = 1.25 * pcr.clone().cellSize()
+             window_size = min(window_size, min(pcr.clone().nrRows(), pcr.clone().nrCols())*pcr.clone().cellSize())
+             try:
+                 self.irrigationEfficiency = pcr.cover(self.irrigationEfficiency, pcr.windowaverage(self.irrigationEfficiency, window_size))
+                 self.irrigationEfficiency = pcr.cover(self.irrigationEfficiency, pcr.windowaverage(self.irrigationEfficiency, window_size))
+                 self.irrigationEfficiency = pcr.cover(self.irrigationEfficiency, pcr.windowaverage(self.irrigationEfficiency, window_size))
+                 self.irrigationEfficiency = pcr.cover(self.irrigationEfficiency, pcr.windowaverage(self.irrigationEfficiency, window_size))
+                 self.irrigationEfficiency = pcr.cover(self.irrigationEfficiency, pcr.windowaverage(self.irrigationEfficiency, window_size))
+                 self.irrigationEfficiency = pcr.cover(self.irrigationEfficiency, pcr.windowaverage(self.irrigationEfficiency, 0.75))
+                 self.irrigationEfficiency = pcr.cover(self.irrigationEfficiency, pcr.windowaverage(self.irrigationEfficiency, 1.00))
+                 self.irrigationEfficiency = pcr.cover(self.irrigationEfficiency, pcr.windowaverage(self.irrigationEfficiency, 1.50))
+             except:                                                 
+                 pass
+        
+        #~ self.irrigationEfficiency = pcr.ifthen(self.landmask, self.irrigationEfficiency)
+        self.irrigationEfficiency = pcr.cover(self.irrigationEfficiency, 1.0)
+        self.irrigationEfficiency = pcr.max(0.1, self.irrigationEfficiency)
+        self.irrigationEfficiency = pcr.ifthen(self.landmask, self.irrigationEfficiency)
 
 
 
-    def estimate_paddy_infiltration_loss(self, iniPaddyOptions, landCoverObject):
+    def estimate_paddy_infiltration_loss(self, iniPaddyOptions):
         
         # Due to compaction infiltration/percolation loss rate can be much smaller than original soil saturated conductivity
         # - Wada et al. (2014) assume it will be 10 times smaller
         if self.numberOfLayers == 2:\
-           design_percolation_loss = landCoverObject.parameters.kSatUpp/10.           # unit: m/day 
+           design_percolation_loss = self.parameters.kSatUpp/10.           # unit: m/day 
         if self.numberOfLayers == 3:\
-           design_percolation_loss = landCoverObject.parameters.kSatUpp000005/10.     # unit: m/day 
+           design_percolation_loss = self.parameters.kSatUpp000005/10.     # unit: m/day 
 
         # However, it can also be much smaller especially in well-puddled paddy fields and should avoid salinization problems.
         # - Default minimum and maximum percolation loss values based on FAO values Reference: http://www.fao.org/docrep/s2022e/s2022e08.htm
@@ -89,9 +145,9 @@ class IrrigationWaterDemand(object):
                                   pcr.min(max_percolation_loss, design_percolation_loss))
         # - if soil condition is already 'good', we will use its original infiltration/percolation rate
         if self.numberOfLayers == 2:\
-           design_percolation_loss = pcr.min(landCoverObject.parameters.kSatUpp      , design_percolation_loss) 
+           design_percolation_loss = pcr.min(self.parameters.kSatUpp      , design_percolation_loss) 
         if self.numberOfLayers == 3:\
-           design_percolation_loss = pcr.min(landCoverObject.parameters.kSatUpp000005, design_percolation_loss)
+           design_percolation_loss = pcr.min(self.parameters.kSatUpp000005, design_percolation_loss)
         
         # PS: The 'design_percolation_loss' is the maximum loss occuring in paddy fields.
         return design_percolation_loss      
@@ -99,8 +155,6 @@ class IrrigationWaterDemand(object):
 
     def calculateTotAvlWaterCapacityInRootZone(self):
 
-        # TODO: Continue from THIS.
-        
         # total water capacity in the root zone (upper soil layers)
         # Note: This is dependent on the land cover type.
 
@@ -142,6 +196,9 @@ class IrrigationWaterDemand(object):
                                self.parameters.storCapUpp000005 + \
                                self.parameters.storCapUpp005030 + \
                                self.parameters.storCapLow030150)
+        
+        
+                               
 
     def update(self, meteo, landSurface, groundwater, routing, currTimeStep):
 		
