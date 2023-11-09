@@ -1488,13 +1488,20 @@ class LandCover(object):
                                         self.storUpp + \
                                         self.storLow )
 
-            # effective degree of saturation (-)
-            self.effSatUpp = pcr.max(0., self.storUpp/ self.parameters.storCapUpp)  # THEFF1= max(0,S1_L[TYPE]/SC1[TYPE]);
-            self.effSatLow = pcr.max(0., self.storLow/ self.parameters.storCapLow)  # THEFF2= max(0,S2_L[TYPE]/SC2[TYPE]);
+            # ~ # effective degree of saturation (-) - OLD METHOD
+            # ~ self.effSatUpp = pcr.max(0., self.storUpp/ self.parameters.storCapUpp)  # THEFF1= max(0,S1_L[TYPE]/SC1[TYPE]);
+            # ~ self.effSatLow = pcr.max(0., self.storLow/ self.parameters.storCapLow)  # THEFF2= max(0,S2_L[TYPE]/SC2[TYPE]);
+            # ~ self.effSatUpp = pcr.min(1., self.effSatUpp)
+            # ~ self.effSatLow = pcr.min(1., self.effSatLow)
+            # ~ # the following should be not covered by 1.0
+            # ~ self.effSatUpp = pcr.cover(self.effSatUpp, 1.0)
+            # ~ self.effSatLow = pcr.cover(self.effSatLow, 1.0)
+            
+            # effective degree of saturation (-) - NEW METHOD (we should not cover 1.0): For zero storage capacities, we set saturation to zero
+            self.effSatUpp = vos.getValDivZero(self.storUpp, self.parameters.storCapUpp)
+            self.effSatLow = vos.getValDivZero(self.storLow, self.parameters.storCapLow)
             self.effSatUpp = pcr.min(1., self.effSatUpp)
             self.effSatLow = pcr.min(1., self.effSatLow)
-            self.effSatUpp = pcr.cover(self.effSatUpp, 1.0)
-            self.effSatLow = pcr.cover(self.effSatLow, 1.0)
             
             # matricSuction (m)
             self.matricSuctionUpp = self.parameters.airEntryValueUpp*\
@@ -1567,9 +1574,9 @@ class LandCover(object):
                                         self.storLow030150 )
 
             # effective degree of saturation (-)
-            self.effSatUpp000005 = pcr.max(0., self.storUpp000005/ self.parameters.storCapUpp000005)
-            self.effSatUpp005030 = pcr.max(0., self.storUpp005030/ self.parameters.storCapUpp005030)
-            self.effSatLow030150 = pcr.max(0., self.storLow030150/ self.parameters.storCapLow030150)
+            self.effSatUpp000005 = vos.getValDivZero(self.storUpp000005, self.parameters.storCapUpp000005)
+            self.effSatUpp005030 = vos.getValDivZero(self.storUpp005030, self.parameters.storCapUpp005030)
+            self.effSatLow030150 = vos.getValDivZero(self.storLow030150, self.parameters.storCapLow030150)
             self.effSatUpp000005 = pcr.min(1., self.effSatUpp000005)
             self.effSatUpp005030 = pcr.min(1., self.effSatUpp005030)
             self.effSatLow030150 = pcr.min(1., self.effSatLow030150)

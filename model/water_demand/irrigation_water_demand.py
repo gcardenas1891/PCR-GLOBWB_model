@@ -151,7 +151,6 @@ class IrrigationWaterDemand(object):
              except:                                                 
                  pass
         
-        #~ self.irrigationEfficiency = pcr.ifthen(self.landmask, self.irrigationEfficiency)
         self.irrigationEfficiency = pcr.cover(self.irrigationEfficiency, 1.0)
         self.irrigationEfficiency = pcr.max(0.1, self.irrigationEfficiency)
         self.irrigationEfficiency = pcr.ifthen(self.landmask, self.irrigationEfficiency)
@@ -238,6 +237,59 @@ class IrrigationWaterDemand(object):
         
                                
 
+    def get_readily_available_water_within_the_root_zone(self):
+
+        if self.numberOfLayers == 2: 
+
+            effSatUpp = vos.getValDivZero(self.storUpp, self.parameters.storCapUpp)
+            effSatLow = vos.getValDivZero(self.storLow, self.parameters.storCapLow)
+            effSatUpp = pcr.min(1., effSatUpp)
+            effSatLow = pcr.min(1., effSatLow)
+            
+            # readily available water in the root zone (upper soil layers)
+            readAvlWater     = \
+                               (pcr.max(0.,\
+                                               effSatUpp - self.parameters.effSatAtWiltPointUpp))*\
+                               (self.parameters.satVolMoistContUpp -   self.parameters.resVolMoistContUpp )*\
+                        pcr.min(self.parameters.thickUpp,self.maxRootDepth)  + \
+                               (pcr.max(0.,\
+                                               effSatLow - self.parameters.effSatAtWiltPointLow))*\
+                               (self.parameters.satVolMoistContLow - self.parameters.resVolMoistContLow )*\
+                        pcr.min(self.parameters.thickLow,\
+                        pcr.max(self.maxRootDepth-self.parameters.thickUpp,0.))       
+
+        if self.numberOfLayers == 3: 
+
+            # effective degree of saturation (-)
+            effSatUpp000005 = vos.getValDivZero(self.storUpp000005, self.parameters.storCapUpp000005)
+            effSatUpp005030 = vos.getValDivZero(self.storUpp005030, self.parameters.storCapUpp005030)
+            effSatLow030150 = vos.getValDivZero(self.storLow030150, self.parameters.storCapLow030150)
+            effSatUpp000005 = pcr.min(1., effSatUpp000005)
+            effSatUpp005030 = pcr.min(1., effSatUpp005030)
+            effSatLow030150 = pcr.min(1., effSatLow030150)
+
+            # readily available water in the root zone (upper soil layers)
+            readAvlWater = \
+                               (pcr.max(0.,\
+                                               effSatUpp000005 - self.parameters.effSatAtWiltPointUpp000005))*\
+                               (self.parameters.satVolMoistContUpp000005 -   self.parameters.resVolMoistContUpp000005 )*\
+                        pcr.min(self.parameters.thickUpp000005,self.maxRootDepth)  + \
+                               (pcr.max(0.,\
+                                               effSatUpp005030 - self.parameters.effSatAtWiltPointUpp005030))*\
+                               (self.parameters.satVolMoistContUpp005030 -   self.parameters.resVolMoistContUpp005030 )*\
+                        pcr.min(self.parameters.thickUpp005030,\
+                        pcr.max(self.maxRootDepth-self.parameters.thickUpp000005))  + \
+                               (pcr.max(0.,\
+                                               effSatLow030150 - self.parameters.effSatAtWiltPointLow030150))*\
+                               (self.parameters.satVolMoistContLow030150 -   self.parameters.resVolMoistContLow030150 )*\
+                        pcr.min(self.parameters.thickLow030150,\
+                        pcr.max(self.maxRootDepth-self.parameters.thickUpp005030,0.))
+
+        return readAvlWater
+
+
+
+
     def update(self, meteo, landSurface, groundwater, routing, currTimeStep):
 		
         # get variables/values from the landSurface.landCoverObj
@@ -245,9 +297,17 @@ class IrrigationWaterDemand(object):
         self.topWaterLayer = landSurface.landCoverObj[self.name].topWaterLayer
         self.totalPotET    = landSurface.landCoverObj[self.name].totalPotET
         
-        # Contine from this!! get readAvlWater (this is in the function "getSoilStates of landCover.py")
-        readAvlWater       
+        # get soil states from the landSurface.landCoverObj
+        if self.numberOfLayers == 2: 
+            self.storUpp       = landSurface.landCoverObj[self.name].storUpp
+            self.storLow       = landSurface.landCoverObj[self.name].storLow
+        if self.numberOfLayers == 3: 
+            self.storUpp000005 = landSurface.landCoverObj[self.name].storUpp000005
+            self.storUpp005030 = landSurface.landCoverObj[self.name].storUpp005030
+            self.storLow030150 = landSurface.landCoverObj[self.name].storLow030150  
         
+        # get_readily_available_water_within_the_root_zone
+        self.readAvlWater  = self.get_readily_available_water_within_the_root_zone()      
         
         # get irrigation efficiency
         # - this will be done on the yearly basis

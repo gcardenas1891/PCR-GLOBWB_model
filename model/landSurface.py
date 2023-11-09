@@ -1244,7 +1244,7 @@ class LandSurface(object):
 
     def update(self,meteo,groundwater,routing,currTimeStep):
         
-        # set land cover parameters for this land cover object
+        # for every land cover, set land cover parameters (for every land cover object)
         # - for this will return the following:
         #   fracVegCover, arnoBeta, rootZoneWaterStorageMin, rootZoneWaterStorageRange, \
         #                           maxRootDepth, adjRootFrUpp, adjRootFrLow
@@ -1256,9 +1256,22 @@ class LandSurface(object):
             logger.info("Setting land cover parameters: "+str(coverType))
             self.landCoverObj[coverType].set_land_cover_parameters(currTimeStep)
 
+        # for every land cover, calculate total potential evaporation and partition it to bare soil evaporation and transpiration
+        for coverType in self.coverTypes:
+            logger.info("Calculate potential evaporation and partition this to bare soil evaporation and transpiration: "+str(coverType))
+            # TODO: Continue from this one!!!
+            
+
+        # for every land cover, running the interception module
+        for coverType in self.coverTypes:
+            logger.info("Running the inteception module: "+str(coverType))
+
+        # for every land cover, running the snow module
+        for coverType in self.coverTypes:
+            logger.info("Running the snow module: "+str(coverType))
 
         # calculate water demand
-        # - based on the 'soil moisture' conditions after the above land cover update
+        # - based on the 'states' after the above processes (for soil moisture states, they should be just the same as from the previous date)
         self.water_demand.update(meteo = meteo, landSurface = self, groundwater = groundwater, routing = routing, currTimeStep = currTimeStep)
         
         # pool the demands and do the allocation on the available storages at the land surface level / water allocation model and then pass the withdrawals to the surface and groundwater
@@ -1268,6 +1281,7 @@ class LandSurface(object):
         #           - water allocation, including irrigation supply - this will be given to the next time step
         
 
+        # do the remaining land cover processes
         self.old_update(meteo,groundwater,routing,currTimeStep)
 
 
