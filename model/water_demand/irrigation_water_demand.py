@@ -91,10 +91,8 @@ class IrrigationWaterDemand(object):
 
         # - if not defined, just set it to to 
         
-
-        
-        # - using the one defined in the landSurfaceOptions (if defined there)
-        # - using the one defined in the landCoverOptions   (if defined there)
+        # the following variable is somehow needed in the "updateLC"
+        self.includeIrrigation = True
 
 
     def get_irrigation_efficiency(self, iniItems, landmask):
