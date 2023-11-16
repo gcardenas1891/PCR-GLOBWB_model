@@ -295,7 +295,13 @@ class IrrigationWaterDemand(object):
         # get variables/values from the landSurface.landCoverObj
         self.cropKC        = landSurface.landCoverObj[self.name].cropKC
         self.topWaterLayer = landSurface.landCoverObj[self.name].topWaterLayer
-        self.totalPotET    = landSurface.landCoverObj[self.name].totalPotET
+        if self.numberOfLayers == 2:
+            self.adjRootFrUpp = landSurface.landCoverObj[self.name].adjRootFrUpp
+            self.adjRootFrLow = landSurface.landCoverObj[self.name].adjRootFrLow
+        if self.numberOfLayers == 3:
+            self.adjRootFrUpp000005 = landSurface.landCoverObj[self.name].adjRootFrUpp000005
+            self.adjRootFrUpp005030 = landSurface.landCoverObj[self.name].adjRootFrUpp005030
+            self.adjRootFrLow030150 = landSurface.landCoverObj[self.name].adjRootFrLow030150
         
         # get soil states from the landSurface.landCoverObj
         if self.numberOfLayers == 2: 
@@ -430,3 +436,152 @@ class IrrigationWaterDemand(object):
         if self.name == 'irrNonPaddy' or self.name == 'irr_non_paddy' or self.name == 'irr_non_paddy_crops': self.totalPotentialMaximumIrrGrossDemandNonPaddy = self.irrGrossDemand
 
         
+
+    def estimateTranspirationAndBareSoilEvap(self, returnTotalEstimation = False, returnTotalTranspirationOnly = False):
+
+        # TRANSPIRATION
+        #
+        # - fractions for distributing transpiration (based on rott fraction and actual layer storages)
+        #
+        if self.numberOfLayers == 2:
+            dividerTranspFracs = pcr.max( 1e-9, self.adjRootFrUpp*self.storUpp +\
+                                                self.adjRootFrLow*self.storLow )
+            transpFracUpp = \
+                pcr.ifthenelse((self.storUpp + self.storLow) > 0.,\
+                               self.adjRootFrUpp*self.storUpp/ dividerTranspFracs, \
+                               self.adjRootFrUpp)
+            transpFracLow = \
+                pcr.ifthenelse((self.storUpp + self.storLow) > 0.,\
+                               self.adjRootFrLow*self.storLow/ dividerTranspFracs, \
+                               self.adjRootFrLow)                                              #   WF1= if((S1_L[TYPE]+S2_L[TYPE])>0,RFW1[TYPE]*S1_L[TYPE]/
+                                                                                               #    max(1e-9,RFW1[TYPE]*S1_L[TYPE]+RFW2[TYPE]*S2_L[TYPE]),RFW1[TYPE]);
+                                                                                               #   WF2= if((S1_L[TYPE]+S2_L[TYPE])>0,RFW2[TYPE]*S2_L[TYPE]/
+                                                                                               #    max(1e-9,RFW1[TYPE]*S1_L[TYPE]+RFW2[TYPE]*S2_L[TYPE]),RFW2[TYPE]);
+        if self.numberOfLayers == 3:
+            dividerTranspFracs = pcr.max( 1e-9, self.adjRootFrUpp000005*self.storUpp000005 +\
+                                                self.adjRootFrUpp005030*self.storUpp005030 +\
+                                                self.adjRootFrLow030150*self.storLow030150)
+            transpFracUpp000005 = \
+                pcr.ifthenelse((self.storUpp000005 + \
+                                self.storUpp005030 + \
+                                self.storLow030150) > 0.,\
+                                self.adjRootFrUpp000005*self.storUpp000005/ dividerTranspFracs, \
+                                self.adjRootFrUpp000005)
+            transpFracUpp005030 = \
+                pcr.ifthenelse((self.storUpp000005 + \
+                                self.storUpp005030 + \
+                                self.storLow030150) > 0.,\
+                                self.adjRootFrUpp005030*self.storUpp005030/ dividerTranspFracs, \
+                                self.adjRootFrUpp005030)
+            transpFracLow030150 = \
+                pcr.ifthenelse((self.storUpp000005 + \
+                                self.storUpp005030 + \
+                                self.storLow030150) > 0.,\
+                                self.adjRootFrLow030150*self.storLow030150/ dividerTranspFracs, \
+                                self.adjRootFrLow030150)
+
+        relActTranspiration = pcr.scalar(1.0) # no reduction in case of returnTotalEstimation
+
+        # note, for irrigation water demand calculation, returnTotalEstimation is always True, so the following is actually not being used
+        if returnTotalEstimation == False:
+            # reduction factor for transpiration
+            #
+            # - relActTranspiration = fraction actual transpiration over potential transpiration 
+            relActTranspiration = (self.parameters.rootZoneWaterStorageCap  + \
+                       self.arnoBeta*self.rootZoneWaterStorageRange*(1.- \
+                   (1.+self.arnoBeta)/self.arnoBeta*self.WFRACB)) / \
+                                  (self.parameters.rootZoneWaterStorageCap  + \
+                       self.arnoBeta*self.rootZoneWaterStorageRange*(1.- self.WFRACB))   # original Rens's line: 
+                                                                                         # FRACTA[TYPE] = (WMAX[TYPE]+BCF[TYPE]*WRANGE[TYPE]*(1-(1+BCF[TYPE])/BCF[TYPE]*WFRACB))/
+                                                                                         #                (WMAX[TYPE]+BCF[TYPE]*WRANGE[TYPE]*(1-WFRACB));
+            relActTranspiration = (1.-self.satAreaFrac) / \
+              (1.+(pcr.max(0.01,relActTranspiration)/self.effSatAt50)**\
+                                           (self.effPoreSizeBetaAt50*pcr.scalar(-3.0)))  # original Rens's line:
+                                                                                         # FRACTA[TYPE] = (1-SATFRAC_L)/(1+(max(0.01,FRACTA[TYPE])/THEFF_50[TYPE])**(-3*BCH_50));
+        relActTranspiration = pcr.max(0.0, relActTranspiration)
+        relActTranspiration = pcr.min(1.0, relActTranspiration)
+        
+        # an idea by Edwin - 23 March 2015: no transpiration reduction in irrigated areas:
+        if self.name.startswith('irr') and self.includeIrrigation: relActTranspiration = pcr.scalar(1.0)
+        
+
+        #~ #######################################################################################################################################
+        #~ # estimates of actual transpiration fluxes - OLD METHOD (not used anymore, after Rens provided his original script, 30 July 2015)
+        #~ if self.numberOfLayers == 2:
+            #~ actTranspiUpp = \
+              #~ relActTranspiration*transpFracUpp*self.potTranspiration
+            #~ actTranspiLow = \
+              #~ relActTranspiration*transpFracLow*self.potTranspiration
+        #~ if self.numberOfLayers == 3:
+            #~ actTranspiUpp000005 = \
+              #~ relActTranspiration*transpFracUpp000005*self.potTranspiration
+            #~ actTranspiUpp005030 = \
+              #~ relActTranspiration*transpFracUpp005030*self.potTranspiration
+            #~ actTranspiLow030150 = \
+              #~ relActTranspiration*transpFracLow030150*self.potTranspiration
+        #~ #######################################################################################################################################
+        
+
+        # partitioning potential tranpiration (based on Rens's oldcalc script provided 30 July 2015)
+        if self.numberOfLayers == 2:
+            potTranspirationUpp = pcr.min(transpFracUpp*self.potTranspiration, self.potTranspiration)
+            potTranspirationLow = pcr.max(0.0, self.potTranspiration - potTranspirationUpp)
+        if self.numberOfLayers == 3:
+            potTranspirationUpp000005 = pcr.min(transpFracUpp000005*self.potTranspiration, self.potTranspiration)
+            potTranspirationUpp005030 = pcr.min(transpFracUpp005030*self.potTranspiration, pcr.max(0.0, self.potTranspiration - potTranspirationUpp000005))
+            potTranspirationLow030150 = pcr.max(0.0, self.potTranspiration - potTranspirationUpp000005 - potTranspirationUpp005030)
+            
+        # estimate actual transpiration fluxes
+        if self.numberOfLayers == 2:
+            actTranspiUpp = pcr.cover(relActTranspiration*potTranspirationUpp, 0.0)
+            actTranspiLow = pcr.cover(relActTranspiration*potTranspirationLow, 0.0)
+        if self.numberOfLayers == 3:
+            actTranspiUpp000005 = pcr.cover(relActTranspiration*potTranspirationUpp000005, 0.0)
+            actTranspiUpp005030 = pcr.cover(relActTranspiration*potTranspirationUpp005030, 0.0)
+            actTranspiLow030150 = pcr.cover(relActTranspiration*potTranspirationLow030150, 0.0)
+
+
+        # BARE SOIL EVAPORATION
+        #        
+        # actual bare soil evaporation (potential) # no reduction in case of returnTotalEstimation
+        actBareSoilEvap = self.potBareSoilEvap
+        if self.numberOfLayers == 2 and returnTotalEstimation == False:
+            actBareSoilEvap =     self.satAreaFrac * pcr.min(\
+                                   self.potBareSoilEvap,self.parameters.kSatUpp) + \
+                                  (1.-self.satAreaFrac)* pcr.min(\
+                                   self.potBareSoilEvap,self.kUnsatUpp)            # ES_a[TYPE] =  SATFRAC_L *min(ES_p[TYPE],KS1[TYPE]*Duration*timeslice())+
+                                                                                   #            (1-SATFRAC_L)*min(ES_p[TYPE],KTHEFF1*Duration*timeslice());
+        if self.numberOfLayers == 3 and returnTotalEstimation == False:
+            actBareSoilEvap =     self.satAreaFrac * pcr.min(\
+                                   self.potBareSoilEvap,self.parameters.kSatUpp000005) + \
+                                  (1.-self.satAreaFrac)* pcr.min(\
+                                   self.potBareSoilEvap,self.kUnsatUpp000005)
+        actBareSoilEvap = pcr.max(0.0, actBareSoilEvap)
+        actBareSoilEvap = pcr.min(actBareSoilEvap,self.potBareSoilEvap) 
+        actBareSoilEvap = pcr.cover(actBareSoilEvap, 0.0)                           
+
+        # no bare soil evaporation in the inundated paddy field 
+        if self.name == 'irrPaddy' or self.name == "irr_paddy":
+            # no bare soil evaporation if topWaterLayer is above treshold
+            #~ treshold = 0.0005 # unit: m ; 
+            treshold = self.potBareSoilEvap + self.potTranspiration                # an idea by Edwin on 23 march 2015
+            actBareSoilEvap = pcr.ifthenelse(self.topWaterLayer > treshold, 0.0, actBareSoilEvap)
+        
+        # return the calculated variables:
+        if self.numberOfLayers == 2:
+            if returnTotalEstimation:
+                if returnTotalTranspirationOnly:
+                    return actTranspiUpp+ actTranspiLow
+                else:     
+                    return actBareSoilEvap+ actTranspiUpp+ actTranspiLow
+            else:
+                return actBareSoilEvap, actTranspiUpp, actTranspiLow 
+        if self.numberOfLayers == 3:
+            if returnTotalEstimation:
+                if returnTotalTranspirationOnly:
+                    return actTranspiUpp000005+ actTranspiUpp005030+ actTranspiLow030150
+                else:     
+                    return actBareSoilEvap+ actTranspiUpp000005+ actTranspiUpp005030+ actTranspiLow030150
+            else:
+                return actBareSoilEvap, actTranspiUpp000005, actTranspiUpp005030, actTranspiLow030150
+

@@ -1002,15 +1002,18 @@ class LandCover(object):
                  regionalAnnualGroundwaterAbstractionLimit):
 
         
-        # calculate total PotET (based on meteo and cropKC)
-        self.getPotET(meteo, currTimeStep) 
+        # ~ # the following is DISACTIVATED due to developments of new water use module.
+        # ~ # calculate total PotET (based on meteo and cropKC)
+        # ~ self.getPotET(meteo, currTimeStep) 
         
-        # calculate interception evaporation flux (m/day) and update interception storage (m)
-        self.interceptionUpdate(meteo, currTimeStep)         
+        # ~ # the following is DISACTIVATED due to developments of new water use module.
+        # ~ # calculate interception evaporation flux (m/day) and update interception storage (m)
+        # ~ self.interceptionUpdate(meteo, currTimeStep)         
 
-        # calculate snow melt (or refreezing)
-        if self.snowModuleType  == "Simple": self.snowMeltHBVSimple(meteo,currTimeStep)
-        # TODO: Define other snow modules
+        # ~ # the following is DISACTIVATED due to developments of new water use module.
+        # ~ # calculate snow melt (or refreezing)
+        # ~ if self.snowModuleType  == "Simple": self.snowMeltHBVSimple(meteo,currTimeStep)
+        # ~ # TODO: Define other snow modules
 
         # calculate qDR & qSF & q23 (and update storages)
         self.upperSoilUpdate(meteo, \
@@ -1149,8 +1152,6 @@ class LandCover(object):
 
 
     def getPotET(self, meteo, currTimeStep):
-
-        # THIS IS DISACTIVATED as we read cropKC in set_land_cover_parameters.
 
         # calculate potential ET (unit: m/day)
         self.totalPotET = pcr.ifthen(self.landmask,\
@@ -1400,7 +1401,14 @@ class LandCover(object):
 
         pass
 
-    def snowMeltHBVSimple(self,meteo,currTimeStep):
+
+    def snow_module_update(self, meteo, currTimeStep):
+
+        if self.snowModuleType  == "Simple": self.snowMeltHBVSimple(meteo,currTimeStep)
+        # TODO: Define other snow modules
+
+
+    def snowMeltHBVSimple(self, meteo, currTimeStep):
 
         if self.debugWaterBalance:
             prevStates        = [self.snowCoverSWE,self.snowFreeWater]

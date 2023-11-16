@@ -1257,21 +1257,31 @@ class LandSurface(object):
             self.landCoverObj[coverType].set_land_cover_parameters(currTimeStep)
 
         # for every land cover, calculate total potential evaporation and partition it to bare soil evaporation and transpiration
+        # - for this will return the following:
+        #   totalPotET, potBareSoilEvap, potTranspiration
+        # - loop per each land cover type):
         for coverType in self.coverTypes:
             logger.info("Calculate potential evaporation and partition this to bare soil evaporation and transpiration: "+str(coverType))
-            # TODO: Continue from this one!!!
+            self.landCoverObj[coverType].getPotET(meteo, currTimeStep)
             
-
         # for every land cover, running the interception module
+        # - for this will return or update the following:
+        #   throughfall, interceptStor, snowfall, liquidPrecip, potInterceptionFlux, interceptEvap, potBareSoilEvap, potTranspiration, actualET
+        # - loop per each land cover type):
         for coverType in self.coverTypes:
             logger.info("Running the inteception module: "+str(coverType))
+            self.interceptionUpdate(meteo, currTimeStep)         
 
         # for every land cover, running the snow module
+        # - for this will return or update the following:
+        #   snowCoverSWE, snowMelt, snowFreeWater, netLqWaterToSoil, actSnowFreeWaterEvap, potBareSoilEvap, actualET
+        # - loop per each land cover type):
         for coverType in self.coverTypes:
             logger.info("Running the snow module: "+str(coverType))
+            self.snow_module_update(meteo, currTimeStep)         
 
         # calculate water demand
-        # - based on the 'states' after the above processes (for soil moisture states, they should be just the same as from the previous date)
+        # - based on the 'states' after the above processes (for soil moisture and topWaterLayer states, they should be just the same as from the previous date)
         self.water_demand.update(meteo = meteo, landSurface = self, groundwater = groundwater, routing = routing, currTimeStep = currTimeStep)
         
         # pool the demands and do the allocation on the available storages at the land surface level / water allocation model and then pass the withdrawals to the surface and groundwater
