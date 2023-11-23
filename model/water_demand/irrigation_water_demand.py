@@ -84,11 +84,6 @@ class IrrigationWaterDemand(object):
             logger.info("'irrigationEfficiency' is not defined, we set this to 1.0")
             self.ini_items_for_irrigation_efficiency = "1.0"
         
-        
-        # TODO: Continue from this!
-        
-        ini_items_for_irrigation_efficiency = 
-
         # - if not defined, just set it to to 
         
         # the following variable is somehow needed in the "updateLC"

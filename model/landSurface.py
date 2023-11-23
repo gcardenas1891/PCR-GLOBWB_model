@@ -36,7 +36,7 @@ import parameterSoilAndTopo as parSoilAndTopo
 
 import water_demand.main_water_demand as water_demand
 
-import water_management
+import water_management.main_water_management as water_management
 
 class LandSurface(object):
     
@@ -1285,10 +1285,12 @@ class LandSurface(object):
         self.water_demand.update(meteo = meteo, landSurface = self, groundwater = groundwater, routing = routing, currTimeStep = currTimeStep)
         
         # pool the demands and do the allocation on the available storages at the land surface level / water allocation model and then pass the withdrawals to the surface and groundwater
-        self.water_management.update()
-        # - This will be replaced by pcrLite
+        # - input: - sectoral water demands (calculated in "self.water_demand.update")
+        #          - water availabilities (from previous time step: surface water and groundwater; from the current time step: desalination)
         # - output: - water abstraction from surface water, groundwater and etc
         #           - water allocation, including irrigation supply - this will be given to the next time step
+        self.water_management.update()
+        # - This will be replaced by pcrLite
         
 
         # do the remaining land cover processes
