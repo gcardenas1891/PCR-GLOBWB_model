@@ -56,8 +56,8 @@ class WaterDemand(object):
         self.water_demand_industry  = industry_water_demand.IndustryWaterDemand(iniItems, self.landmask)
         self.water_demand_livestock = livestock_water_demand.LivestockWaterDemand(iniItems, self.landmask)
         
-        #self.water_demand_manufacture    = manufacture_water_demand.ManufactureWaterDemand(iniItems, self.landmask)
-        #self.water_demand_thermoelectric = thermoelectric_water_demand.ThermoelectricWaterDemand(iniItems, self.landmask)
+        self.water_demand_manufacture    = manufacture_water_demand.ManufactureWaterDemand(iniItems, self.landmask)
+        self.water_demand_thermoelectric = thermoelectric_water_demand.ThermoelectricWaterDemand(iniItems, self.landmask)
         
         # initiate irrigation sectoral water demand objects
         # - for every irrigation land cover type
@@ -75,8 +75,8 @@ class WaterDemand(object):
         self.water_demand_industry.update(currTimeStep)
         self.water_demand_livestock.update(currTimeStep)
         
-        #self.water_demand_manufacture.update(currTimeStep)
-        #self.water_demand_thermoelectric.update(currTimeStep)
+        self.water_demand_manufacture.update(currTimeStep)
+        self.water_demand_thermoelectric.update(currTimeStep)
         
         # get irrigation demand
         # - for every irrigation land cover type

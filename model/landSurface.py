@@ -651,88 +651,88 @@ class LandSurface(object):
             self.dynamicIrrigationAreaFile = vos.getFullPath(\
                iniItems.landSurfaceOptions['historicalIrrigationArea'],self.inputDir,False)
         
-        # irrigation efficiency map (in percentage)                     # TODO: Using the time series of efficiency (considering historical technological development).         
-        self.irrigationEfficiency = vos.readPCRmapClone(\
-                                    iniItems.landSurfaceOptions['irrigationEfficiency'],
-                                    self.cloneMap,self.tmpDir,self.inputDir)
+        # ~ # irrigation efficiency map (in percentage)                     # TODO: Using the time series of efficiency (considering historical technological development).         
+        # ~ self.irrigationEfficiency = vos.readPCRmapClone(\
+                                    # ~ iniItems.landSurfaceOptions['irrigationEfficiency'],
+                                    # ~ self.cloneMap,self.tmpDir,self.inputDir)
 
-        extrapolate = True
-        if "noParameterExtrapolation" in iniItems.landSurfaceOptions.keys() and iniItems.landSurfaceOptions["noParameterExtrapolation"] == "True": extrapolate = False
+        # ~ extrapolate = True
+        # ~ if "noParameterExtrapolation" in iniItems.landSurfaceOptions.keys() and iniItems.landSurfaceOptions["noParameterExtrapolation"] == "True": extrapolate = False
 
-        if extrapolate:
+        # ~ if extrapolate:
 
-             # extrapolate efficiency map:   # TODO: Make a better extrapolation algorithm (considering cell size, etc.). 
+             # ~ # extrapolate efficiency map:   # TODO: Make a better extrapolation algorithm (considering cell size, etc.). 
 
-             window_size = 1.25 * pcr.clone().cellSize()
-             window_size = min(window_size, min(pcr.clone().nrRows(), pcr.clone().nrCols())*pcr.clone().cellSize())
-             try:
-                 self.irrigationEfficiency = pcr.cover(self.irrigationEfficiency, pcr.windowaverage(self.irrigationEfficiency, window_size))
-                 self.irrigationEfficiency = pcr.cover(self.irrigationEfficiency, pcr.windowaverage(self.irrigationEfficiency, window_size))
-                 self.irrigationEfficiency = pcr.cover(self.irrigationEfficiency, pcr.windowaverage(self.irrigationEfficiency, window_size))
-                 self.irrigationEfficiency = pcr.cover(self.irrigationEfficiency, pcr.windowaverage(self.irrigationEfficiency, window_size))
-                 self.irrigationEfficiency = pcr.cover(self.irrigationEfficiency, pcr.windowaverage(self.irrigationEfficiency, window_size))
-                 self.irrigationEfficiency = pcr.cover(self.irrigationEfficiency, pcr.windowaverage(self.irrigationEfficiency, 0.75))
-                 self.irrigationEfficiency = pcr.cover(self.irrigationEfficiency, pcr.windowaverage(self.irrigationEfficiency, 1.00))
-                 self.irrigationEfficiency = pcr.cover(self.irrigationEfficiency, pcr.windowaverage(self.irrigationEfficiency, 1.50))
-             except:                                                 
-                 pass
+             # ~ window_size = 1.25 * pcr.clone().cellSize()
+             # ~ window_size = min(window_size, min(pcr.clone().nrRows(), pcr.clone().nrCols())*pcr.clone().cellSize())
+             # ~ try:
+                 # ~ self.irrigationEfficiency = pcr.cover(self.irrigationEfficiency, pcr.windowaverage(self.irrigationEfficiency, window_size))
+                 # ~ self.irrigationEfficiency = pcr.cover(self.irrigationEfficiency, pcr.windowaverage(self.irrigationEfficiency, window_size))
+                 # ~ self.irrigationEfficiency = pcr.cover(self.irrigationEfficiency, pcr.windowaverage(self.irrigationEfficiency, window_size))
+                 # ~ self.irrigationEfficiency = pcr.cover(self.irrigationEfficiency, pcr.windowaverage(self.irrigationEfficiency, window_size))
+                 # ~ self.irrigationEfficiency = pcr.cover(self.irrigationEfficiency, pcr.windowaverage(self.irrigationEfficiency, window_size))
+                 # ~ self.irrigationEfficiency = pcr.cover(self.irrigationEfficiency, pcr.windowaverage(self.irrigationEfficiency, 0.75))
+                 # ~ self.irrigationEfficiency = pcr.cover(self.irrigationEfficiency, pcr.windowaverage(self.irrigationEfficiency, 1.00))
+                 # ~ self.irrigationEfficiency = pcr.cover(self.irrigationEfficiency, pcr.windowaverage(self.irrigationEfficiency, 1.50))
+             # ~ except:                                                 
+                 # ~ pass
         
-        #~ self.irrigationEfficiency = pcr.ifthen(self.landmask, self.irrigationEfficiency)
-        self.irrigationEfficiency = pcr.cover(self.irrigationEfficiency, 1.0)
-        self.irrigationEfficiency = pcr.max(0.1, self.irrigationEfficiency)
-        self.irrigationEfficiency = pcr.ifthen(self.landmask, self.irrigationEfficiency)
+        # ~ #~ self.irrigationEfficiency = pcr.ifthen(self.landmask, self.irrigationEfficiency)
+        # ~ self.irrigationEfficiency = pcr.cover(self.irrigationEfficiency, 1.0)
+        # ~ self.irrigationEfficiency = pcr.max(0.1, self.irrigationEfficiency)
+        # ~ self.irrigationEfficiency = pcr.ifthen(self.landmask, self.irrigationEfficiency)
         
-        # desalination water supply option
-        self.includeDesalination = False
-        if iniItems.landSurfaceOptions['desalinationWater'] not in ["None", "False"]:
-            logger.info("Monthly desalination water is included.")
-            self.includeDesalination = True
-            self.desalinationWaterFile = vos.getFullPath(iniItems.landSurfaceOptions['desalinationWater'], self.inputDir)
-        else:    
-            logger.info("Monthly desalination water is NOT included.")
+        # ~ # desalination water supply option
+        # ~ self.includeDesalination = False
+        # ~ if iniItems.landSurfaceOptions['desalinationWater'] not in ["None", "False"]:
+            # ~ logger.info("Monthly desalination water is included.")
+            # ~ self.includeDesalination = True
+            # ~ self.desalinationWaterFile = vos.getFullPath(iniItems.landSurfaceOptions['desalinationWater'], self.inputDir)
+        # ~ else:    
+            # ~ logger.info("Monthly desalination water is NOT included.")
 
-        # zones at which water allocation (surface and groundwater allocation) is determined
-        self.usingAllocSegments = False
-        self.allocSegments = None
-        if iniItems.landSurfaceOptions['allocationSegmentsForGroundSurfaceWater']  != "None":
-            self.usingAllocSegments = True 
+        # ~ # zones at which water allocation (surface and groundwater allocation) is determined
+        # ~ self.usingAllocSegments = False
+        # ~ self.allocSegments = None
+        # ~ if iniItems.landSurfaceOptions['allocationSegmentsForGroundSurfaceWater']  != "None":
+            # ~ self.usingAllocSegments = True 
             
-            self.allocSegments = vos.readPCRmapClone(\
-             iniItems.landSurfaceOptions['allocationSegmentsForGroundSurfaceWater'],
-             self.cloneMap,self.tmpDir,self.inputDir,isLddMap=False,cover=None,isNomMap=True)
-            self.allocSegments = pcr.ifthen(self.landmask, self.allocSegments)
-            self.allocSegments = pcr.clump(self.allocSegments)
+            # ~ self.allocSegments = vos.readPCRmapClone(\
+             # ~ iniItems.landSurfaceOptions['allocationSegmentsForGroundSurfaceWater'],
+             # ~ self.cloneMap,self.tmpDir,self.inputDir,isLddMap=False,cover=None,isNomMap=True)
+            # ~ self.allocSegments = pcr.ifthen(self.landmask, self.allocSegments)
+            # ~ self.allocSegments = pcr.clump(self.allocSegments)
             
-            extrapolate = True
-            if "noParameterExtrapolation" in iniItems.landSurfaceOptions.keys() and iniItems.landSurfaceOptions["noParameterExtrapolation"] == "True": extrapolate = False
+            # ~ extrapolate = True
+            # ~ if "noParameterExtrapolation" in iniItems.landSurfaceOptions.keys() and iniItems.landSurfaceOptions["noParameterExtrapolation"] == "True": extrapolate = False
 
-            if extrapolate:
-                # extrapolate it 
-                self.allocSegments = pcr.cover(self.allocSegments, \
-                                               pcr.windowmajority(self.allocSegments, 0.5))
+            # ~ if extrapolate:
+                # ~ # extrapolate it 
+                # ~ self.allocSegments = pcr.cover(self.allocSegments, \
+                                               # ~ pcr.windowmajority(self.allocSegments, 0.5))
 
-            self.allocSegments = pcr.ifthen(self.landmask, self.allocSegments)
+            # ~ self.allocSegments = pcr.ifthen(self.landmask, self.allocSegments)
             
-            # clump it and cover the rests with cell ids 
-            self.allocSegments = pcr.clump(self.allocSegments)
-            cell_ids = pcr.mapmaximum(pcr.scalar(self.allocSegments)) + pcr.scalar(100.0) + pcr.uniqueid(pcr.boolean(1.0))
-            self.allocSegments = pcr.cover(self.allocSegments, pcr.nominal(cell_ids))                               
-            self.allocSegments = pcr.clump(self.allocSegments)
-            self.allocSegments = pcr.ifthen(self.landmask, self.allocSegments)
+            # ~ # clump it and cover the rests with cell ids 
+            # ~ self.allocSegments = pcr.clump(self.allocSegments)
+            # ~ cell_ids = pcr.mapmaximum(pcr.scalar(self.allocSegments)) + pcr.scalar(100.0) + pcr.uniqueid(pcr.boolean(1.0))
+            # ~ self.allocSegments = pcr.cover(self.allocSegments, pcr.nominal(cell_ids))                               
+            # ~ self.allocSegments = pcr.clump(self.allocSegments)
+            # ~ self.allocSegments = pcr.ifthen(self.landmask, self.allocSegments)
 
-            # cell area (unit: m2)
-            cellArea = vos.readPCRmapClone(\
-              iniItems.routingOptions['cellAreaMap'],
-              self.cloneMap,self.tmpDir,self.inputDir)
-            cellArea = pcr.ifthen(self.landmask, cellArea)
+            # ~ # cell area (unit: m2)
+            # ~ cellArea = vos.readPCRmapClone(\
+              # ~ iniItems.routingOptions['cellAreaMap'],
+              # ~ self.cloneMap,self.tmpDir,self.inputDir)
+            # ~ cellArea = pcr.ifthen(self.landmask, cellArea)
 
-            # zonal/segment area (unit: m2)
-            self.segmentArea = pcr.areatotal(pcr.cover(cellArea, 0.0), self.allocSegments)
-            self.segmentArea = pcr.ifthen(self.landmask, self.segmentArea)
+            # ~ # zonal/segment area (unit: m2)
+            # ~ self.segmentArea = pcr.areatotal(pcr.cover(cellArea, 0.0), self.allocSegments)
+            # ~ self.segmentArea = pcr.ifthen(self.landmask, self.segmentArea)
 
-        else:
+        # ~ else:
 
-            logger.info("If there is any, water demand is satisfied by local source only.")
+            # ~ logger.info("If there is any, water demand is satisfied by local source only.")
 
 
     def scaleNaturalLandCoverFractions(self): 
@@ -1280,16 +1280,33 @@ class LandSurface(object):
             logger.info("Running the snow module: "+str(coverType))
             self.snow_module_update(meteo, currTimeStep)         
 
-        # calculate water demand
+        # calculate water demand (here the unit of output will be in m)
         # - based on the 'states' after the above processes (for soil moisture and topWaterLayer states, they should be just the same as from the previous date)
         self.water_demand.update(meteo = meteo, landSurface = self, groundwater = groundwater, routing = routing, currTimeStep = currTimeStep)
+
+        # - return the following gross sectoral water demands in volume (m3)  
+        gross_sectoral_water_demands = {}
+        gross_sectoral_water_demands["domestic"]       = self.water_demand.DomesticWaterDemand.domesticGrossDemand * self.routing.cellArea
+        gross_sectoral_water_demands["industry"]       = self.water_demand.DomesticWaterDemand.domesticGrossDemand * self.routing.cellArea
+        gross_sectoral_water_demands["manufacture"]    = 
+        gross_sectoral_water_demands["thermoelectric"] = 
+        gross_sectoral_water_demands["livestock"]      = 
+        gross_sectoral_water_demands["irrigation"]     = 
+        # - also get the sectoral return flow fraction, particularly from non irrigation gross demands, the return flow from these sectors will go directly to surface water
+        return_flow_fraction = {}
+        return_flow_fraction["domestic"]       = vos.getValDivZero(self.water_demand.DomesticWaterDemand.domesticNettoDemand, self.water_demand.DomesticWaterDemand.domesticGrossDemand)
+        return_flow_fraction["industry"]       = 
+        return_flow_fraction["manufacture"]    = 
+        return_flow_fraction["thermoelectric"] = 
+        
+
         
         # pool the demands and do the allocation on the available storages at the land surface level / water allocation model and then pass the withdrawals to the surface and groundwater
         # - input: - sectoral water demands (calculated in "self.water_demand.update")
         #          - water availabilities (from previous time step: surface water and groundwater; from the current time step: desalination)
         # - output: - water abstraction from surface water, groundwater and etc
         #           - water allocation, including irrigation supply - this will be given to the next time step
-        self.water_management.update()
+        self.water_management.update(landSurface = self, gross_sectoral_water_demands, groundwater = groundwater, routing = routing, currTimeStep = currTimeStep)
         # - This will be replaced by pcrLite
         
 
@@ -1477,19 +1494,20 @@ class LandSurface(object):
         # get a dictionary containing the partitioning of withdrawal/abstraction sources: (from groundwater and surface water)
         self.swAbstractionFractionDict = self.partitioningGroundSurfaceAbstraction(groundwater,routing)
         
-        # get desalination water use (m/day); assume this one as potential supply
-        if self.includeDesalination: 
-            logger.debug("Monthly desalination water use is included.")
-            if (currTimeStep.timeStepPCR == 1 or currTimeStep.day == 1):
-                desalinationWaterUse = \
-                     pcr.ifthen(self.landmask,\
-                     pcr.cover(\
-                     vos.netcdf2PCRobjClone(self.desalinationWaterFile,'desalination_water_use',\
-                         currTimeStep.fulldate, useDoy = 'monthly', cloneMapFileName = self.cloneMap), 0.0))
-                self.desalinationWaterUse = pcr.max(0.0, desalinationWaterUse)
-        else:    
-            logger.debug("Monthly desalination water use is NOT included.")
-            self.desalinationWaterUse = pcr.scalar(0.0)
+        # ~ # the following is disactivated due to the development of new water use modules
+        # ~ # get desalination water use (m/day); assume this one as potential supply
+        # ~ if self.includeDesalination: 
+            # ~ logger.debug("Monthly desalination water use is included.")
+            # ~ if (currTimeStep.timeStepPCR == 1 or currTimeStep.day == 1):
+                # ~ desalinationWaterUse = \
+                     # ~ pcr.ifthen(self.landmask,\
+                     # ~ pcr.cover(\
+                     # ~ vos.netcdf2PCRobjClone(self.desalinationWaterFile,'desalination_water_use',\
+                         # ~ currTimeStep.fulldate, useDoy = 'monthly', cloneMapFileName = self.cloneMap), 0.0))
+                # ~ self.desalinationWaterUse = pcr.max(0.0, desalinationWaterUse)
+        # ~ else:    
+            # ~ logger.debug("Monthly desalination water use is NOT included.")
+            # ~ self.desalinationWaterUse = pcr.scalar(0.0)
         
         # update (loop per each land cover type):
         for coverType in self.coverTypes:
