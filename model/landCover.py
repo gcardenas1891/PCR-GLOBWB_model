@@ -224,11 +224,11 @@ class LandCover(object):
             self.segmentArea = pcr.areatotal(pcr.cover(cellArea, 0.0), self.allocSegments)
             self.segmentArea = pcr.ifthen(self.landmask, self.segmentArea)
 
-        # option to prioritize local sources before abstracting water from neighboring cells
-        self.prioritizeLocalSourceToMeetWaterDemand = iniItems.landSurfaceOptions['prioritizeLocalSourceToMeetWaterDemand'] == "True"
-        if self.prioritizeLocalSourceToMeetWaterDemand:
-            msg = "Local water sources are first used before abstracting water from neighboring cells"
-            logger.info(msg)
+        # ~ # option to prioritize local sources before abstracting water from neighboring cells
+        # ~ self.prioritizeLocalSourceToMeetWaterDemand = iniItems.landSurfaceOptions['prioritizeLocalSourceToMeetWaterDemand'] == "True"
+        # ~ if self.prioritizeLocalSourceToMeetWaterDemand:
+            # ~ msg = "Local water sources are first used before abstracting water from neighboring cells"
+            # ~ logger.info(msg)
         
         
         # get the names of cropCoefficient files:

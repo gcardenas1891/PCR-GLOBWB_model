@@ -38,12 +38,26 @@ class WaterManagement(object):
     def __init__(self, iniItems, landmask):
         object.__init__(self)
 
+        # make iniItems available for other modules/ functions
+        self.iniItems = iniItems
+        
         # cloneMap, tmpDir, inputDir based on the configuration/setting given in the ini/configuration file
         self.cloneMap = iniItems.cloneMap
         self.tmpDir   = iniItems.tmpDir
         self.inputDir = iniItems.globalOptions['inputDir']
         self.landmask = landmask
         
+        
+        # option to prioritize local sources before abstracting water from neighboring cells
+        self.prioritizeLocalSourceToMeetWaterDemand = True
+        
+        
+        # cell area (unit: m2)
+        cellArea = vos.readPCRmapClone(\
+          iniItems.routingOptions['cellAreaMap'],
+          self.cloneMap,self.tmpDir,self.inputDir)
+        self.cellArea = pcr.ifthen(self.landmask, cellArea)
+
         # desalination water supply option
         self.includeDesalination = False
         if iniItems.landSurfaceOptions['desalinationWater'] not in ["None", "False"]:
@@ -53,63 +67,205 @@ class WaterManagement(object):
         else:    
             logger.info("Monthly desalination water is NOT included.")
 
-        # zones at which water allocation (surface and groundwater allocation) is determined
-        self.usingAllocSegments = False
-        self.allocSegments = None
-        if iniItems.landSurfaceOptions['allocationSegmentsForGroundSurfaceWater']  != "None":
-            self.usingAllocSegments = True 
-            
-            self.allocSegments = vos.readPCRmapClone(\
-             iniItems.landSurfaceOptions['allocationSegmentsForGroundSurfaceWater'],
-             self.cloneMap,self.tmpDir,self.inputDir,isLddMap=False,cover=None,isNomMap=True)
-            self.allocSegments = pcr.ifthen(self.landmask, self.allocSegments)
-            self.allocSegments = pcr.clump(self.allocSegments)
-            
-            extrapolate = True
-            if "noParameterExtrapolation" in iniItems.landSurfaceOptions.keys() and iniItems.landSurfaceOptions["noParameterExtrapolation"] == "True": extrapolate = False
+        
+        # zonal IDs at which allocations of desalined water, surface water, and groundwater sources are performed  
+        # - if not defined, only local cell water availability is considered
+        self.usingAllocationSegmentsForDesalinatedWaterSource = False
+        self.usingAllocationSegmentsForSurfaceWaterSource     = False
+        self.usingAllocationSegmentsForGroundwaterSource      = False
+        sources = ["allocationSegmentsForDesalinatedWaterSource",
+                   "allocationSegmentsForSurfaceWaterSource    ",
+                   "allocationSegmentsForGroundwaterSource     "]
+        for source in sources:
+            if ((source in iniItems.waterManagementOptions.keys()) and (iniItems.waterManagementOptions[source] not in ["False", "None"])):
+                vars(self)[var], vars(self)[var+"Areas"] = get_allocation_zone(iniItems.waterManagementOptions[source])
 
-            if extrapolate:
-                # extrapolate it 
-                self.allocSegments = pcr.cover(self.allocSegments, \
-                                               pcr.windowmajority(self.allocSegments, 0.5))
 
-            self.allocSegments = pcr.ifthen(self.landmask, self.allocSegments)
-            
-            # clump it and cover the rests with cell ids 
-            self.allocSegments = pcr.clump(self.allocSegments)
-            cell_ids = pcr.mapmaximum(pcr.scalar(self.allocSegments)) + pcr.scalar(100.0) + pcr.uniqueid(pcr.boolean(1.0))
-            self.allocSegments = pcr.cover(self.allocSegments, pcr.nominal(cell_ids))                               
-            self.allocSegments = pcr.clump(self.allocSegments)
-            self.allocSegments = pcr.ifthen(self.landmask, self.allocSegments)
+    def get_allocation_zone(zonal_map_file_name)
 
-            # cell area (unit: m2)
-            cellArea = vos.readPCRmapClone(\
-              iniItems.routingOptions['cellAreaMap'],
-              self.cloneMap,self.tmpDir,self.inputDir)
-            cellArea = pcr.ifthen(self.landmask, cellArea)
+        allocSegments = vos.readPCRmapClone(zonal_map_file_name,
+         self.cloneMap, self.tmpDir, self.inputDir, isLddMap=False, cover=None, isNomMap=True)
+        allocSegments = pcr.ifthen(self.landmask, allocSegments)
+        allocSegments = pcr.clump(allocSegments)
+        
+        extrapolate = True
+        if "noParameterExtrapolation" in self.iniItems.waterManagementOptions.keys() and self.iniItems.waterManagementOptions["noParameterExtrapolation"] == "True": extrapolate = False
 
-            # zonal/segment area (unit: m2)
-            self.segmentArea = pcr.areatotal(pcr.cover(cellArea, 0.0), self.allocSegments)
-            self.segmentArea = pcr.ifthen(self.landmask, self.segmentArea)
+        if extrapolate:
+            # extrapolate it to half degree resolution
+            allocSegments = pcr.cover(allocSegments, \
+                                      pcr.windowmajority(allocSegments, 0.5))
 
-        else:
+        allocSegments = pcr.ifthen(self.landmask, allocSegments)
+        
+        # clump it and cover the rests with cell ids 
+        allocSegments = pcr.clump(allocSegments)
+        cell_ids = pcr.mapmaximum(pcr.scalar(allocSegments)) + pcr.scalar(100.0) + pcr.uniqueid(pcr.boolean(1.0))
+        allocSegments = pcr.cover(allocSegments, pcr.nominal(cell_ids))                               
+        allocSegments = pcr.clump(allocSegments)
+        allocSegments = pcr.ifthen(self.landmask, allocSegments)
 
-            logger.info("If there is any, water demand is satisfied by local source only.")
+        # zonal/segment area (unit: m2)
+        segmentAreas = pcr.areatotal(pcr.cover(self.cellArea, 0.0), allocSegments)
+        segmentAreas = pcr.ifthen(self.landmask, segmentAreas)
+        
+        return allocSegments, segmentAreas  
 
+
+
+    def waterAbstractionAndAllocation(water_demand_volume,
+                                      available_water_volume, 
+                                      allocation_zones,
+                                      zone_area = None,
+                                      high_volume_treshold = None,
+                                      debug_water_balance = True,\
+                                      extra_info_for_water_balance_reporting = "",
+                                      landmask = None,
+                                      ignore_small_values = False,
+                                      prioritizing_local_source = True):
+    
+       logger.debug("Allocation of abstraction.")
+       
+       if landmask is not None:
+           water_demand_volume = pcr.ifthen(landmask, pcr.cover(water_demand_volume, 0.0))
+           available_water_volume = pcr.ifthen(landmask, pcr.cover(available_water_volume, 0.0))
+           allocation_zones = pcr.ifthen(landmask, allocation_zones)
+       
+       # satistify demand with local sources:
+       localAllocation  = pcr.scalar(0.0)
+       localAbstraction = pcr.scalar(0.0)
+       cellVolDemand = pcr.max(0.0, water_demand_volume)
+       cellAvlWater  = pcr.max(0.0, available_water_volume)
+       if prioritizing_local_source:
+           logger.debug("Allocation of abstraction - first, satisfy demand with local source.")
+       
+           # demand volume in each cell (unit: m3)
+           if landmask is not None:
+               cellVolDemand = pcr.ifthen(landmask, pcr.cover(cellVolDemand, 0.0))
+           
+           # total available water volume in each cell
+           if landmask is not None:
+               cellAvlWater = pcr.ifthen(landmask, pcr.cover(cellAvlWater, 0.0))
+           
+           # first, satisfy demand with local source
+           localAllocation  = pcr.max(0.0, pcr.min(cellVolDemand, cellAvlWater))
+           localAbstraction = localAllocation * 1.0
+       
+       logger.debug("Allocation of abstraction - satisfy demand with neighbour sources.")
+       
+       # the remaining demand and available water
+       cellVolDemand = pcr.max(0.0, cellVolDemand - localAllocation ) 
+       cellAvlWater  = pcr.max(0.0, cellAvlWater  - localAbstraction)
+       
+       # ignoring small values of water availability
+       if ignore_small_values: available_water_volume = pcr.max(0.0, pcr.rounddown(available_water_volume))
+       
+       # demand volume in each cell (unit: m3)
+       cellVolDemand = pcr.max(0.0, cellVolDemand)
+       if landmask is not None:
+           cellVolDemand = pcr.ifthen(landmask, pcr.cover(cellVolDemand, 0.0))
+       
+       # total demand volume in each zone/segment (unit: m3)
+       zoneVolDemand = pcr.areatotal(cellVolDemand, allocation_zones)
+       
+       # avoid very high values of available water
+       cellAvlWater  = pcr.min(cellAvlWater, zoneVolDemand)
+       
+       # total available water volume in each cell
+       cellAvlWater  = pcr.max(0.0, cellAvlWater)
+       if landmask is not None:
+           cellAvlWater = pcr.ifthen(landmask, pcr.cover(cellAvlWater, 0.0))
+       
+       # total available water volume in each zone/segment (unit: m3)
+       zoneAvlWater  = pcr.areatotal(cellAvlWater, allocation_zones)
+       
+       # total actual water abstraction volume in each zone/segment (unit: m3)
+       # - limited to available water
+       zoneAbstraction = pcr.min(zoneAvlWater, zoneVolDemand)
+       
+       # actual water abstraction volume in each cell (unit: m3)
+       cellAbstraction = getValDivZero(\
+                         cellAvlWater, zoneAvlWater, smallNumber) * zoneAbstraction
+       cellAbstraction = pcr.min(cellAbstraction, cellAvlWater)                                                                   
+       
+       # to minimize numerical errors
+       if high_volume_treshold is not None:
+           # mask: 0 for small volumes ; 1 for large volumes (e.g. lakes and reservoirs)
+           mask = pcr.cover(\
+                  pcr.ifthen(cellAbstraction > high_volume_treshold, pcr.boolean(1)), pcr.boolean(0))
+           zoneAbstraction  = pcr.areatotal(
+                              pcr.ifthenelse(mask, 0.0, cellAbstraction), allocation_zones)
+           zoneAbstraction += pcr.areatotal(                
+                              pcr.ifthenelse(mask, cellAbstraction, 0.0), allocation_zones)
+       
+       # allocation water to meet water demand (unit: m3)
+       cellAllocation  = getValDivZero(\
+                         cellVolDemand, zoneVolDemand, smallNumber) * zoneAbstraction 
+       cellAllocation  = pcr.min(cellAllocation,  cellVolDemand)
+       
+       # adding local abstraction and local allocation
+       cellAbstraction = cellAbstraction + localAbstraction
+       cellAllocation  = cellAllocation  + localAllocation
+       
+       if debug_water_balance and zone_area is not None:
+       
+           waterBalanceCheck([pcr.cover(pcr.areatotal(cellAbstraction, allocation_zones)/zone_area, 0.0)],\
+                             [pcr.cover(pcr.areatotal(cellAllocation , allocation_zones)/zone_area, 0.0)],\
+                             [pcr.scalar(0.0)],\
+                             [pcr.scalar(0.0)],\
+                             'abstraction - allocation per zone/segment (PS: Error here may be caused by rounding error.)' ,\
+                              True,\
+                              extra_info_for_water_balance_reporting,threshold=1e-4)
+       
+       return cellAbstraction, cellAllocation
 
     def update(self, gross_sectoral_water_demands, landSurface, groundwater, routing, currTimeStep):
 
         # gross sectoral water demands (m3)
         self.gross_sectoral_water_demands = gross_sectoral_water_demands
         
-        # calculate total gross demands (m3)
+        # calculate total gross demands (m3) 
         self.totalPotentialGrossDemand = pcr.scalar(0.0) 
         for sector_name in self.gross_sectoral_water_demands.keys():
              self.totalPotentialGrossDemand = self.totalPotentialGrossDemand + self.gross_sectoral_water_demands[sector_name]
+
+        # initiate the variables for remaining sectoral water demands and accumulated variables for sectoral water demands that have been satisfied
+        self.remaining_gross_sectoral_water_demands = {}
+        self.accumulated_satisfied_gross_sectoral_water_demands = {}
+        for sector_name in self.gross_sectoral_water_demands.keys():
+			 self.remaining_gross_sectoral_water_demands[sector_name] = self.gross_sectoral_water_demands[sector_name]
+             self.satisfied_gross_sectoral_water_demands[sector_name] = pcr.scalar(0.0) 
         
+        # abstract and allocate desalinated water
+        # - this will also update self.remaining_gross_sectoral_water_demands and self.satisfied_gross_sectoral_water_demands
         self.abstraction_and_allocation_from_desalination(landSurface, currTimeStep)
+        
+        
         self.abstraction_and_allocation_from_surface_water(routing, currTimeStep)
         self.abstraction_and_allocation_from_groundwater(groundwater, currTimeStep)
+
+
+    def allocate_water_to_each_sector(self, totalWaterAllocation):
+        
+        self.satisfied_gross_sectoral_water_demands_from_this_source_only = {}
+        for sector_name in self.gross_sectoral_water_demands.keys():
+            self.satisfied_gross_sectoral_water_demands_from_desalinated_water[sector_name]        
+        
+        # water demand that have been satisfied (unit: m/day) - after desalination
+        ################################################################################################################################
+        # - for irrigation (excluding livestock)
+        satisfiedIrrigationDemand = vos.getValDivZero(self.irrGrossDemand, self.totalPotentialGrossDemand) * self.desalinationAllocation
+        # - for domestic, industry and livestock
+        satisfiedNonIrrDemand     = pcr.max(0.00, self.desalinationAllocation - satisfiedIrrigationDemand)
+        # - for domestic
+        satisfiedDomesticDemand   = satisfiedNonIrrDemand * vos.getValDivZero(nonIrrGrossDemandDict['potential_demand']['domestic'], 
+                                                                              self.totalPotentialMaximumNonIrrGrossDemand)  
+        # - for industry
+        satisfiedIndustryDemand   = satisfiedNonIrrDemand * vos.getValDivZero(nonIrrGrossDemandDict['potential_demand']['industry'], 
+                                                                              self.totalPotentialMaximumNonIrrGrossDemand)
+        # - for livestock                                                                      
+        satisfiedLivestockDemand  = pcr.max(0.0, satisfiedNonIrrDemand - satisfiedDomesticDemand - satisfiedIndustryDemand)
+
 
     def abstraction_and_allocation_from_desalination(self, landSurface, currTimeStep):
 
@@ -133,23 +289,21 @@ class WaterManagement(object):
         else:    
             logger.debug("Monthly desalination water use is NOT included.")
             self.desalinationWaterUse = pcr.scalar(0.0)
-        
-            
 
         
         # Abstraction and Allocation of DESALINATED WATER
         # ##################################################################################################################
         # - desalination water to satisfy water demand
-        if self.usingAllocSegments: # using zone/segments at which networks are defined (as defined in the landSurface options)
+        if self.usingAllocationSegmentsForDesalinatedWaterSource:
         #  
             logger.debug("Allocation of supply from desalination water.")
         #  
             volDesalinationAbstraction, volDesalinationAllocation = \
-              vos.waterAbstractionAndAllocation(
+              waterAbstractionAndAllocation(
               water_demand_volume = self.totalPotentialGrossDemand,\
-              available_water_volume = pcr.max(0.00, desalinationWaterUse*routing.cellArea),\
-              allocation_zones = allocSegments,\
-              zone_area = self.segmentArea,\
+              available_water_volume = pcr.max(0.00, self.desalinationWaterUse * self.cellArea),\
+              allocation_zones = self.allocationSegmentsForDesalinatedWaterSource,\
+              zone_area = self.allocationSegmentsForDesalinatedWaterSourceAreas,\
               high_volume_treshold = None,\
               debug_water_balance = True,\
               extra_info_for_water_balance_reporting = str(currTimeStep.fulldate), 
@@ -157,8 +311,8 @@ class WaterManagement(object):
               ignore_small_values = False,
               prioritizing_local_source = self.prioritizeLocalSourceToMeetWaterDemand)
         #     
-            self.desalinationAbstraction = volDesalinationAbstraction / routing.cellArea
-            self.desalinationAllocation  = volDesalinationAllocation  / routing.cellArea
+            self.desalinationAbstraction = volDesalinationAbstraction / self.cellArea
+            self.desalinationAllocation  = volDesalinationAllocation  / self.cellArea
         #     
         else: 
         #     
@@ -172,6 +326,9 @@ class WaterManagement(object):
         # - end of Abstraction and Allocation of DESALINATED WATER
 
 
+        # allocate the water (desalination Allocation) to each sector
+        self.allocate_water_to_each_sector(totalWaterAllocation = self.desalinationAllocation)
+        
         # water demand that have been satisfied (unit: m/day) - after desalination
         ################################################################################################################################
         # - for irrigation (excluding livestock)
@@ -219,7 +376,7 @@ class WaterManagement(object):
     def abstraction_and_allocation_from_nonrenewable_groundwater():
         pass
 
-    def get_allocation_zones(self, allocation_zone_input_file):
+    def get_allocation_zone(self, allocation_zone_input_file):
 
         # zones at which water allocation (surface and groundwater allocation) is determined
         self.usingAllocSegments = False
