@@ -1287,7 +1287,7 @@ class LandSurface(object):
         # - return the following gross sectoral water demands in volume (m3)  
         gross_sectoral_water_demands = {}
         gross_sectoral_water_demands["domestic"]       = self.water_demand.DomesticWaterDemand.domesticGrossDemand * self.routing.cellArea
-        gross_sectoral_water_demands["industry"]       = self.water_demand.DomesticWaterDemand.domesticGrossDemand * self.routing.cellArea
+        gross_sectoral_water_demands["industry"]       = self.water_demand.IndustryWaterDemand.industryGrossDemand * self.routing.cellArea
         gross_sectoral_water_demands["manufacture"]    = 
         gross_sectoral_water_demands["thermoelectric"] = 
         gross_sectoral_water_demands["livestock"]      = 
