@@ -84,8 +84,6 @@ class IrrigationWaterDemand(object):
             logger.info("'irrigationEfficiency' is not defined, we set this to 1.0")
             self.ini_items_for_irrigation_efficiency = "1.0"
         
-        # - if not defined, just set it to to 
-        
         # the following variable is somehow needed in the "updateLC"
         self.includeIrrigation = True
 
@@ -425,6 +423,7 @@ class IrrigationWaterDemand(object):
         # total irrigation gross demand (m) per cover types (not limited by available water)
         self.totalPotentialMaximumIrrGrossDemandPaddy    = 0.0
         self.totalPotentialMaximumIrrGrossDemandNonPaddy = 0.0
+
         if self.name == 'irrPaddy' or self.name == 'irr_paddy': self.totalPotentialMaximumIrrGrossDemandPaddy = self.irrGrossDemand
         if self.name == 'irrNonPaddy' or self.name == 'irr_non_paddy' or self.name == 'irr_non_paddy_crops': self.totalPotentialMaximumIrrGrossDemandNonPaddy = self.irrGrossDemand
 

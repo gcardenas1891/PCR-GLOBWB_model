@@ -1285,13 +1285,18 @@ class LandSurface(object):
         self.water_demand.update(meteo = meteo, landSurface = self, groundwater = groundwater, routing = routing, currTimeStep = currTimeStep)
 
         # - return the following gross sectoral water demands in volume (m3)  
-        gross_sectoral_water_demands = {}
-        gross_sectoral_water_demands["domestic"]       = self.water_demand.DomesticWaterDemand.domesticGrossDemand * self.routing.cellArea
-        gross_sectoral_water_demands["industry"]       = self.water_demand.IndustryWaterDemand.industryGrossDemand * self.routing.cellArea
-        gross_sectoral_water_demands["manufacture"]    = 
-        gross_sectoral_water_demands["thermoelectric"] = 
-        gross_sectoral_water_demands["livestock"]      = 
-        gross_sectoral_water_demands["irrigation"]     = 
+        vol_gross_sectoral_water_demands = {}
+        # -- non irrigation demand (m3)
+        vol_gross_sectoral_water_demands["domestic"]       = self.water_demand.DomesticWaterDemand.domesticGrossDemand             * self.routing.cellArea
+        vol_gross_sectoral_water_demands["industry"]       = self.water_demand.IndustryWaterDemand.industryGrossDemand             * self.routing.cellArea
+        vol_gross_sectoral_water_demands["manufacture"]    = self.water_demand.ManufactureWaterDemand.manufactureGrossDemand       * self.routing.cellArea
+        vol_gross_sectoral_water_demands["thermoelectric"] = self.water_demand.ThermoelectricWaterDemand.thermoelectricGrossDemand * self.routing.cellArea
+        vol_gross_sectoral_water_demands["livestock"]      = self.water_demand.LivestockWaterDemand.livestockGrossDemand           * self.routing.cellArea
+        # -- irrigation demand (m3)
+        vol_gross_sectoral_water_demands["irrigation"] = pcr.scalar(0.0)
+        for coverType in self.coverTypes: 
+            if startswith("irr"): vol_gross_sectoral_water_demands["irrigation"] += self.water_demand_irrigation[coverType].irrGrossDemand * self.routing.cellArea * self.landCoverObj[coverType].fracVegCover 
+        
         # - also get the sectoral return flow fraction, particularly from non irrigation gross demands, the return flow from these sectors will go directly to surface water
         return_flow_fraction = {}
         return_flow_fraction["domestic"]       = vos.getValDivZero(self.water_demand.DomesticWaterDemand.domesticNettoDemand, self.water_demand.DomesticWaterDemand.domesticGrossDemand)
@@ -1306,11 +1311,13 @@ class LandSurface(object):
         #          - water availabilities (from previous time step: surface water and groundwater; from the current time step: desalination)
         # - output: - water abstraction from surface water, groundwater and etc
         #           - water allocation, including irrigation supply - this will be given to the next time step
-        self.water_management.update(landSurface = self, gross_sectoral_water_demands, groundwater = groundwater, routing = routing, currTimeStep = currTimeStep)
+        # - note: the water_management calculation should be done in volume (m3)
+        self.water_management.update(vol_gross_sectoral_water_demands = vol_gross_sectoral_water_demands, groundwater = groundwater, routing = routing, currTimeStep = currTimeStep)
         # - This will be replaced by pcrLite
         
 
         # do the remaining land cover processes
+        # - this including applying the 'allocated irrGrossDemand'
         self.old_update(meteo,groundwater,routing,currTimeStep)
 
 
