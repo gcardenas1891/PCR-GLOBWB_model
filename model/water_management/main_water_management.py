@@ -79,6 +79,8 @@ class WaterManagement(object):
         for source in sources:
             if ((source in iniItems.waterManagementOptions.keys()) and (iniItems.waterManagementOptions[source] not in ["False", "None"])):
                 vars(self)[var], vars(self)[var+"Areas"] = get_allocation_zone(iniItems.waterManagementOptions[source])
+            else:
+                vars(self)[var], vars(self)[var+"Areas"] = None, None
 
 
         source_names = ["desalinated_water", "surface_water", "renewable_groundwater", "nonrenewable_groundwater"]
@@ -265,11 +267,11 @@ class WaterManagement(object):
 
         # initiate the variables for remaining sectoral water demands and accumulated variables for sectoral water demands that have been satisfied
         # - both have the unit m3
-        self.remaining_gross_sectoral_water_demands = {}
         self.accumulated_satisfied_gross_sectoral_water_demands = {}
+        self.remaining_gross_sectoral_water_demands = {}
         for sector_name in self.gross_sectoral_water_demands.keys():
-			 self.remaining_gross_sectoral_water_demands[sector_name] = vol_gross_sectoral_water_demands[sector_name]
              self.satisfied_gross_sectoral_water_demands[sector_name] = pcr.scalar(0.0) 
+			 self.remaining_gross_sectoral_water_demands[sector_name] = vol_gross_sectoral_water_demands[sector_name]
         
         # initiate the variables for remaining volumes of surface water, as well as renewable and non renewable groundwater
         # - all in volume units (m3)
@@ -281,14 +283,30 @@ class WaterManagement(object):
         # - this will return the following:
         #   - self.allocated_demand_per_sector["desalinated_water"]
         #   - self.allocated_withdrawal_per_sector["desalinated_water"]
+        self.abstraction_and_allocation_from_desalination(self.remaining_gross_sectoral_water_demands)
+        
+        # update the following after abstraction and allocation of desalinated
         #   - the updated self.remaining_gross_sectoral_water_demands (after desalinated_water use)
         #   - the updated self.satisfied_gross_sectoral_water_demands (after desalinated_water use)
-        #   - the updated self.self.available_surface_water_volume    
+        for sector_name in self.gross_sectoral_water_demands.keys():
+             self.satisfied_gross_sectoral_water_demands[sector_name] += self.allocated_demand_per_sector["desalinated_water"][sector_name]  
+			 self.remaining_gross_sectoral_water_demands[sector_name] -= self.allocated_demand_per_sector["desalinated_water"][sector_name]
+			 self.remaining_gross_sectoral_water_demands[sector_name]  = pcr.max(0.0, self.remaining_gross_sectoral_water_demands[sector_name])
+        
+        
+        # abstract and allocate surface water
+        # - this will return the following:
+        #   - self.allocated_demand_per_sector["surface_water"]
+        #   - self.allocated_withdrawal_per_sector["surface_water"]
+        self.abstraction_and_allocation_from_surface_water(self.remaining_gross_sectoral_water_demands)
+        
+
+
+        #   - the updated self.available_surface_water_volume    
         #   - the updated self.available_renewable_groundwater   
         #   - the updated self.available_nonrenewable_groundwater
-        self.abstraction_and_allocation_from_desalination(landSurface, currTimeStep)
-        
-        self.abstraction_and_allocation_from_surface_water(routing, currTimeStep)
+
+
         self.abstraction_and_allocation_from_groundwater(groundwater, currTimeStep)
 
 
@@ -301,37 +319,28 @@ class WaterManagement(object):
         return allocated_demand_per_sector    
 
 
-    def allocate_withdrawal_to_each_sector(self, totalWaterAbsraction):
+    def allocate_withdrawal_to_each_sector(self, totalVoCellWaterAbsraction, totalVolZoneAbstraction, cellAlllocatedDemandPerSector, allocation_zones = None):
 
-        allocated_withdrawal_per_sector = {}
-        zonal_allocated_withdrawal_per_sector = {}
-        
-        for sector_name in sector_names:
-        zonal_allocated_withdrawal_per_sector["desalinated_water"][sector_name] = pcr.areatotal(self.allocated_demand_per_sector["desalinated_water"][sector_name], totalWaterAbsraction)
-        
-            # - first, calculate zonal water abstraction per sector and their total 
+        # for the case without allocation zone
+        allocated_withdrawal_per_sector = cellAlllocatedDemandPerSector
+
+        # for the case with allocation zone
+        if allocation_zones is not None:
             zonal_allocated_withdrawal_per_sector = {}
-            zonal_allocated_withdrawal_per_sector["desalinated_water"] = {}
-            zonal_allocated_withdrawal_all_sectors = pcr.scalar(0.0)
             for sector_name in sector_names:
-                zonal_allocated_withdrawal_per_sector["desalinated_water"][sector_name] = pcr.areatotal(self.allocated_demand_per_sector["desalinated_water"][sector_name], totalWaterAbsraction)
-                zonal_allocated_withdrawal_all_sectors = zonal_allocated_withdrawal_all_sectors + zonal_allocated_withdrawal_per_sector["desalinated_water"][sector_name]
-            # ~ # -- alternative for calculating zonal_allocated_withdrawal_all_sectors
-            # ~ zonal_allocated_withdrawal_all_sectors = pcr.areatotal(self.desalinationAbstraction, self.allocationSegmentsForDesalinatedWaterSource)
-            # - then downscale/distibute it to pixel level again  
-            for sector_name in sector_names:
-                self.allocated_withdrawal_per_sector["desalinated_water"][sector_name]  = selff.desalinationAbstraction * vos.getValDivZero(zonal_allocated_withdrawal_per_sector["desalinated_water"][sector_name], zonal_allocated_withdrawal_all_sectors)
-
+                zonal_allocated_withdrawal_per_sector[sector_name] = pcr.areatotal(cellAlllocatedDemandPerSector[sector_name], allocation_zones)   
+                allocated_withdrawal_per_sector[sector_name] = totalVolCellWaterAbsraction * vos.getValDivZero(zonal_allocated_withdrawal_per_sector[sector_name], totalVolZoneAbstraction)
+        
         return allocated_withdrawal_per_sector    
 
 
 
-    def abstraction_and_allocation_from_desalination(self, currTimeStep):
+    def abstraction_and_allocation_from_desalination(remaining_gross_sectoral_water_demands):
 
         # get the TOTAL (remaining) demand (m3) 
         volTotalRemainingDemand = pcr.scalar(0.0) 
-        for sector_name in self.gross_sectoral_water_demands.keys():
-             volTotalRemainingDemand = volTotalRemainingDemand + self.remaining_gross_sectoral_water_demands[sector_name]
+        for sector_name in remaining_gross_sectoral_water_demands.keys():
+             volTotalRemainingDemand = volTotalRemainingDemand + remaining_gross_sectoral_water_demands[sector_name]
 
 
          # get desalination water use (m/day); assume this one as potential supply
@@ -358,7 +367,7 @@ class WaterManagement(object):
         #  
             logger.debug("Allocation of supply from desalination water.")
         #  
-            volDesalinationAbstraction, volDesalinationAllocation, volZoneAbstraction = \
+            volDesalinationAbstraction, volDesalinationAllocation, volZoneDesalinationAbstraction = \
               waterAbstractionAndAllocation(
               water_demand_volume = volTotalRemainingDemand,\
               available_water_volume = volDesalinationWaterUse),\
@@ -374,9 +383,9 @@ class WaterManagement(object):
         else: 
         #     
             logger.debug("Supply from desalination water is only for satisfying local demand (no network).")
-            volDesalinationAbstraction = pcr.min(volDesalinationWaterUse, volTotalRemainingDemand)
-            volDesalinationAllocation  = volDesalinationAbstraction
-            volZoneAbstraction         = None 
+            volDesalinationAbstraction      = pcr.min(volDesalinationWaterUse, volTotalRemainingDemand)
+            volDesalinationAllocation       = volDesalinationAbstraction
+            volZoneDesalinationAbstraction  = volDesalinationAbstraction
         # ##################################################################################################################
         # - end of Abstraction and Allocation of DESALINATED WATER
 
@@ -387,58 +396,125 @@ class WaterManagement(object):
             # ~ remaining_demand[sector_name] = self.gross_sectoral_water_demands[sector_name]
 
         # allocate the "desalination Allocation" to each sector - unit: m3
-        self.allocated_demand_per_sector["desalinated_water"] = self.allocate_satisfied_demand_to_each_sector(totalVolWaterAllocation = volDesalinationAllocation, sectoral_remaining_demand_volume = self.remaining_gross_sectoral_water_demands, total_remaining_demand_volume = volTotalRemainingDemand)
+        self.allocated_demand_per_sector["desalinated_water"] = self.allocate_satisfied_demand_to_each_sector(totalVolWaterAllocation = volDesalinationAllocation, sectoral_remaining_demand_volume = remaining_gross_sectoral_water_demands, total_remaining_demand_volume = volTotalRemainingDemand)
 
 
-        # allocate the "desalination Abstraction" to each sector
-        if self.usingAllocationSegmentsForDesalinatedWaterSource:
-            # - first, calculate zonal water abstraction per sector and their total 
-            zonal_allocated_withdrawal_per_sector = {}
-            zonal_allocated_withdrawal_per_sector["desalinated_water"] = {}
-            zonal_allocated_withdrawal_all_sectors = pcr.scalar(0.0)
-            for sector_name in sector_names:
-                zonal_allocated_withdrawal_per_sector["desalinated_water"][sector_name] = pcr.areatotal(self.allocated_demand_per_sector["desalinated_water"][sector_name], self.allocationSegmentsForDesalinatedWaterSource)
-                zonal_allocated_withdrawal_all_sectors = zonal_allocated_withdrawal_all_sectors + zonal_allocated_withdrawal_per_sector["desalinated_water"][sector_name]
-            # ~ # -- alternative for calculating zonal_allocated_withdrawal_all_sectors
-            # ~ zonal_allocated_withdrawal_all_sectors = pcr.areatotal(self.desalinationAbstraction, self.allocationSegmentsForDesalinatedWaterSource)
-            # - then downscale/distibute it to pixel level again  
-            for sector_name in sector_names:
-                self.allocated_withdrawal_per_sector["desalinated_water"][sector_name]  = selff.desalinationAbstraction * vos.getValDivZero(zonal_allocated_withdrawal_per_sector["desalinated_water"][sector_name], zonal_allocated_withdrawal_all_sectors)
-        else:    
-            self.allocated_withdrawal_per_sector["desalinated_water"] = self.allocated_demand_per_sector["desalinated_water"]
-
-
-
-        self.allocated_withdrawal_per_sector[source_name][sector_name] = self.allocate_withdrawal_to_each_source(totalWaterAbstraction = self.desalinationAbstraction)
+        # allocate the "desalination Abastraction" to each sector - unit: m3
+        self.allocated_withdrawal_per_sector["desalinated_water"] = self.allocate_withdrawal_to_each_source(totalVolCellWaterAbstraction = volDesalinationAbstraction, totalVolZoneAbstraction = volZoneDesalinationAbstraction, cellAlllocatedDemandPerSector = self.allocated_demand_per_sector, allocation_zones = self.allocationSegmentsForDesalinatedWaterSource)
+        
+        
+        # remaining desalination water use - unit: m3
+        self.volRemainingDesalinationWaterUse = pcr.max(0.0, volDesalinationWaterUse - volDesalinationAbstraction)
         
 
+                                                     
+
+    def abstraction_and_allocation_from_surface_water():
 
 
+        # Abstraction and Allocation of SURFACE WATER
+        ##############################################################################################################################
+        # calculate the estimate of surface water demand (considering by swAbstractionFractionDict)
+        # - for industrial and domestic
+        swAbstractionFraction_industrial_domestic = pcr.min(swAbstractionFractionDict['max_for_non_irrigation'],\
+                                                            swAbstractionFractionDict['estimate'])
+        if swAbstractionFractionDict['non_irrigation'] is not None:
+            swAbstractionFraction_industrial_domestic = swAbstractionFractionDict['non_irrigation']
 
- 
+        surface_water_demand_estimate = swAbstractionFraction_industrial_domestic * remainingIndustrialDomestic
+        # - for irrigation and livestock 
+        surface_water_irrigation_demand_estimate = swAbstractionFractionDict['irrigation'] * remainingIrrigationLivestock
+        # - surface water source as priority if groundwater irrigation fraction is relatively low  
+        surface_water_irrigation_demand_estimate = \
+           pcr.ifthenelse(swAbstractionFractionDict['irrigation'] >= swAbstractionFractionDict['treshold_to_maximize_irrigation_surface_water'],\
+           remainingIrrigationLivestock, surface_water_irrigation_demand_estimate)
+        # - update estimate of surface water demand withdrawal (unit: m/day)
+        surface_water_demand_estimate += surface_water_irrigation_demand_estimate
+        # - prioritize surface water use in non productive aquifers that have limited groundwater supply
+        surface_water_demand_estimate = pcr.ifthenelse(groundwater.productive_aquifer, surface_water_demand_estimate,\
+                                                       pcr.max(0.0, remainingIrrigationLivestock - \
+                                                       pcr.min(groundwater.avgAllocationShort, groundwater.avgAllocation)))
+        # - maximize/optimize surface water use in areas with the overestimation of groundwater supply 
+        surface_water_demand_estimate += pcr.max(0.0, pcr.max(groundwater.avgAllocationShort, groundwater.avgAllocation) -\
+               (1.0 - swAbstractionFractionDict['irrigation']) * totalIrrigationLivestockDemand -\
+               (1.0 - swAbstractionFraction_industrial_domestic) * (self.totalPotentialMaximumGrossDemand - totalIrrigationLivestockDemand))
+        #
+        # total demand (unit: m/day) that should be allocated from surface water 
+        # (corrected/limited by swAbstractionFractionDict and limited by the remaining demand)
+        surface_water_demand_estimate         = pcr.min(self.totalGrossDemandAfterDesalination, surface_water_demand_estimate)
+        correctedRemainingIrrigationLivestock = pcr.min(surface_water_demand_estimate, remainingIrrigationLivestock)
+        correctedRemainingIndustrialDomestic  = pcr.min(remainingIndustrialDomestic,\
+                                                pcr.max(0.0, surface_water_demand_estimate - remainingIrrigationLivestock))
+        correctedSurfaceWaterDemandEstimate   = correctedRemainingIrrigationLivestock + correctedRemainingIndustrialDomestic
+        surface_water_demand = correctedSurfaceWaterDemandEstimate
+        #
+        # if surface water abstraction as the first priority
+        if self.surfaceWaterPiority: surface_water_demand = self.totalGrossDemandAfterDesalination
+        #
+        if self.usingAllocSegments:      # using zone/segment at which supply network is defined
+        #  
+            logger.debug("Allocation of surface water abstraction.")
+        #  
+            volActSurfaceWaterAbstract, volAllocSurfaceWaterAbstract = \
+             vos.waterAbstractionAndAllocation(
+             water_demand_volume = surface_water_demand*routing.cellArea,\
+             available_water_volume = pcr.max(0.00, routing.readAvlChannelStorage),\
+             allocation_zones = allocSegments,\
+             zone_area = self.segmentArea,\
+             high_volume_treshold = None,\
+             debug_water_balance = True,\
+             extra_info_for_water_balance_reporting = str(currTimeStep.fulldate), 
+             landmask = self.landmask,
+             ignore_small_values = False,
+             prioritizing_local_source = self.prioritizeLocalSourceToMeetWaterDemand)
 
-
-        
-        # water demand that have been satisfied (unit: m/day) - after desalination
+            self.actSurfaceWaterAbstract   = volActSurfaceWaterAbstract / routing.cellArea
+            self.allocSurfaceWaterAbstract = volAllocSurfaceWaterAbstract / routing.cellArea
+        #  
+        else: 
+            logger.debug("Surface water abstraction is only to satisfy local demand (no surface water network).")
+            self.actSurfaceWaterAbstract   = pcr.min(routing.readAvlChannelStorage/routing.cellArea,\
+                                                     surface_water_demand)                            # unit: m
+            self.allocSurfaceWaterAbstract = self.actSurfaceWaterAbstract                             # unit: m   
+        #  
+        self.actSurfaceWaterAbstract   = pcr.ifthen(self.landmask, self.actSurfaceWaterAbstract)
+        self.allocSurfaceWaterAbstract = pcr.ifthen(self.landmask, self.allocSurfaceWaterAbstract)
         ################################################################################################################################
-        # - for irrigation (excluding livestock)
-        satisfiedIrrigationDemand = vos.getValDivZero(self.irrGrossDemand, self.totalPotentialGrossDemand) * self.desalinationAllocation
-        # - for domestic, industry and livestock
-        satisfiedNonIrrDemand     = pcr.max(0.00, self.desalinationAllocation - satisfiedIrrigationDemand)
-        # - for domestic
-        satisfiedDomesticDemand   = satisfiedNonIrrDemand * vos.getValDivZero(nonIrrGrossDemandDict['potential_demand']['domestic'], 
-                                                                              self.totalPotentialMaximumNonIrrGrossDemand)  
-        # - for industry
-        satisfiedIndustryDemand   = satisfiedNonIrrDemand * vos.getValDivZero(nonIrrGrossDemandDict['potential_demand']['industry'], 
-                                                                              self.totalPotentialMaximumNonIrrGrossDemand)
+        # - end of Abstraction and Allocation of SURFACE WATER
+
+        
+        # water demand that have been satisfied (unit: m/day) - after desalination and surface water supply
+        ################################################################################################################################
+        # - for irrigation and livestock water demand 
+        satisfiedIrrigationLivestockDemandFromSurfaceWater = self.allocSurfaceWaterAbstract * \
+               vos.getValDivZero(correctedRemainingIrrigationLivestock, correctedSurfaceWaterDemandEstimate)
+        # - for irrigation water demand, but not including livestock 
+        satisfiedIrrigationDemandFromSurfaceWater = satisfiedIrrigationLivestockDemandFromSurfaceWater * \
+               vos.getValDivZero(remainingIrrigation, remainingIrrigationLivestock)
+        satisfiedIrrigationDemand += satisfiedIrrigationDemandFromSurfaceWater
+        # - for non irrigation water demand: livestock, domestic and industry 
+        satisfiedNonIrrDemandFromSurfaceWater = pcr.max(0.0, self.allocSurfaceWaterAbstract - satisfiedIrrigationDemandFromSurfaceWater)
+        satisfiedNonIrrDemand += satisfiedNonIrrDemandFromSurfaceWater
         # - for livestock                                                                      
-        satisfiedLivestockDemand  = pcr.max(0.0, satisfiedNonIrrDemand - satisfiedDomesticDemand - satisfiedIndustryDemand)
+        satisfiedLivestockDemand += pcr.max(0.0, satisfiedIrrigationLivestockDemandFromSurfaceWater - \
+                                                 satisfiedIrrigationDemandFromSurfaceWater)
+        # - for industrial and domestic demand (excluding livestock)
+        satisfiedIndustrialDomesticDemandFromSurfaceWater = pcr.max(0.0, self.allocSurfaceWaterAbstract -\
+                                                                         satisfiedIrrigationLivestockDemandFromSurfaceWater)
+        # - for domestic                                                                 
+        satisfiedDomesticDemand += satisfiedIndustrialDomesticDemandFromSurfaceWater * vos.getValDivZero(remainingDomestic, \
+                                                                                                         remainingIndustrialDomestic)
+        # - for industry
+        satisfiedIndustryDemand += satisfiedIndustrialDomesticDemandFromSurfaceWater * vos.getValDivZero(remainingIndustry, \
+                                                                                                         remainingIndustrialDomestic)             
 
 
-        # total remaining gross demand (m/day) after desalination
-        ################################################################################################################################
-        self.totalGrossDemandAfterDesalination = pcr.max(0.0, self.totalPotentialGrossDemand - self.desalinationAllocation)
-        # the remaining water demand per sector
+
+        ######################################################################################################################
+        # water demand (unit: m) that must be satisfied by groundwater abstraction (not limited to available water)
+        self.potGroundwaterAbstract = pcr.max(0.0, self.totalGrossDemandAfterDesalination - self.allocSurfaceWaterAbstract)
+        ######################################################################################################################
+        # water demand per sector 
         # - for domestic 
         remainingDomestic   = pcr.max(0.0, nonIrrGrossDemandDict['potential_demand']['domestic']  - satisfiedDomesticDemand)
         # - for industry 
@@ -450,10 +526,9 @@ class WaterManagement(object):
         # - total for livestock and irrigation
         remainingIrrigationLivestock = remainingIrrigation + remainingLivestock
         # - total for industrial and domestic (excluding livestock)
-        remainingIndustrialDomestic  = pcr.max(0.0, self.totalGrossDemandAfterDesalination - remainingIrrigationLivestock)                                                     
+        remainingIndustrialDomestic  = remainingIndustry + remainingDomestic                                                     
 
-    def abstraction_and_allocation_from_surface_water():
-        pass
+
 
     def abstraction_and_allocation_from_groundwater():
         
