@@ -546,10 +546,6 @@ class WaterManagement(object):
 
     def abstraction_and_allocation_from_groundwater(remaining_gross_sectoral_water_demands, routing, groundwater):
         
-        # ~ self.abstraction_and_allocation_from_renewable_groundwater(remaining_gross_sectoral_water_demands, groundwater)
-        # ~ self.abstraction_and_allocation_from_non_renewable_groundwater(remaining_gross_sectoral_water_demands, groundwater)
-        
-        
         # calculate the remaining demands for the following combined sectors - NOTE THAT they are in VOLUME (m3/day)
         remainingIndustrialDomestic   = pcr.scalar(0.0)
         remainingIrrigationLivestock  = pcr.scalar(0.0)
@@ -562,7 +558,7 @@ class WaterManagement(object):
         remainingTotalDemand = remainingIndustrialDomestic + remainingIndustrialDomestic        
         
 
-        # Abstraction and Allocation of GROUNDWATER (fossil and non fossil)
+        # Abstraction and Allocation of GROUNDWATER (ALL: renewable (non-fossil) and non-renewable (fossil))
         #########################################################################################################################
         # estimating groundwater water demand:
         # - demand for industrial and domestic sectors 
@@ -590,6 +586,8 @@ class WaterManagement(object):
             tolerating_days = 0.
             annualGroundwaterAbstraction = groundwater.avgAbstraction * routing.cellArea *\
                                            pcr.min(pcr.max(0.0, 365.0 - tolerating_days), routing.timestepsToAvgDischarge)
+            # note: the groundwater.avgAbstraction must be in meter (to be consistent with previous versions) 
+            
             # total groundwater abstraction (m3) from the last 365 days at the regional scale
             regionalAnnualGroundwaterAbstraction = pcr.areatotal(pcr.cover(annualGroundwaterAbstraction, 0.0), groundwater_pumping_region_ids)
 
@@ -618,11 +616,11 @@ class WaterManagement(object):
         
 
         # Abstraction and Allocation of NON-FOSSIL GROUNDWATER
-        # #############################################################################################################################
-        # available storGroundwater (non fossil groundwater) that can be accessed (NOTE: All the following have the unit  m3)
-        readAvlStorGroundwater = pcr.cover(pcr.max(0.00, groundwater.storGroundwater * sell.cellArea), 0.0) 
+        # #################################################################################################################################
+        # available storGroundwater (non fossil groundwater) that can be accessed (NOTE: All the following variable must have the unit  m3)
+        readAvlStorGroundwater = pcr.cover(pcr.max(0.00, groundwater.storGroundwater * self.cellArea), 0.0) 
         # - considering maximum daily groundwater abstraction
-        readAvlStorGroundwater = pcr.min(readAvlStorGroundwater, groundwater.maximumDailyGroundwaterAbstraction * sell.cellArea) 
+        readAvlStorGroundwater = pcr.min(readAvlStorGroundwater, groundwater.maximumDailyGroundwaterAbstraction * self.cellArea) 
         # - ignore groundwater storage in non-productive aquifer 
         readAvlStorGroundwater = pcr.ifthenelse(groundwater.productive_aquifer, readAvlStorGroundwater, 0.0)
         # for non-productive aquifer, reduce readAvlStorGroundwater to the current recharge/baseflow rate
@@ -678,25 +676,20 @@ class WaterManagement(object):
         ################################################################################################################################
         # variable to reduce capillary rise in order to ensure there is always enough water to supply non fossil groundwater abstraction 
         # - unit: m
-        self.reducedCapRise = volRenewGroundwaterAbstraction / sell.cellArea                            
+        self.reducedCapRise = volRenewGroundwaterAbstraction / self.cellArea                            
         # TODO: Check do we need this for runs with MODFLOW ???
         ################################################################################################################################
         
         
         
-        # TODO: Continue from this!!!!
 
-
- 
-
-
-        ######################################################################################################################
-        ######################################################################################################################
-        # water demand that must be satisfied by fossil groundwater abstraction (unit: m, not limited to available water)
+        ################################################################################################################################
+        ################################################################################################################################
+        # water demand that must be satisfied by fossil groundwater abstraction (not limited to available water) NOTE the unit is m3/day 
         self.potFossilGroundwaterAbstract = pcr.max(0.0, self.potGroundwaterAbstract - \
                                                          self.allocNonFossilGroundwater)
-        ######################################################################################################################
-        ######################################################################################################################
+        ################################################################################################################################
+        ################################################################################################################################
 
 
         # For a run using MODFLOW, the concept of fossil groundwater abstraction is abandoned (self.limitAbstraction == True):
@@ -704,6 +697,12 @@ class WaterManagement(object):
             logger.debug('Fossil groundwater abstractions are NOT allowed')
             self.fossilGroundwaterAbstr = pcr.scalar(0.0)
             self.fossilGroundwaterAlloc = pcr.scalar(0.0)
+
+
+
+        # TODO: Continue from this!!!! Last action on 20-03-2024.
+
+
 
 
         # Abstraction and Allocation of FOSSIL GROUNDWATER
