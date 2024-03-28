@@ -456,8 +456,6 @@ class WaterManagement(object):
         # - total remaining demand, from all sectors
         remainingTotalDemand = remainingIndustrialDomestic + remainingIndustrialDomestic        
        
-        # TODO: Continue from this!!!
-        
         # - surface water demand estimate (so far, only from sectors outside irrigation and livestock) 
         surface_water_demand_estimate = swAbstractionFraction_industrial_domestic * remainingIndustrialDomestic
         
@@ -661,16 +659,23 @@ class WaterManagement(object):
         # - end of Abstraction and Allocation of RENEWABLE GROUNDWATER
 
 
-        # allocate the "renewable groundwater Allocation" to each sector - unit: m3
-        self.allocated_demand_per_sector["renewable_groundwater"] = self.allocate_satisfied_demand_to_each_sector(totalVolWaterAllocation = volRenewGroundwaterAllocation, sectoral_remaining_demand_volume = remaining_gross_sectoral_water_demands, total_remaining_demand_volume = remainingTotalDemand)
-
 
         # allocate the "renewable groundwater Abstraction" to each sector - unit: m3
         self.allocated_withdrawal_per_sector["renewable_groundwater"] = self.allocate_withdrawal_to_each_source(totalVolCellWaterAbstraction = volRenewGroundwaterAbstraction, totalVolZoneAbstraction = volZoneRenewGroundwaterAbstraction, cellAllocatedDemandPerSector = self.allocated_demand_per_sector["renewable_groundwater"], allocation_zones = self.allocationSegmentsForGroundwaterSource)
         
         
+        # allocate the "renewable groundwater Allocation" to each sector - unit: m3
+        self.allocated_demand_per_sector["renewable_groundwater"] = self.allocate_satisfied_demand_to_each_sector(totalVolWaterAllocation = volRenewGroundwaterAllocation, sectoral_remaining_demand_volume = remaining_gross_sectoral_water_demands, total_remaining_demand_volume = remainingTotalDemand)
+        
+        # update remaining_gross_sectoral_water_demands after renewable groundwater allocation
+        for sector_name in remaining_gross_sectoral_water_demands.keys():
+             remaining_gross_sectoral_water_demands[sector_name] = pcr.max(0.0, remaining_gross_sectoral_water_demands[sector_name] - \
+                                                             self.allocated_demand_per_sector["renewable_groundwater"][sector_name])
+             
+
         # remaining renewable groundwater that can still be extracted - unit: m3
         self.volRemainingRenewGroundwater = pcr.max(0.0,  readAvlStorGroundwater - volRenewGroundwaterAbstraction)
+        
 
 
         ################################################################################################################################
@@ -681,8 +686,6 @@ class WaterManagement(object):
         ################################################################################################################################
         
         
-        
-
         ################################################################################################################################
         ################################################################################################################################
         # water demand that must be satisfied by fossil groundwater abstraction (not limited to available water) NOTE the unit is m3/day 
@@ -700,11 +703,6 @@ class WaterManagement(object):
 
 
 
-        # TODO: Continue from this!!!! Last action on 20-03-2024.
-
-
-
-
         # Abstraction and Allocation of FOSSIL GROUNDWATER
         # #####################################################################################################################################
 
@@ -712,22 +710,27 @@ class WaterManagement(object):
             
             logger.debug('Fossil groundwater abstractions are allowed.')
             
-            # the remaining water demand (m/day) for all sectors - NOT limited to self.potFossilGroundwaterAbstract
+            # the remaining water demand (m3/day) for all sectors - NOT limited to self.potFossilGroundwaterAbstract
             #####################################################################################################################
             # - for domestic 
-            remainingDomestic   = pcr.max(0.0, nonIrrGrossDemandDict['potential_demand']['domestic']  - satisfiedDomesticDemand)
+            remainingDomestic   = remaining_gross_sectoral_water_demands['domestic']
             # - for industry 
-            remainingIndustry   = pcr.max(0.0, nonIrrGrossDemandDict['potential_demand']['industry']  - satisfiedIndustryDemand)
+            remainingIndustry   = remaining_gross_sectoral_water_demands['industry']
             # - for livestock 
-            remainingLivestock  = pcr.max(0.0, nonIrrGrossDemandDict['potential_demand']['livestock'] - satisfiedLivestockDemand)
+            remainingLivestock  = remaining_gross_sectoral_water_demands['livestock']
             # - for irrigation (excluding livestock)
-            remainingIrrigation = pcr.max(0.0, self.irrGrossDemand - satisfiedIrrigationDemand) 
+            remainingIrrigation = remaining_gross_sectoral_water_demands['irrigation'] 
             # - total for livestock and irrigation
             remainingIrrigationLivestock = remainingIrrigation + remainingLivestock
             # - total for industrial and domestic (excluding livestock)
             remainingIndustrialDomestic  = remainingIndustry + remainingDomestic
             # - remaining total demand
-            remainingTotalDemand = remainingIrrigationLivestock + remainingIndustrialDomestic                                                     
+            remainingTotalDemand = remainingIrrigationLivestock + remainingIndustrialDomestic
+            
+            # TODO: Make the above variables (remainingDomestic, remainingIndustry ... etc) more flexible, especially if we have more and diffent sector names.                                                    
+
+
+        # CONTINUE FROM THIS!!! - 
 
 
         # constraining fossil groundwater abstraction with regional pumping capacity
