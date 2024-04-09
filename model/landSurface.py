@@ -1315,6 +1315,9 @@ class LandSurface(object):
         self.water_management.update(vol_gross_sectoral_water_demands = vol_gross_sectoral_water_demands, groundwater = groundwater, routing = routing, currTimeStep = currTimeStep)
         # - This will be replaced by pcrLite
         
+        
+        # UNTIL THIS PART (9 April 2024). NEXT: We will have to clean up the 'old_update'.
+        
 
         # do the remaining land cover processes
         # - this including applying the 'allocated irrGrossDemand'
