@@ -992,7 +992,140 @@ class LandCover(object):
         # Note: There are some other land cover parameters that are set on the "__init__" (e.g. snow module parameters); these parameters are just constant during the model simulation.
 
 
-    def updateLC(self,meteo,groundwater,routing,\
+
+    def land_surface_hydrology_update_for_every_lc(self, capRiseFrac, currTimeStep):
+
+        
+        # calculate qDR & qSF & q23 (and update storages)
+        self.upperSoilUpdate(capRiseFrac, currTimeStep)
+
+        # saturation degrees (needed only for reporting):
+        if self.numberOfSoilLayers == 2:
+            self.satDegUpp = vos.getValDivZero(\
+                  self.storUpp, self.parameters.storCapUpp,\
+                  vos.smallNumber,0.)
+            self.satDegUpp = pcr.ifthen(self.landmask, self.satDegUpp)
+            self.satDegLow = vos.getValDivZero(\
+                  self.storLow, self.parameters.storCapLow,\
+                  vos.smallNumber,0.)
+            self.satDegLow = pcr.ifthen(self.landmask, self.satDegLow)
+
+            self.satDegUppTotal = self.satDegUpp
+            self.satDegLowTotal = self.satDegLow
+            
+            self.satDegTotal = pcr.ifthen(self.landmask, \
+                  vos.getValDivZero(\
+                  self.storUpp + self.storLow, self.parameters.storCapUpp + self.parameters.storCapLow,\
+                  vos.smallNumber, 0.0))
+
+        if self.numberOfSoilLayers == 3:
+            self.satDegUpp000005 = vos.getValDivZero(\
+                  self.storUpp000005, self.parameters.storCapUpp000005,\
+                  vos.smallNumber,0.)
+            self.satDegUpp000005 = pcr.ifthen(self.landmask, self.satDegUpp000005)
+            self.satDegUpp005030 = vos.getValDivZero(\
+                  self.storUpp005030, self.parameters.storCapUpp005030,\
+                  vos.smallNumber,0.)
+            self.satDegUpp005030 = pcr.ifthen(self.landmask, self.satDegUpp005030)
+            self.satDegLow030150 = vos.getValDivZero(\
+                  self.storLow030150, self.parameters.storCapLow030150,\
+                  vos.smallNumber,0.)
+            self.satDegLow030150 = pcr.ifthen(self.landmask, self.satDegLow030150)
+
+            self.satDegUppTotal  = vos.getValDivZero(\
+                  self.storUpp000005 + self.storUpp005030,\
+                  self.parameters.storCapUpp000005 + \
+                  self.parameters.storCapUpp005030,\
+                  vos.smallNumber,0.)
+            self.satDegUppTotal = pcr.ifthen(self.landmask, self.satDegUppTotal)
+            self.satDegLowTotal = self.satDegLow030150
+
+            self.satDegTotal = pcr.ifthen(self.landmask, \
+                  vos.getValDivZero(\
+                  self.storUpp000005 + self.storUpp005030 + self.satDegLow030150, self.parameters.storCapUpp000005 + self.parameters.storCapUpp005030 + self.parameters.storCapLow030150,\
+                  vos.smallNumber, 0.0))
+
+        
+        if self.report == True:
+            # writing Output to netcdf files
+            # - daily output:
+            timeStamp = datetime.datetime(currTimeStep.year,\
+                                          currTimeStep.month,\
+                                          currTimeStep.day,\
+                                          0)
+            timestepPCR = currTimeStep.timeStepPCR
+            if self.outDailyTotNC[0] != "None":
+                for var in self.outDailyTotNC:
+                    self.netcdfObj.data2NetCDF(str(self.outNCDir)+ \
+                                     str(var) + "_" + \
+                                     str(self.iniItemsLC['name']) + "_" + \
+                                     "dailyTot.nc",\
+                                     var,\
+                      pcr.pcr2numpy(self.__getattribute__(var),vos.MV),\
+                                     timeStamp,timestepPCR-1)
+        
+            # writing monthly output to netcdf files
+            # -cummulative
+            if self.outMonthTotNC[0] != "None":
+                for var in self.outMonthTotNC:
+                    # introduce variables at the beginning of simulation:
+                    if currTimeStep.timeStepPCR == 1: vars(self)[var+'Tot'] = \
+                                              pcr.scalar(0.0)
+                    # reset variables at the beginning of the month
+                    if currTimeStep.day == 1: vars(self)[var+'Tot'] = \
+                                              pcr.scalar(0.0)
+                    # accumulating
+                    vars(self)[var+'Tot'] += vars(self)[var]
+                    # reporting at the end of the month:
+                    if currTimeStep.endMonth == True: 
+                        self.netcdfObj.data2NetCDF(str(self.outNCDir)+"/"+ \
+                                     str(var) + "_" + \
+                                     str(self.iniItemsLC['name']) + "_" + \
+                                         "monthTot.nc",\
+                                      var,\
+                          pcr.pcr2numpy(self.__getattribute__(var+'Tot'),vos.MV),\
+                                         timeStamp,currTimeStep.monthIdx-1)
+            # -average
+            if self.outMonthAvgNC[0] != "None":
+                for var in self.outMonthAvgNC:
+                    # only if a accumulator variable has not been defined: 
+                    if var not in self.outMonthTotNC: 
+                        # introduce accumulator variables at the beginning of simulation:
+                        if currTimeStep.timeStepPCR == 1: vars(self)[var+'Tot'] = \
+                                              pcr.scalar(0.0)
+                        # reset variables at the beginning of the month
+                        if currTimeStep.day == 1: vars(self)[var+'Tot'] = \
+                                              pcr.scalar(0.0)
+                        # accumulating
+                        vars(self)[var+'Tot'] += vars(self)[var]
+                    # calculating average and reporting at the end of the month:
+                    if currTimeStep.endMonth == True:
+                        vars(self)[var+'Avg'] = vars(self)[var+'Tot'] /\
+                                                currTimeStep.day  
+                        self.netcdfObj.data2NetCDF(str(self.outNCDir)+"/"+ \
+                                     str(var) + "_" + \
+                                     str(self.iniItemsLC['name']) + "_" + \
+                                         "monthAvg.nc",\
+                                         var,\
+                          pcr.pcr2numpy(self.__getattribute__(var+'Avg'),vos.MV),\
+                                         timeStamp,currTimeStep.monthIdx-1)
+            # -last day of the month
+            if self.outMonthEndNC[0] != "None":
+                for var in self.outMonthEndNC:
+                    # reporting at the end of the month:
+                    if currTimeStep.endMonth == True: 
+                        self.netcdfObj.data2NetCDF(str(self.outNCDir)+"/"+ \
+                                     str(var) + "_" + \
+                                     str(self.iniItemsLC['name']) + "_" + \
+                                         "monthEnd.nc",\
+                                         var,\
+                          pcr.pcr2numpy(self.__getattribute__(var),vos.MV),\
+                                         timeStamp,currTimeStep.monthIdx-1)
+
+
+
+
+    def OLDupdateLC(self,meteo,groundwater,routing,\
                  capRiseFrac,\
                  nonIrrGrossDemandDict,swAbstractionFractionDict,\
                  currTimeStep,\
@@ -3717,7 +3850,210 @@ class LandCover(object):
         # landSurfaceRunoff (needed for routing)                        
         self.landSurfaceRunoff = self.directRunoff + self.interflowTotal
 
-    def upperSoilUpdate(self,meteo,groundwater,routing,\
+    def upperSoilUpdate(self, capRiseFrac, currTimeStep):
+
+        if self.debugWaterBalance:
+            netLqWaterToSoil = self.netLqWaterToSoil # input            
+            preTopWaterLayer = self.topWaterLayer
+            if self.numberOfLayers == 2: 
+                preStorUpp       = self.storUpp
+                preStorLow       = self.storLow
+            if self.numberOfLayers == 3: 
+                preStorUpp000005 = self.storUpp000005
+                preStorUpp005030 = self.storUpp005030
+                preStorLow030150 = self.storLow030150
+        
+        # given soil storages, we can calculate several derived states, such as 
+        # effective degree of saturation, unsaturated hydraulic conductivity, and 
+        # readily available water within the root zone.
+        self.getSoilStates()
+        
+        # calculate openWaterEvap: open water evaporation from the paddy field, 
+        # and update topWaterLayer after openWaterEvap.  
+        self.calculateOpenWaterEvap()
+        
+        # calculate directRunoff and infiltration, based on the improved Arno scheme (Hageman and Gates, 2003):
+        # and update topWaterLayer (after directRunoff and infiltration).  
+        self.calculateDirectRunoff()
+        self.calculateInfiltration()
+
+        # estimate bare soil evaporation and transpiration:
+        if self.numberOfLayers == 2: 
+            self.actBareSoilEvap, self.actTranspiUpp, self.actTranspiLow = \
+                   self.estimateTranspirationAndBareSoilEvap()
+        if self.numberOfLayers == 3: 
+            self.actBareSoilEvap, self.actTranspiUpp000005, self.actTranspiUpp005030, self.actTranspiLow030150 = \
+                   self.estimateTranspirationAndBareSoilEvap()
+        
+        # estimate percolation and capillary rise, as well as interflow
+        self.estimateSoilFluxes(capRiseFrac,groundwater)
+
+        # all fluxes are limited to available (source) storage
+        if self.name.startswith('irr') and self.includeIrrigation:
+            self.scaleAllFluxesForIrrigatedAreas(groundwater)
+            #~ self.scaleAllFluxes(groundwater)
+        else:    
+            self.scaleAllFluxes(groundwater)
+
+        # update all soil states (including get final/corrected fluxes) 
+        self.updateSoilStates()
+
+        # reporting irrigation transpiration deficit
+        self.irrigationTranspirationDeficit = 0.0
+        if self.name.startswith('irr'): self.irrigationTranspirationDeficit = pcr.max(0.0, self.potTranspiration - self.actTranspiTotal)
+        
+        if self.debugWaterBalance:
+            #
+            vos.waterBalanceCheck([netLqWaterToSoil    ,\
+                                   self.irrGrossDemand ,\
+                                   self.satExcess     ],\
+                                  [self.directRunoff   ,\
+                                   self.openWaterEvap  ,\
+                                   self.infiltration]  ,\
+                                  [  preTopWaterLayer ],\
+                                  [self.topWaterLayer ] ,\
+                                       'topWaterLayer',True,\
+                                   currTimeStep.fulldate,threshold=1e-4)
+            
+            if self.numberOfLayers == 2: 
+                # 
+                vos.waterBalanceCheck([self.infiltration,
+                                       self.capRiseUpp],\
+                                      [self.actTranspiUpp,
+                                       self.percUpp,
+                                       self.actBareSoilEvap,
+                                       self.satExcess],\
+                                      [  preStorUpp],\
+                                      [self.storUpp],\
+                                           'storUpp',\
+                                       True,\
+                                       currTimeStep.fulldate,threshold=1e-5)
+                # 
+                vos.waterBalanceCheck([self.percUpp],\
+                                      [self.actTranspiLow,
+                                       self.gwRecharge,
+                                       self.interflow,
+                                       self.capRiseUpp],\
+                                      [  preStorLow],\
+                                      [self.storLow],\
+                                           'storLow',\
+                                       True,\
+                                       currTimeStep.fulldate,threshold=1e-5)
+                #
+                vos.waterBalanceCheck([self.infiltration,\
+                                       self.capRiseLow],\
+                                      [self.satExcess,
+                                       self.interflow,
+                                       self.percLow,
+                                       self.actTranspiUpp,
+                                       self.actTranspiLow,
+                                       self.actBareSoilEvap],\
+                                      [  preStorUpp,
+                                         preStorLow],\
+                                      [self.storUpp,
+                                       self.storLow],\
+                                      'entireSoilLayers',\
+                                       True,\
+                                       currTimeStep.fulldate,threshold=1e-4)
+                #
+                vos.waterBalanceCheck([netLqWaterToSoil,
+                                       self.capRiseLow,
+                                       self.irrGrossDemand],\
+                                      [self.directRunoff,
+                                       self.interflow,
+                                       self.percLow,
+                                       self.actTranspiUpp,
+                                       self.actTranspiLow,
+                                       self.actBareSoilEvap,
+                                       self.openWaterEvap],\
+                                      [  preTopWaterLayer,
+                                         preStorUpp,
+                                         preStorLow],\
+                                      [self.topWaterLayer,
+                                       self.storUpp,
+                                       self.storLow],\
+                                      'allLayers',\
+                                       True,\
+                                       currTimeStep.fulldate,threshold=5e-4)
+
+            if self.numberOfLayers == 3: 
+                vos.waterBalanceCheck([self.infiltration,
+                                       self.capRiseUpp000005],\
+                                      [self.actTranspiUpp000005,
+                                       self.percUpp000005,
+                                       self.actBareSoilEvap,
+                                       self.satExcess],\
+                                      [  preStorUpp000005],\
+                                      [self.storUpp000005],\
+                                           'storUpp000005',True,\
+                                       currTimeStep.fulldate,threshold=1e-5)
+
+                # 
+                vos.waterBalanceCheck([self.percUpp000005,
+                                       self.capRiseUpp005030],\
+                                      [self.actTranspiUpp005030,
+                                       self.percUpp005030,
+                                       self.interflowUpp005030,
+                                       self.capRiseUpp000005],\
+                                      [  preStorUpp005030],\
+                                      [self.storUpp005030],\
+                                           'storUpp005030',True,\
+                                       currTimeStep.fulldate,threshold=1e-5)
+                #
+                vos.waterBalanceCheck([self.percUpp005030],\
+                                      [self.actTranspiLow030150,
+                                       self.gwRecharge,
+                                       self.interflow,
+                                       self.capRiseUpp005030],\
+                                      [  preStorLow030150],\
+                                      [self.storLow030150],\
+                                           'storLow030150',True,\
+                                       currTimeStep.fulldate,threshold=1e-5)
+                #
+                vos.waterBalanceCheck([self.infiltration,\
+                                       self.capRiseLow030150],\
+                                      [self.satExcess,
+                                       self.interflow,
+                                       self.interflowUpp005030,
+                                       self.percLow030150,
+                                       self.actTranspiUpp000005,
+                                       self.actTranspiUpp005030,
+                                       self.actTranspiLow030150,
+                                       self.actBareSoilEvap],\
+                                      [  preStorUpp000005,
+                                     preStorUpp005030,
+                                     preStorLow030150],\
+                                  [self.storUpp000005,
+                                   self.storUpp005030,
+                                   self.storLow030150],\
+                                  'entireSoilLayers',True,\
+                                   currTimeStep.fulldate,threshold=1e-4)
+                #
+                vos.waterBalanceCheck([netLqWaterToSoil,
+                                       self.capRiseLow030150,
+                                       self.irrGrossDemand],\
+                                      [self.directRunoff,
+                                       self.interflow,
+                                       self.interflowUpp005030,
+                                       self.percLow030150,
+                                       self.actTranspiUpp000005,
+                                       self.actTranspiUpp005030,
+                                       self.actTranspiLow030150,
+                                   self.actBareSoilEvap,
+                                   self.openWaterEvap],\
+                                  [  preTopWaterLayer,
+                                     preStorUpp000005,
+                                     preStorUpp005030,
+                                     preStorLow030150],\
+                                  [self.topWaterLayer,
+                                   self.storUpp000005,
+                                   self.storUpp005030,
+                                   self.storLow030150],\
+                                  'allLayers',True,\
+                                   currTimeStep.fulldate,threshold=1e-4)
+
+
+    def OLDupperSoilUpdate(self,meteo,groundwater,routing,\
                         capRiseFrac,\
                         nonIrrGrossDemandDict,swAbstractionFractionDict,\
                         currTimeStep,\

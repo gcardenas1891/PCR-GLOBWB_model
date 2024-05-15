@@ -1256,6 +1256,12 @@ class LandSurface(object):
             logger.info("Setting land cover parameters: "+str(coverType))
             self.landCoverObj[coverType].set_land_cover_parameters(currTimeStep)
 
+        # transfer some states from certain land covers to others, due to changes/dynamics in land cover conditions
+        # - if considering dynamic/historical irrigation areas (expansion/reduction of irrigated areas)
+        # - done at yearly basis, at the beginning of each year
+        # - note that this must be done at the beginning of each year, including for the first time step (timeStepPCR == 1)
+        self.state_transfer_among_land_cover()
+        
         # for every land cover, calculate total potential evaporation and partition it to bare soil evaporation and transpiration
         # - for this will return the following:
         #   totalPotET, potBareSoilEvap, potTranspiration
@@ -1299,11 +1305,11 @@ class LandSurface(object):
         
         # - also get the sectoral return flow fraction, particularly from non irrigation gross demands, the return flow from these sectors will go directly to surface water
         return_flow_fraction = {}
-        return_flow_fraction["domestic"]       = vos.getValDivZero(self.water_demand.DomesticWaterDemand.domesticNettoDemand, self.water_demand.DomesticWaterDemand.domesticGrossDemand)
-        return_flow_fraction["industry"]       = 
-        return_flow_fraction["manufacture"]    = 
-        return_flow_fraction["thermoelectric"] = 
-        
+        return_flow_fraction["domestic"]       = 1.0 - vos.getValDivZero(self.water_demand.DomesticWaterDemand.domesticNettoDemand            , self.water_demand.DomesticWaterDemand.domesticGrossDemand            )
+        return_flow_fraction["industry"]       = 1.0 - vos.getValDivZero(self.water_demand.IndustryWaterDemand.industryNettoDemand            , self.water_demand.IndustryWaterDemand.industryGrossDemand            )
+        return_flow_fraction["manufacture"]    = 1.0 - vos.getValDivZero(self.water_demand.ManufactureWaterDemand.manufactureNettoDemand      , self.water_demand.ManufactureWaterDemand.manufactureGrossDemand      )
+        return_flow_fraction["thermoelectric"] = 1.0 - vos.getValDivZero(self.water_demand.ThermoelectricWaterDemand.thermoelectricNettoDemand, self.water_demand.ThermoelectricWaterDemand.thermoelectricGrossDemand)
+        return_flow_fraction["livestock"]      = 1.0 - vos.getValDivZero(self.water_demand.LivestockWaterDemand.livestockNettoDemand          , self.water_demand.LivestockWaterDemand.livestockGrossDemand          )
 
         
         # pool the demands and do the allocation on the available storages at the land surface level / water allocation model and then pass the withdrawals to the surface and groundwater
@@ -1316,13 +1322,128 @@ class LandSurface(object):
         # - This will be replaced by pcrLite
         
         
-        # UNTIL THIS PART (9 April 2024). NEXT: We will have to clean up the 'old_update'.
+        # UNTIL THIS TIME (15 May 2024): CONTINUE FROM THIS
+        
+        # allocate the satisfied irrigation gross demands to every land cover:
+        total_satisfied_irrigation_water_volume = self.water_management.satisfied_gross_sectoral_water_demands['irrigation']
+        for coverType in self.coverTypes: 
+            if startswith("irr"):
+                # - in volume
+                self.landCoverObj[coverType].satisfied_irrigation_water_volume = total_satisfied_irrigation_water_volume *\
+                                                                                            vos.getValDivZero( self.water_demand_irrigation[coverType].irrGrossDemand * self.routing.cellArea * self.landCoverObj[coverType].fracVegCover, vol_gross_sectoral_water_demands["irrigation"])
+                # - in water slice/height
+                self.landCoverObj[coverType].satisfied_irrigation_water = self.landCoverObj[coverType].satisfied_irrigation_water_volume / (self.routing.cellArea * self.landCoverObj[coverType].fracVegCover)
         
 
         # do the remaining land cover processes
         # - this including applying the 'allocated irrGrossDemand'
-        self.old_update(meteo,groundwater,routing,currTimeStep)
+        self.land_surface_hydrology_update(meteo,groundwater,routing,currTimeStep)
 
+
+    def state_transfer_among_land_cover():
+
+        # transfer some states, due to changes/dynamics in land cover conditions
+        # - if considering dynamic/historical irrigation areas (expansion/reduction of irrigated areas)
+        # - done at yearly basis, at the beginning of each year
+        # - note that this must be done at the beginning of each year, including for the first time step (timeStepPCR == 1)
+        #
+        if ((self.dynamicIrrigationArea and self.includeIrrigation) or self.noAnnualChangesInLandCoverParameter == False) and currTimeStep.doy == 1:
+            #
+            # loop for all main states:
+            for var in self.mainStates:
+                
+                logger.info("Transfering states for the variable "+str(var))
+
+                moving_fraction = pcr.scalar(0.0)                       # total land cover fractions that will be transferred
+                moving_states   = pcr.scalar(0.0)                       # total states that will be transferred
+                
+                for coverType in self.coverTypes:
+                    
+                    old_fraction = self.landCoverObj[coverType].previousFracVegCover
+                    new_fraction = self.landCoverObj[coverType].fracVegCover
+                    
+                    moving_fraction += pcr.max(0.0, old_fraction-new_fraction)
+                    moving_states   += pcr.max(0.0, old_fraction-new_fraction) * vars(self.landCoverObj[coverType])[var]
+
+                previous_state = pcr.scalar(0.0)
+                rescaled_state = pcr.scalar(0.0)
+                
+                # correcting states
+                for coverType in self.coverTypes:
+                    
+                    old_states   = vars(self.landCoverObj[coverType])[var]
+                    old_fraction = self.landCoverObj[coverType].previousFracVegCover
+                    new_fraction = self.landCoverObj[coverType].fracVegCover
+                    
+                    correction   = moving_states *\
+                                   vos.getValDivZero( pcr.max(0.0, new_fraction - old_fraction),\
+                                                      moving_fraction, vos.smallNumber )
+                     
+                    new_states   = pcr.ifthenelse(new_fraction > old_fraction, 
+                                   vos.getValDivZero( 
+                                   old_states * old_fraction + correction, \
+                                   new_fraction, vos.smallNumber), old_states) 
+                    
+                    new_states   = pcr.ifthenelse(new_fraction > 0.0, new_states, pcr.scalar(0.0))
+                    
+                    vars(self.landCoverObj[coverType])[var] = new_states
+
+                    previous_state += old_fraction * old_states
+                    rescaled_state += new_fraction * new_states
+            
+                # check and make sure that previous_state == rescaled_state
+                check_map = previous_state - rescaled_state
+                a,b,c = vos.getMinMaxMean(check_map)
+                threshold = 1e-5
+                if abs(a) > threshold or abs(b) > threshold:
+                    logger.warning("Error in transfering states (due to dynamic in land cover fractions) ... Min %f Max %f Mean %f" %(a,b,c))
+                else:     
+                    logger.info("Successful in transfering states (after change in land cover fractions) ... Min %f Max %f Mean %f" %(a,b,c))
+
+        # for the last day of the year, we have to save the previous land cover fractions (to be considered in the next time step) 
+        if self.dynamicIrrigationArea and self.includeIrrigation and currTimeStep.isLastDayOfYear:     
+            # save the current state of fracVegCover
+            for coverType in self.coverTypes:\
+                self.landCoverObj[coverType].previousFracVegCover = self.landCoverObj[coverType].fracVegCover
+
+    def land_surface_hydrology_update(self,meteo,groundwater,routing,currTimeStep):
+		
+        # calculate cell fraction influenced by capillary rise:
+        self.capRiseFrac = self.calculateCapRiseFrac(groundwater,routing,currTimeStep)
+            
+        # update (loop per each land cover type):
+        # - note this will exclude the calculations of potential evaporation, interception and snow
+        for coverType in self.coverTypes:
+            
+            logger.info("Updating land cover: "+str(coverType))
+            self.landCoverObj[coverType].updateLC(self.capRiseFrac, currTimeStep)
+            
+            
+        # first, we set all aggregated values/variables to zero: 
+        for var in self.aggrVars: vars(self)[var] = pcr.scalar(0.0)
+        #
+        # get or calculate the values of all aggregated values/variables
+        for coverType in self.coverTypes:
+            # calculate the aggregrated or global landSurface values: 
+            for var in self.aggrVars:
+                vars(self)[var] += \
+                     self.landCoverObj[coverType].fracVegCover * vars(self.landCoverObj[coverType])[var]
+                     
+        # total storages (unit: m3) in the entire landSurface module
+        if self.numberOfSoilLayers == 2: self.totalSto = \
+                        self.snowCoverSWE + self.snowFreeWater + self.interceptStor +\
+                        self.topWaterLayer +\
+                        self.storUpp +\
+                        self.storLow
+        #
+        if self.numberOfSoilLayers == 3: self.totalSto = \
+                        self.snowCoverSWE + self.snowFreeWater + self.interceptStor +\
+                        self.topWaterLayer +\
+                        self.storUpp000005 + self.storUpp005030 +\
+                        self.storLow030150
+
+        # old-style reporting (this is useful for debugging)                            
+        self.old_style_land_surface_reporting(currTimeStep)
 
 
     def old_update(self,meteo,groundwater,routing,currTimeStep):
