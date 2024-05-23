@@ -993,11 +993,11 @@ class LandCover(object):
 
 
 
-    def land_surface_hydrology_update_for_every_lc(self, capRiseFrac, currTimeStep):
+    def land_surface_hydrology_update_for_every_lc(self, capRiseFrac, currTimeStep, satisfied_irrigation_water_height = 0.0):
 
         
         # calculate qDR & qSF & q23 (and update storages)
-        self.upperSoilUpdate(capRiseFrac, currTimeStep)
+        self.upperSoilUpdate(capRiseFrac, currTimeStep, satisfied_irrigation_water_height)
 
         # saturation degrees (needed only for reporting):
         if self.numberOfSoilLayers == 2:
@@ -2690,11 +2690,12 @@ class LandCover(object):
         
         return directRunoff                                            
 
-    def calculateOpenWaterEvap(self):
+    def calculateOpenWaterEvap(self, satisfied_irrigation_water_volume):
 
         # update topWaterLayer (above soil) 
         # - with netLqWaterToSoil and irrGrossDemand
-        self.topWaterLayer += pcr.max(0.,self.netLqWaterToSoil + self.irrGrossDemand)
+        # ~ self.topWaterLayer += pcr.max(0.,self.netLqWaterToSoil + self.irrGrossDemand)
+        self.topWaterLayer += pcr.max(0., self.netLqWaterToSoil + satisfied_irrigation_water)
 
         # potential evaporation for openWaterEvap
         remainingPotETP = self.potBareSoilEvap + self.potTranspiration   # Edwin's principle: LIMIT = self.potBareSoilEvap +self.potTranspiration 
@@ -3850,7 +3851,7 @@ class LandCover(object):
         # landSurfaceRunoff (needed for routing)                        
         self.landSurfaceRunoff = self.directRunoff + self.interflowTotal
 
-    def upperSoilUpdate(self, capRiseFrac, currTimeStep):
+    def upperSoilUpdate(self, capRiseFrac, currTimeStep, satisfied_irrigation_water_height):
 
         if self.debugWaterBalance:
             netLqWaterToSoil = self.netLqWaterToSoil # input            
@@ -3869,8 +3870,9 @@ class LandCover(object):
         self.getSoilStates()
         
         # calculate openWaterEvap: open water evaporation from the paddy field, 
-        # and update topWaterLayer after openWaterEvap.  
-        self.calculateOpenWaterEvap()
+        # and update topWaterLayer after openWaterEvap. 
+        # - this will include adding water for irrigation 
+        self.calculateOpenWaterEvap(satisfied_irrigation_water_height)
         
         # calculate directRunoff and infiltration, based on the improved Arno scheme (Hageman and Gates, 2003):
         # and update topWaterLayer (after directRunoff and infiltration).  

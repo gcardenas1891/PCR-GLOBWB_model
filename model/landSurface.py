@@ -1321,19 +1321,24 @@ class LandSurface(object):
         self.water_management.update(vol_gross_sectoral_water_demands = vol_gross_sectoral_water_demands, groundwater = groundwater, routing = routing, currTimeStep = currTimeStep)
         # - This will be replaced by pcrLite
         
-        
-        # UNTIL THIS TIME (15 May 2024): CONTINUE FROM THIS
-        
         # allocate the satisfied irrigation gross demands to every land cover:
         total_satisfied_irrigation_water_volume = self.water_management.satisfied_gross_sectoral_water_demands['irrigation']
+        self.satisfied_irrigation_water_volume = {}
+        self.satisfied_irrigation_water = {}
         for coverType in self.coverTypes: 
+            
+            # for irrigation land cover types
             if startswith("irr"):
                 # - in volume
-                self.landCoverObj[coverType].satisfied_irrigation_water_volume = total_satisfied_irrigation_water_volume *\
+                self.satisfied_irrigation_water_volume[coverType] = total_satisfied_irrigation_water_volume *\
                                                                                             vos.getValDivZero( self.water_demand_irrigation[coverType].irrGrossDemand * self.routing.cellArea * self.landCoverObj[coverType].fracVegCover, vol_gross_sectoral_water_demands["irrigation"])
                 # - in water slice/height
-                self.landCoverObj[coverType].satisfied_irrigation_water = self.landCoverObj[coverType].satisfied_irrigation_water_volume / (self.routing.cellArea * self.landCoverObj[coverType].fracVegCover)
-        
+                self.satisfied_irrigation_water_height[coverType] = self.landCoverObj[coverType].satisfied_irrigation_water_volume / (self.routing.cellArea * self.landCoverObj[coverType].fracVegCover)
+
+            # for non irrigation land cover types
+            else:
+                self.satisfied_irrigation_water_volume[coverType] = 0.0
+                self.satisfied_irrigation_water_height[coverType] = 0.0
 
         # do the remaining land cover processes
         # - this including applying the 'allocated irrGrossDemand'
@@ -1409,15 +1414,14 @@ class LandSurface(object):
     def land_surface_hydrology_update(self,meteo,groundwater,routing,currTimeStep):
 		
         # calculate cell fraction influenced by capillary rise:
-        self.capRiseFrac = self.calculateCapRiseFrac(groundwater,routing,currTimeStep)
+        self.capRiseFrac = self.calculateCapRiseFrac(groundwater, routing, currTimeStep)
             
         # update (loop per each land cover type):
         # - note this will exclude the calculations of potential evaporation, interception and snow
         for coverType in self.coverTypes:
             
             logger.info("Updating land cover: "+str(coverType))
-            self.landCoverObj[coverType].updateLC(self.capRiseFrac, currTimeStep)
-            
+            self.landCoverObj[coverType].land_surface_hydrology_update_for_every_lc(self.capRiseFrac, currTimeStep, self.satisfied_irrigation_water_height[coverType])
             
         # first, we set all aggregated values/variables to zero: 
         for var in self.aggrVars: vars(self)[var] = pcr.scalar(0.0)
