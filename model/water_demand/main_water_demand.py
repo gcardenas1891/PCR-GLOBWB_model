@@ -27,7 +27,7 @@ import sys
 
 import pcraster as pcr
 
-import .virtualOS as vos
+import ..virtualOS as vos
 
 import domestic_water_demand
 import industry_water_demand
