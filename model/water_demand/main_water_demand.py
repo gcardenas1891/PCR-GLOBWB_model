@@ -27,14 +27,15 @@ import sys
 
 import pcraster as pcr
 
-import virtualOS as vos
+# ~ import virtualOS as vos
 # TODO: FIX THIS, at this moment there is a link to virtualOS.py to the upper folder.
+from .. import virtualOS as vos
 
-import domestic_water_demand
-import industry_water_demand
-import livestock_water_demand
-import manufacture_water_demand
-import thermoelectric_water_demand
+from . import domestic_water_demand
+from . import industry_water_demand
+from . import livestock_water_demand
+from . import manufacture_water_demand
+from . import thermoelectric_water_demand
 
 import irrigation_water_demand
 
