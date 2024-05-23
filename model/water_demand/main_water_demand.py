@@ -27,9 +27,8 @@ import sys
 
 import pcraster as pcr
 
-# ~ import .virtualOS as vos
-from .. import virtualOS as vos
-
+import virtualOS as vos
+# TODO: FIX THIS, at this moment there is a link to virtualOS.py to the upper folder.
 
 import domestic_water_demand
 import industry_water_demand
