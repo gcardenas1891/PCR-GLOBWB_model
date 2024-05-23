@@ -86,7 +86,7 @@ class WaterDemand(object):
             # - note loop will only be done for the land cover types that start with "irr" (irrigation)
             if startswith("irr"):
                 # - the following will return irrGrossDemand in m per day
-		        self.water_demand_irrigation[coverType].update(meteo, landSurface, groundwater, routing, currTimeStep)
+                self.water_demand_irrigation[coverType].update(meteo, landSurface, groundwater, routing, currTimeStep)
         
         # get irrigation demand in volume (m3)
         self.total_vol_irrigation_demand = pcr.scalar(0.0)
