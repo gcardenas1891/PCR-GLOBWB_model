@@ -27,7 +27,6 @@ import sys
 
 import pcraster as pcr
 
-sys.path.append("..")
 import virtualOS as vos
 
 
