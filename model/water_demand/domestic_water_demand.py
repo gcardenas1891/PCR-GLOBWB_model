@@ -27,7 +27,6 @@ import sys
 
 import pcraster as pcr
 
-sys.path.append("..")
 import virtualOS as vos
 
 
@@ -114,7 +113,7 @@ class DomesticWaterDemand(object):
                                               v                = grossFileName, \
                                               cloneMapFileName = self.cloneMap, \
                                               tmpDir           = self.tmpDir), \
-                                          0.0)
+                                          0.0))
                     
                     nettoFileName = self.domesticWaterDemandFile + "n" + str(currTimeStep.year) + ".0" + string_month
                     self.domesticNettoDemand = \
