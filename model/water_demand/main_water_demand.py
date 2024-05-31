@@ -37,7 +37,7 @@ from . import livestock_water_demand
 from . import manufacture_water_demand
 from . import thermoelectric_water_demand
 
-import irrigation_water_demand
+from . import irrigation_water_demand
 
 import logging
 logger = logging.getLogger(__name__)
