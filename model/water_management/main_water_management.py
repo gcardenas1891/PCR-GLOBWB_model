@@ -574,6 +574,8 @@ class WaterManagement(object):
         
         # set regional annual groundwater pumping capacity - TODO: FINISH THIS!!!
         groundwater_pumping_region_ids = 
+        
+        
         regionalAnnualGroundwaterAbstractionLimit = 
         
         
