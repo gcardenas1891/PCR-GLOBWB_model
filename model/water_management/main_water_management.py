@@ -424,12 +424,8 @@ class WaterManagement(object):
 
                                                      
 
-    def abstraction_and_allocation_from_surface_water(self, \
-                                                            remaining_gross_sectoral_water_demands,\
-                                                            available_surface_water_volume,\        
-                                                            routing,\                                
-                                                            groundwater\
-                                                            ):
+    def abstraction_and_allocation_from_surface_water(self, remaining_gross_sectoral_water_demands,\
+                                                            available_surface_water_volume, routing, groundwater):
 
 
         # Abstraction and Allocation of SURFACE WATER
