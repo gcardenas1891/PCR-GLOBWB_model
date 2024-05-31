@@ -110,7 +110,7 @@ class IndustryWaterDemand(object):
                                               v                = grossFileName, \
                                               cloneMapFileName = self.cloneMap, \
                                               tmpDir           = self.tmpDir), \
-                                          0.0)
+                                          0.0))
                     
                     nettoFileName = self.industryWaterDemandFile + "n" + str(currTimeStep.year) + ".map"
                     self.industryNettoDemand = \
