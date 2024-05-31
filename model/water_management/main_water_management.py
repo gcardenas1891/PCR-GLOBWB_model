@@ -127,7 +127,7 @@ class WaterManagement(object):
 
 
 
-    def get_allocation_zone(zonal_map_file_name)
+    def get_allocation_zone(zonal_map_file_name):
 
         allocSegments = vos.readPCRmapClone(zonal_map_file_name,
          self.cloneMap, self.tmpDir, self.inputDir, isLddMap=False, cover=None, isNomMap=True)
