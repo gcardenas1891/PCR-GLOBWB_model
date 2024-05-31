@@ -78,8 +78,8 @@ class IrrigationWaterDemand(object):
         
         # irrigation efficiency input (string or file name)
         self.ini_items_for_irrigation_efficiency = None
-        if 'irrigationEfficiency' in iniItems.landSurfaceOptions.keys(): self.ini_items_for_irrigation_efficiency = iniItems.landSurfaceOptions['irrigationEfficiency']
-        if 'irrigationEfficiency' in self.iniItemsIrrLC.keys(): self.ini_items_for_irrigation_efficiency = iniItems.landSurfaceOptions['irrigationEfficiency']
+        if 'irrigationEfficiency' in self.iniItems.waterDemandOptions.keys(): self.ini_items_for_irrigation_efficiency = self.iniItems.waterDemandOptions['irrigationEfficiency']
+        if 'irrigationEfficiency' in self.iniItemsIrrLC.keys(): self.ini_items_for_irrigation_efficiency = self.iniItemsIrrLCOptions['irrigationEfficiency']
         if self.ini_items_for_irrigation_efficiency is None:
             logger.info("'irrigationEfficiency' is not defined, we set this to 1.0")
             self.ini_items_for_irrigation_efficiency = "1.0"

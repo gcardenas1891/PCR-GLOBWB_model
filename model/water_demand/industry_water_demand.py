@@ -50,7 +50,7 @@ class IndustryWaterDemand(object):
         
         # get the file information for industry water demand (unit: m/day)
         self.industryWaterDemandOption = False
-        if iniItems.landSurfaceOptions['includeIndustryWaterDemand']  == "True":
+        if iniItems.waterDemandOptions['includeIndustryWaterDemand']  == "True":
             self.industryWaterDemandOption = True  
             logger.info("Industry water demand is included in the calculation.")
         else:
@@ -59,7 +59,7 @@ class IndustryWaterDemand(object):
         if self.industryWaterDemandOption:
             self.industryWaterDemandFile = \
                 vos.getFullPath(\
-                    inputPath        = iniItems.landSurfaceOptions['industryWaterDemandFile'], \
+                    inputPath        = iniItems.waterDemandOptions['industryWaterDemandFile'], \
                     absolutePath     = self.inputDir, \
                     completeFileName = False)
 
