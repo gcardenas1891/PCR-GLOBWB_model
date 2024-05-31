@@ -30,6 +30,9 @@ import pcraster as pcr
 sys.path.append("..")
 import virtualOS as vos
 
+import logging
+logger = logging.getLogger(__name__)
+
 
 class ManufactureWaterDemand(object):
 
