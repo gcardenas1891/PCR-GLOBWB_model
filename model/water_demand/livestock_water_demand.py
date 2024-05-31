@@ -112,7 +112,7 @@ class LivestockWaterDemand(object):
                                               v                = grossFileName, \
                                               cloneMapFileName = self.cloneMap, \
                                               tmpDir           = self.tmpDir), \
-                                          0.0)
+                                          0.0))
                     
                     nettoFileName = self.livestockWaterDemandFile+"n"+str(currTimeStep.year)+".0"+string_month
                     self.livestockNettoDemand = \
