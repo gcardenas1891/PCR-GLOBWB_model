@@ -50,7 +50,7 @@ class ThermoelectricWaterDemand(object):
         
         # get the file information for thermoelectric water demand (unit: m/day)
         self.thermoelectricWaterDemandOption = False
-        if iniItems.landSurfaceOptions['includeThermoelectricWaterDemand']  == "True":
+        if iniItems.waterDemandOptions['includeThermoelectricWaterDemand']  == "True":
             self.thermoelectricWaterDemandOption = True  
             logger.info("Thermoelectric water demand is included in the calculation.")
         else:
@@ -59,7 +59,7 @@ class ThermoelectricWaterDemand(object):
         if self.thermoelectricWaterDemandOption:
             self.thermoelectricWaterDemandFile = \
                 vos.getFullPath(\
-                    inputPath        = iniItems.landSurfaceOptions['thermoelectricWaterDemandFile'], \
+                    inputPath        = iniItems.waterDemandOptions['thermoelectricWaterDemandFile'], \
                     absolutePath     = self.inputDir, \
                     completeFileName = False)
 
