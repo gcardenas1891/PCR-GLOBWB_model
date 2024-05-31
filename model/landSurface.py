@@ -326,9 +326,7 @@ class LandSurface(object):
         for coverType in self.coverTypes: 
             self.landCoverObj[coverType] = lc.LandCover(iniItems,\
                                                         str(coverType)+'Options',\
-                                                        self.soil_topo_parameters[coverType],self.landmask,\
-                                                        self.irrigationEfficiency,\
-                                                        self.usingAllocSegments)
+                                                        self.soil_topo_parameters[coverType],self.landmask)
         
         # rescale landCover Fractions
         # - by default, the land cover fraction will always be corrected (to ensure the total of all fractions = 1.0)

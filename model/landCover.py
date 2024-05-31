@@ -36,7 +36,7 @@ from ncConverter import *
 
 class LandCover(object):
 
-    def __init__(self,iniItems,nameOfSectionInIniFile,soil_and_topo_parameters,landmask,irrigationEfficiency,usingAllocSegments = False):
+    def __init__(self,iniItems,nameOfSectionInIniFile, soil_and_topo_parameters, landmask, irrigationEfficiency = None, usingAllocSegments = False):
         object.__init__(self)
 
         self.cloneMap = iniItems.cloneMap
