@@ -308,7 +308,7 @@ class IrrigationWaterDemand(object):
         
         # get irrigation efficiency
         # - this will be done on the yearly basis
-        if currTimeStep.doy == 1 or currTimeStep.timeStepPCR == 1):
+        if currTimeStep.doy == 1 or currTimeStep.timeStepPCR == 1:
             # - this will return self.irrigationEfficiency
             self.get_irrigation_efficiency(iniItems, landmask, currTimeStep)
 		
