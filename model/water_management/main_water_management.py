@@ -1844,8 +1844,3 @@ class WaterManagement(object):
                                    currTimeStep.fulldate,threshold=1e-4)
         
         # TODO: Perform water balance checks for all sources: desalination, surface water, non-fossil groundwater and fossil groundwater 
-		
-		pass
-        
-        
-
