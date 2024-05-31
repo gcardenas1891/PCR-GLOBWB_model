@@ -273,7 +273,7 @@ class WaterManagement(object):
         self.remaining_gross_sectoral_water_demands = {}
         for sector_name in self.gross_sectoral_water_demands.keys():
              self.satisfied_gross_sectoral_water_demands[sector_name] = pcr.scalar(0.0) 
-			 self.remaining_gross_sectoral_water_demands[sector_name] = vol_gross_sectoral_water_demands[sector_name]
+             self.remaining_gross_sectoral_water_demands[sector_name] = vol_gross_sectoral_water_demands[sector_name]
         
         # initiate the variables for remaining volumes of surface water, as well as renewable and non renewable groundwater
         # - all in volume units (m3)
