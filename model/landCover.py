@@ -169,8 +169,10 @@ class LandCover(object):
                                    self.get_land_cover_parameters()
             # estimate parameters while transpiration is being halved
             self.calculateParametersAtHalfTranspiration()
-            # calculate TAW for estimating irrigation gross demand
-            if self.includeIrrigation: self.calculateTotAvlWaterCapacityInRootZone()
+
+            # THE FOLLOWING WAS DISACTIVATED during the development of new water use and water management modules (TODO: Please check whether the following lines SHOULD ALSO BE DELETED)  
+            # ~ # calculate TAW for estimating irrigation gross demand
+            # ~ if self.includeIrrigation: self.calculateTotAvlWaterCapacityInRootZone()
 
         # get additional land cover parameters (ALWAYS fixed for the entire simulation)
         landCovParamsAdd = ['minTopWaterLayer',
