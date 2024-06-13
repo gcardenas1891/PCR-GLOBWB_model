@@ -62,9 +62,10 @@ class LandCover(object):
         if "useMODFLOW" in list(iniItems.groundwaterOptions.keys()):
             if iniItems.groundwaterOptions["useMODFLOW"] == "True": self.limitAbstraction = True
         
-        # includeIrrigation
-        self.includeIrrigation = False
-        if iniItems.landSurfaceOptions['includeIrrigation'] == "True": self.includeIrrigation = True
+        # THE FOLLOWING WAS DISACTIVATED during the development of new water use and water management modules (TODO: Please check whether the following lines SHOULD ALSO BE DELETED)  
+        # ~ # includeIrrigation
+        # ~ self.includeIrrigation = False
+        # ~ if iniItems.landSurfaceOptions['includeIrrigation'] == "True": self.includeIrrigation = True
         
         # irrigation efficiency map (dimensionless)
         self.irrigationEfficiency = irrigationEfficiency
