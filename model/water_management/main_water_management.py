@@ -314,11 +314,11 @@ class WaterManagement(object):
 
     def update(self, vol_gross_sectoral_water_demands, groundwater, routing, currTimeStep):
 
-        # initiate the variables for remaining sectoral water demands and accumulated variables for sectoral water demands that have been satisfied
+        # initiate the variables for remaining sectoral water demands and accumulated/satisfied_gross_sectoral_water_demand variables
         # - both have the unit m3
-        self.accumulated_satisfied_gross_sectoral_water_demands = {}
+        self.satisfied_gross_sectoral_water_demands = {}
         self.remaining_gross_sectoral_water_demands = {}
-        for sector_name in self.gross_sectoral_water_demands.keys():
+        for sector_name in vol_gross_sectoral_water_demands.keys():
              self.satisfied_gross_sectoral_water_demands[sector_name] = pcr.scalar(0.0) 
              self.remaining_gross_sectoral_water_demands[sector_name] = vol_gross_sectoral_water_demands[sector_name]
         
