@@ -76,7 +76,7 @@ class LivestockWaterDemand(object):
     def read_livestock_water_demand_from_files(self, currTimeStep):
         # read livestock water demand
         if currTimeStep.timeStepPCR == 1 or currTimeStep.day == 1:
-            if self.livesotckWaterDemandOption:
+            if self.livestockWaterDemandOption:
                 
                 # reading from a netcdf file
                 if self.livestockWaterDemandFile.endswith(vos.netcdf_suffixes):  
