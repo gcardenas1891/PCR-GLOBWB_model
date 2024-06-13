@@ -67,7 +67,7 @@ class WaterDemand(object):
         self.coverTypes = landCoverTypeNames
         for coverType in self.coverTypes: 
             # - note loop will only be done for the land cover types that start with "irr" (irrigation)
-            if startswith("irr"): self.water_demand_irrigation[coverType] = irrigation_water_demand.IrrigationWaterDemand(iniItems, coverType+str("Options"), self.landmask, landCoverObjects[coverType])
+            if coverType.startswith("irr"): self.water_demand_irrigation[coverType] = irrigation_water_demand.IrrigationWaterDemand(iniItems, coverType+str("Options"), self.landmask, landCoverObjects[coverType])
         
     def update(self, meteo, landSurface, groundwater, routing, currTimeStep):
         
@@ -84,7 +84,7 @@ class WaterDemand(object):
         # - for every irrigation land cover type
         for coverType in self.coverTypes: 
             # - note loop will only be done for the land cover types that start with "irr" (irrigation)
-            if startswith("irr"):
+            if coverType.startswith("irr"):
                 # - the following will return irrGrossDemand in m per day
                 self.water_demand_irrigation[coverType].update(meteo, landSurface, groundwater, routing, currTimeStep)
         
