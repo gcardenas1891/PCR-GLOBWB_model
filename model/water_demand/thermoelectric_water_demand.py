@@ -65,8 +65,8 @@ class ThermoelectricWaterDemand(object):
 
 
 
-    def update(self, currTimeStep, read_file):
-        read_file = True
+    def update(self, currTimeStep, read_file = True):
+
         if read_file:
             self.read_thermoelectric_water_demand_from_files(currTimeStep)
         else:
