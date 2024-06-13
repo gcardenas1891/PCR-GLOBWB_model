@@ -1291,11 +1291,11 @@ class LandSurface(object):
         # - return the following gross sectoral water demands in volume (m3)  
         vol_gross_sectoral_water_demands = {}
         # -- non irrigation demand (m3)
-        vol_gross_sectoral_water_demands["domestic"]       = self.water_demand.DomesticWaterDemand.domesticGrossDemand             * self.routing.cellArea
-        vol_gross_sectoral_water_demands["industry"]       = self.water_demand.IndustryWaterDemand.industryGrossDemand             * self.routing.cellArea
-        vol_gross_sectoral_water_demands["manufacture"]    = self.water_demand.ManufactureWaterDemand.manufactureGrossDemand       * self.routing.cellArea
-        vol_gross_sectoral_water_demands["thermoelectric"] = self.water_demand.ThermoelectricWaterDemand.thermoelectricGrossDemand * self.routing.cellArea
-        vol_gross_sectoral_water_demands["livestock"]      = self.water_demand.LivestockWaterDemand.livestockGrossDemand           * self.routing.cellArea
+        vol_gross_sectoral_water_demands["domestic"]       = self.water_demand.water_demand_domestic.domesticGrossDemand             * self.routing.cellArea
+        vol_gross_sectoral_water_demands["industry"]       = self.water_demand.water_demand_industry.industryGrossDemand             * self.routing.cellArea
+        vol_gross_sectoral_water_demands["manufacture"]    = self.water_demand.water_demand_manufacture.manufactureGrossDemand       * self.routing.cellArea
+        vol_gross_sectoral_water_demands["thermoelectric"] = self.water_demand.water_demand_thermoelectric.thermoelectricGrossDemand * self.routing.cellArea
+        vol_gross_sectoral_water_demands["livestock"]      = self.water_demand.water_demand_livestock.livestockGrossDemand           * self.routing.cellArea
         # -- irrigation demand (m3)
         vol_gross_sectoral_water_demands["irrigation"] = pcr.scalar(0.0)
         for coverType in self.coverTypes: 
