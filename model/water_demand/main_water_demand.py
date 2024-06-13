@@ -91,9 +91,5 @@ class WaterDemand(object):
         # get irrigation demand in volume (m3)
         self.total_vol_irrigation_demand = pcr.scalar(0.0)
         for coverType in self.coverTypes: 
-            if startswith("irr"): self.total_vol_irrigation_demand = self.total_vol_irrigation_demand + self.water_demand_irrigation[coverType].irrGrossDemand * routing.cellArea
-		        
-
-
-        self.water_demand_irrigation[coverType]
+            if coverType.startswith("irr"): self.total_vol_irrigation_demand = self.total_vol_irrigation_demand + self.water_demand_irrigation[coverType].irrGrossDemand * routing.cellArea
         
