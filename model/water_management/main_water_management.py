@@ -80,7 +80,7 @@ class WaterManagement(object):
                    "allocationSegmentsForGroundwaterSource     "]
         for source in sources:
             if ((source in iniItems.waterManagementOptions.keys()) and (iniItems.waterManagementOptions[source] not in ["False", "None"])):
-                vars(self)[var], vars(self)[var+"Areas"] = get_allocation_zone(iniItems.waterManagementOptions[source])
+                vars(self)[var], vars(self)[var+"Areas"] = self.get_allocation_zone(iniItems.waterManagementOptions[source])
             else:
                 vars(self)[var], vars(self)[var+"Areas"] = None, None
 
