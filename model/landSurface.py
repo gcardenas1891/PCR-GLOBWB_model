@@ -217,9 +217,9 @@ class LandSurface(object):
         self.coverTypes = ["forest","grassland"]
         #
         self.includeIrrigation = False
-        if iniItems.landSurfaceOptions['includeIrrigation'] == "True":
+        if iniItems.waterDemandOptions['includeIrrigation'] == "True":
             self.includeIrrigation = True
-            self.coverTypes += ["irrPaddy","irrNonPaddy"]
+            self.coverTypes += ["irrPaddy", "irrNonPaddy"]
             logger.info("Irrigation is included/considered in this run.")
         else:     
             logger.info("Irrigation is NOT included/considered in this run.")

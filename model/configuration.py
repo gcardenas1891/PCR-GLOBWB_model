@@ -543,12 +543,13 @@ class Configuration(object):
             logger.warning(msg)
             self.groundwaterOptions['maximumDailyFossilGroundwaterAbstraction'] = "0.020"
 
-        # option to include irrigation
-        if 'includeIrrigation' not in list(self.landSurfaceOptions.keys()):
-            msg  = 'The option "includeIrrigation" is not defined in the "landSurfaceOptions" of the configuration file. '
-            msg += 'This run assumes "False" for this option.'
-            logger.warning(msg)
-            self.landSurfaceOptions['includeIrrigation'] = "False"
+        # THE FOLLOWING WAS DISACTIVATED during the development of new water use and water management modules (TODO: later the following lines SHOULD ALSO BE DELETED)  
+        # ~ # option to include irrigation
+        # ~ if 'includeIrrigation' not in list(self.landSurfaceOptions.keys()):
+            # ~ msg  = 'The option "includeIrrigation" is not defined in the "landSurfaceOptions" of the configuration file. '
+            # ~ msg += 'This run assumes "False" for this option.'
+            # ~ logger.warning(msg)
+            # ~ self.landSurfaceOptions['includeIrrigation'] = "False"
 
         # adjustment for the option 'historicalIrrigationArea'
         if 'historicalIrrigationArea' not in list(self.landSurfaceOptions.keys()):
