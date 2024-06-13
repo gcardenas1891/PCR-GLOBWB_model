@@ -31,7 +31,7 @@ import virtualOS as vos
 # TODO: FIX THIS, at this moment there is a link to virtualOS.py to the upper folder.
 # ~ from .. import virtualOS as vos
 
-from . import domestic_water_demand
+from .domestic_water_demand import DomesticWaterDemand
 from . import industry_water_demand
 from . import livestock_water_demand
 from . import manufacture_water_demand
