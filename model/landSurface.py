@@ -1343,7 +1343,7 @@ class LandSurface(object):
         self.land_surface_hydrology_update(meteo,groundwater,routing,currTimeStep)
 
 
-    def state_transfer_among_land_cover():
+    def state_transfer_among_land_cover(self, currTimeStep):
 
         # transfer some states, due to changes/dynamics in land cover conditions
         # - if considering dynamic/historical irrigation areas (expansion/reduction of irrigated areas)
