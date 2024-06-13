@@ -126,8 +126,54 @@ class WaterManagement(object):
             # ~ self.remaining_demand_per_sector[sector_name] = None
 
 
+    # ~ def get_allocation_zone(self, allocation_zone_input_file):
 
-    def get_allocation_zone(zonal_map_file_name):
+        # ~ # zones at which water allocation (surface and groundwater allocation) is determined
+        # ~ self.usingAllocSegments = False
+        # ~ self.allocSegments = None
+        # ~ if iniItems.landSurfaceOptions['allocationSegmentsForGroundSurfaceWater']  != "None":
+            # ~ self.usingAllocSegments = True 
+            
+            # ~ self.allocSegments = vos.readPCRmapClone(\
+             # ~ iniItems.landSurfaceOptions['allocationSegmentsForGroundSurfaceWater'],
+             # ~ self.cloneMap,self.tmpDir,self.inputDir,isLddMap=False,cover=None,isNomMap=True)
+            # ~ self.allocSegments = pcr.ifthen(self.landmask, self.allocSegments)
+            # ~ self.allocSegments = pcr.clump(self.allocSegments)
+            
+            # ~ extrapolate = True
+            # ~ if "noParameterExtrapolation" in iniItems.landSurfaceOptions.keys() and iniItems.landSurfaceOptions["noParameterExtrapolation"] == "True": extrapolate = False
+
+            # ~ if extrapolate:
+                # ~ # extrapolate it 
+                # ~ self.allocSegments = pcr.cover(self.allocSegments, \
+                                               # ~ pcr.windowmajority(self.allocSegments, 0.5))
+
+            # ~ self.allocSegments = pcr.ifthen(self.landmask, self.allocSegments)
+            
+            # ~ # clump it and cover the rests with cell ids 
+            # ~ self.allocSegments = pcr.clump(self.allocSegments)
+            # ~ cell_ids = pcr.mapmaximum(pcr.scalar(self.allocSegments)) + pcr.scalar(100.0) + pcr.uniqueid(pcr.boolean(1.0))
+            # ~ self.allocSegments = pcr.cover(self.allocSegments, pcr.nominal(cell_ids))                               
+            # ~ self.allocSegments = pcr.clump(self.allocSegments)
+            # ~ self.allocSegments = pcr.ifthen(self.landmask, self.allocSegments)
+
+            # ~ # cell area (unit: m2)
+            # ~ cellArea = vos.readPCRmapClone(\
+              # ~ iniItems.routingOptions['cellAreaMap'],
+              # ~ self.cloneMap,self.tmpDir,self.inputDir)
+            # ~ cellArea = pcr.ifthen(self.landmask, cellArea)
+
+            # ~ # zonal/segment area (unit: m2)
+            # ~ self.segmentArea = pcr.areatotal(pcr.cover(cellArea, 0.0), self.allocSegments)
+            # ~ self.segmentArea = pcr.ifthen(self.landmask, self.segmentArea)
+
+        # ~ else:
+
+            # ~ logger.info("If there is any, water demand is satisfied by local source only.")
+
+
+
+    def get_allocation_zone(self, zonal_map_file_name):
 
         allocSegments = vos.readPCRmapClone(zonal_map_file_name,
          self.cloneMap, self.tmpDir, self.inputDir, isLddMap=False, cover=None, isNomMap=True)
@@ -1011,50 +1057,6 @@ class WaterManagement(object):
         
 
 
-    def get_allocation_zone(self, allocation_zone_input_file):
-
-        # zones at which water allocation (surface and groundwater allocation) is determined
-        self.usingAllocSegments = False
-        self.allocSegments = None
-        if iniItems.landSurfaceOptions['allocationSegmentsForGroundSurfaceWater']  != "None":
-            self.usingAllocSegments = True 
-            
-            self.allocSegments = vos.readPCRmapClone(\
-             iniItems.landSurfaceOptions['allocationSegmentsForGroundSurfaceWater'],
-             self.cloneMap,self.tmpDir,self.inputDir,isLddMap=False,cover=None,isNomMap=True)
-            self.allocSegments = pcr.ifthen(self.landmask, self.allocSegments)
-            self.allocSegments = pcr.clump(self.allocSegments)
-            
-            extrapolate = True
-            if "noParameterExtrapolation" in iniItems.landSurfaceOptions.keys() and iniItems.landSurfaceOptions["noParameterExtrapolation"] == "True": extrapolate = False
-
-            if extrapolate:
-                # extrapolate it 
-                self.allocSegments = pcr.cover(self.allocSegments, \
-                                               pcr.windowmajority(self.allocSegments, 0.5))
-
-            self.allocSegments = pcr.ifthen(self.landmask, self.allocSegments)
-            
-            # clump it and cover the rests with cell ids 
-            self.allocSegments = pcr.clump(self.allocSegments)
-            cell_ids = pcr.mapmaximum(pcr.scalar(self.allocSegments)) + pcr.scalar(100.0) + pcr.uniqueid(pcr.boolean(1.0))
-            self.allocSegments = pcr.cover(self.allocSegments, pcr.nominal(cell_ids))                               
-            self.allocSegments = pcr.clump(self.allocSegments)
-            self.allocSegments = pcr.ifthen(self.landmask, self.allocSegments)
-
-            # cell area (unit: m2)
-            cellArea = vos.readPCRmapClone(\
-              iniItems.routingOptions['cellAreaMap'],
-              self.cloneMap,self.tmpDir,self.inputDir)
-            cellArea = pcr.ifthen(self.landmask, cellArea)
-
-            # zonal/segment area (unit: m2)
-            self.segmentArea = pcr.areatotal(pcr.cover(cellArea, 0.0), self.allocSegments)
-            self.segmentArea = pcr.ifthen(self.landmask, self.segmentArea)
-
-        else:
-
-            logger.info("If there is any, water demand is satisfied by local source only.")
 
 
     def partitioningGroundSurfaceAbstraction(self, average_discharge_in_m3ps, average_local_baseflow_in_m3ps):
