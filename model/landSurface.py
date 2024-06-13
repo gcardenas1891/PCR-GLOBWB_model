@@ -1299,7 +1299,7 @@ class LandSurface(object):
         # -- irrigation demand (m3)
         vol_gross_sectoral_water_demands["irrigation"] = pcr.scalar(0.0)
         for coverType in self.coverTypes: 
-            if startswith("irr"): vol_gross_sectoral_water_demands["irrigation"] += self.water_demand_irrigation[coverType].irrGrossDemand * routing.cellArea * self.landCoverObj[coverType].fracVegCover 
+            if coverType.startswith("irr"): vol_gross_sectoral_water_demands["irrigation"] += self.water_demand_irrigation[coverType].irrGrossDemand * routing.cellArea * self.landCoverObj[coverType].fracVegCover 
         
         # - also get the sectoral return flow fraction, particularly from non irrigation gross demands, the return flow from these sectors will go directly to surface water
         return_flow_fraction = {}
