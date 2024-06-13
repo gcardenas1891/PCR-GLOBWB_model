@@ -1349,8 +1349,8 @@ class LandCover(object):
                                                                          # Edwin modified this line to extend the interception scope (not only canopy interception).
         if self.interceptionModuleType == "Original":
             # only canopy interception (not only canopy)
-            self.throughfall   = (1.0 - coverFraction) * meteo.precipitation +\
-                          pcr.max(0.0,  coverFraction  * meteo.precipitation + self.interceptStor - self.interceptCap)
+            self.throughfall   = (1.0 - self.coverFraction) * meteo.precipitation +\
+                          pcr.max(0.0,  self.coverFraction  * meteo.precipitation + self.interceptStor - self.interceptCap)
 
         # update interception storage after throughfall 
         self.interceptStor = pcr.max(0.0, self.interceptStor + \
@@ -1431,7 +1431,7 @@ class LandCover(object):
                                   True,\
                                   currTimeStep.fulldate,threshold=1e-4)
 
-    def interceptionUpdateOriginalVersion(self,meteo,currTimeStep):
+    # ~ def interceptionUpdateOriginalVersion(self,meteo,currTimeStep):
         
         # TODO: Rewrite this method as defined by Rens. 
         
@@ -1532,7 +1532,7 @@ class LandCover(object):
                                   #~ True,\
                                   #~ currTimeStep.fulldate,threshold=1e-4)
 
-        pass
+        # ~ pass
 
 
     def snow_module_update(self, meteo, currTimeStep):
