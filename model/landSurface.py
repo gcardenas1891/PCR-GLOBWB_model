@@ -1274,7 +1274,7 @@ class LandSurface(object):
         # - loop per each land cover type):
         for coverType in self.coverTypes:
             logger.info("Running the inteception module: "+str(coverType))
-            self.interceptionUpdate(meteo, currTimeStep)         
+            self.landCoverObj[coverType].interceptionUpdate(meteo, currTimeStep)         
 
         # for every land cover, running the snow module
         # - for this will return or update the following:
@@ -1282,7 +1282,7 @@ class LandSurface(object):
         # - loop per each land cover type):
         for coverType in self.coverTypes:
             logger.info("Running the snow module: "+str(coverType))
-            self.snow_module_update(meteo, currTimeStep)         
+            self.landCoverObj[coverType].snow_module_update(meteo, currTimeStep)         
 
         # calculate water demand (here the unit of output will be in m)
         # - based on the 'states' after the above processes (for soil moisture and topWaterLayer states, they should be just the same as from the previous date)
