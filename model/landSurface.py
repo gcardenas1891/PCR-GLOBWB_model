@@ -1258,7 +1258,7 @@ class LandSurface(object):
         # - if considering dynamic/historical irrigation areas (expansion/reduction of irrigated areas)
         # - done at yearly basis, at the beginning of each year
         # - note that this must be done at the beginning of each year, including for the first time step (timeStepPCR == 1)
-        self.state_transfer_among_land_cover()
+        self.state_transfer_among_land_cover(currTimeStep)
         
         # for every land cover, calculate total potential evaporation and partition it to bare soil evaporation and transpiration
         # - for this will return the following:
