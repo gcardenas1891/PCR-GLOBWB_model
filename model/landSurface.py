@@ -1326,7 +1326,7 @@ class LandSurface(object):
         for coverType in self.coverTypes: 
             
             # for irrigation land cover types
-            if startswith("irr"):
+            if coverType.startswith("irr"):
                 # - in volume
                 self.satisfied_irrigation_water_volume[coverType] = total_satisfied_irrigation_water_volume *\
                                                                                             vos.getValDivZero( self.water_demand_irrigation[coverType].irrGrossDemand * self.routing.cellArea * self.landCoverObj[coverType].fracVegCover, vol_gross_sectoral_water_demands["irrigation"])
