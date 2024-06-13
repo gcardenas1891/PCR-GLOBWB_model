@@ -1301,15 +1301,6 @@ class LandSurface(object):
         for coverType in self.coverTypes: 
             if coverType.startswith("irr"): vol_gross_sectoral_water_demands["irrigation"] += self.water_demand_irrigation[coverType].irrGrossDemand * routing.cellArea * self.landCoverObj[coverType].fracVegCover 
         
-        # - also get the sectoral return flow fraction, particularly from non irrigation gross demands, the return flow from these sectors will go directly to surface water
-        return_flow_fraction = {}
-        return_flow_fraction["domestic"]       = 1.0 - vos.getValDivZero(self.water_demand.DomesticWaterDemand.domesticNettoDemand            , self.water_demand.DomesticWaterDemand.domesticGrossDemand            )
-        return_flow_fraction["industry"]       = 1.0 - vos.getValDivZero(self.water_demand.IndustryWaterDemand.industryNettoDemand            , self.water_demand.IndustryWaterDemand.industryGrossDemand            )
-        return_flow_fraction["manufacture"]    = 1.0 - vos.getValDivZero(self.water_demand.ManufactureWaterDemand.manufactureNettoDemand      , self.water_demand.ManufactureWaterDemand.manufactureGrossDemand      )
-        return_flow_fraction["thermoelectric"] = 1.0 - vos.getValDivZero(self.water_demand.ThermoelectricWaterDemand.thermoelectricNettoDemand, self.water_demand.ThermoelectricWaterDemand.thermoelectricGrossDemand)
-        return_flow_fraction["livestock"]      = 1.0 - vos.getValDivZero(self.water_demand.LivestockWaterDemand.livestockNettoDemand          , self.water_demand.LivestockWaterDemand.livestockGrossDemand          )
-
-        
         # pool the demands and do the allocation on the available storages at the land surface level / water allocation model and then pass the withdrawals to the surface and groundwater
         # - input: - sectoral water demands (calculated in "self.water_demand.update")
         #          - water availabilities (from previous time step: surface water and groundwater; from the current time step: desalination)
@@ -1341,6 +1332,18 @@ class LandSurface(object):
         # do the remaining land cover processes
         # - this including applying the 'allocated irrGrossDemand'
         self.land_surface_hydrology_update(meteo,groundwater,routing,currTimeStep)
+
+
+        # get the return flow from non irrigation water use
+        #  - get the sectoral return flow fraction, particularly from non irrigation gross demands, the return flow from these sectors will go directly to surface water
+        return_flow_fraction = {}
+        return_flow_fraction["domestic"]       = 1.0 - vos.getValDivZero(self.water_demand.DomesticWaterDemand.domesticNettoDemand            , self.water_demand.DomesticWaterDemand.domesticGrossDemand            )
+        return_flow_fraction["industry"]       = 1.0 - vos.getValDivZero(self.water_demand.IndustryWaterDemand.industryNettoDemand            , self.water_demand.IndustryWaterDemand.industryGrossDemand            )
+        return_flow_fraction["manufacture"]    = 1.0 - vos.getValDivZero(self.water_demand.ManufactureWaterDemand.manufactureNettoDemand      , self.water_demand.ManufactureWaterDemand.manufactureGrossDemand      )
+        return_flow_fraction["thermoelectric"] = 1.0 - vos.getValDivZero(self.water_demand.ThermoelectricWaterDemand.thermoelectricNettoDemand, self.water_demand.ThermoelectricWaterDemand.thermoelectricGrossDemand)
+        return_flow_fraction["livestock"]      = 1.0 - vos.getValDivZero(self.water_demand.LivestockWaterDemand.livestockNettoDemand          , self.water_demand.LivestockWaterDemand.livestockGrossDemand          )
+        # - TODO: FIX-THIS: calculate the non irrigation return flow
+        self.nonIrrReturnFlow = None
 
 
     def state_transfer_among_land_cover(self, currTimeStep):
