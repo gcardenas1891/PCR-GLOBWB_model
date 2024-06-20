@@ -94,7 +94,7 @@ class WaterManagement(object):
         # - allocated_withdrawal_per_sector[source_name][sector_name]: the amount of water taken from the "source_name" to the "sector_name" 
         # - note that this from the point of view of pixels which are source
         self.allocated_withdrawal_per_sector = {}
-        for source_name in source_names: 
+        for source_name in self.source_names: 
             self.allocated_withdrawal_per_sector[source_name] = {}
             for sector_name in self.sector_names:
                 self.allocated_withdrawal_per_sector[source_name][sector_name] = None
@@ -103,7 +103,7 @@ class WaterManagement(object):
         # - self.allocated_demand_per_sector[source_name][sector_name]: the amount of water given to the "sector_name" from the "source"
         # - note that this from the point of view of pixels that have demands 
         self.allocated_demand_per_sector = {}
-        for source_name in source_names: 
+        for source_name in self.source_names: 
             self.allocated_demand_per_sector[source_name] = {}
             for sector_name in self.sector_names:
                 self.allocated_demand_per_sector[source_name][sector_name] = None
