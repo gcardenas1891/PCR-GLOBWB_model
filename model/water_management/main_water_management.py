@@ -384,7 +384,7 @@ class WaterManagement(object):
         return allocated_demand_per_sector    
 
 
-    def allocate_withdrawal_to_each_sector(self, totalVoCellWaterAbsraction, totalVolZoneAbstraction, cellAllocatedDemandPerSector, allocation_zones = None):
+    def allocate_withdrawal_to_each_sector(self, totalVolCellWaterAbstraction, totalVolZoneAbstraction, cellAllocatedDemandPerSector, allocation_zones = None):
 
         # for the case without allocation zone
         allocated_withdrawal_per_sector = cellAlllocatedDemandPerSector
