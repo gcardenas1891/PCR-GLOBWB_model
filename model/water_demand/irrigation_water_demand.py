@@ -91,7 +91,7 @@ class IrrigationWaterDemand(object):
         self.includeIrrigation = True
 
 
-    def get_irrigation_efficiency(self, iniItems, landmask):
+    def get_irrigation_efficiency(self, currTimeStep):
 
         # irrigation efficiency map (in percentage)                     # TODO: Using the time series of efficiency (considering historical technological development).         
         
@@ -124,7 +124,7 @@ class IrrigationWaterDemand(object):
 
 
         extrapolate = True
-        if "noParameterExtrapolation" in iniItems.landSurfaceOptions.keys() and iniItems.landSurfaceOptions["noParameterExtrapolation"] == "True": extrapolate = False
+        if "noParameterExtrapolation" in self.iniItems.landSurfaceOptions.keys() and self.iniItems.landSurfaceOptions["noParameterExtrapolation"] == "True": extrapolate = False
 
 
         if extrapolate:
@@ -313,7 +313,7 @@ class IrrigationWaterDemand(object):
         # - this will be done on the yearly basis
         if currTimeStep.doy == 1 or currTimeStep.timeStepPCR == 1:
             # - this will return self.irrigationEfficiency
-            self.get_irrigation_efficiency(self.iniItems, self.landmask, currTimeStep)
+            self.get_irrigation_efficiency(currTimeStep)
 		
 
 		# for non paddy and paddy irrigation fields - TODO: to split between paddy and non-paddy fields
