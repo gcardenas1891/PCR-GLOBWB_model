@@ -86,10 +86,8 @@ class WaterManagement(object):
                 vars(self)[var], vars(self)[var+"Areas"] = None, None
 
 
-        source_names = ["desalinated_water", "surface_water", "renewable_groundwater", "nonrenewable_groundwater"]
-        sector_names = ["domestic", "industry", "manufacture", "thermoelectric", "livestock", "irrigation"]   
-        
-        ['irrigation','domestic','industry','livestock']
+        self.source_names = ["desalinated_water", "surface_water", "renewable_groundwater", "nonrenewable_groundwater"]
+        self.sector_names = ["domestic", "industry", "manufacture", "thermoelectric", "livestock", "irrigation"]   
         
         
         # instantiate the following variable: 
@@ -98,7 +96,7 @@ class WaterManagement(object):
         self.allocated_withdrawal_per_sector = {}
         for source_name in source_names: 
             self.allocated_withdrawal_per_sector[source_name] = {}
-            for sector_name in sector_names:
+            for sector_name in self.sector_names:
                 self.allocated_withdrawal_per_sector[source_name][sector_name] = None
 
         # instantiate the following variable: 
@@ -107,7 +105,7 @@ class WaterManagement(object):
         self.allocated_demand_per_sector = {}
         for source_name in source_names: 
             self.allocated_demand_per_sector[source_name] = {}
-            for sector_name in sector_names:
+            for sector_name in self.sector_names:
                 self.allocated_demand_per_sector[source_name][sector_name] = None
 
         # instantiate the following variable: 
@@ -115,7 +113,7 @@ class WaterManagement(object):
         # - note that this from the point of view of pixels that have demands 
         # - this is actually the sum of "allocated_demand_per_sector"
         self.met_demand_per_sector = {}
-        for sector_name in sector_names:
+        for sector_name in self.sector_names:
             self.met_demand_per_sector[sector_name] = None
         
 
@@ -394,7 +392,7 @@ class WaterManagement(object):
         # for the case with allocation zone
         if allocation_zones is not None:
             zonal_allocated_withdrawal_per_sector = {}
-            for sector_name in sector_names:
+            for sector_name in self.sector_names:
                 zonal_allocated_withdrawal_per_sector[sector_name] = pcr.areatotal(cellAlllocatedDemandPerSector[sector_name], allocation_zones)   
                 allocated_withdrawal_per_sector[sector_name] = totalVolCellWaterAbsraction * vos.getValDivZero(zonal_allocated_withdrawal_per_sector[sector_name], totalVolZoneAbstraction)
         
