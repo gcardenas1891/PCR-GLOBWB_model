@@ -315,6 +315,7 @@ class IrrigationWaterDemand(object):
         self.totalPotET        = landSurface.landCoverObj[self.name].totalPotET
         self.potBareSoilEvap   = landSurface.landCoverObj[self.name].potBareSoilEvap
         self.potTranspiration  = landSurface.landCoverObj[self.name].potTranspiration
+        self.soilWaterStorage  = landSurface.landCoverObj[self.name].soilWaterStorage
 
         # get irrigation efficiency
         # - this will be done on the yearly basis
