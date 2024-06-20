@@ -457,6 +457,8 @@ class WaterManagement(object):
         # - end of Abstraction and Allocation of DESALINATED WATER
 
 
+        print(volDesalinationAllocation)
+        
         # allocate the "desalination Allocation" to each sector - unit: m3
         self.allocated_demand_per_sector["desalinated_water"] = self.allocate_satisfied_demand_to_each_sector(totalVolWaterAllocation = volDesalinationAllocation, sectoral_remaining_demand_volume = remaining_gross_sectoral_water_demands, total_remaining_demand_volume = volTotalRemainingDemand)
 
