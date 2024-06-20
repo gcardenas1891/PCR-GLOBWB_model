@@ -403,7 +403,7 @@ class IrrigationWaterDemand(object):
             self.irrGrossDemand = pcr.ifthen(self.landmask, self.irrGrossDemand)
             
             # reduce irrGrossDemand by netLqWaterToSoil
-            self.irrGrossDemand = pcr.max(0.0, self.irrGrossDemand - self.netLqWaterToSoil)
+            self.irrGrossDemand = pcr.max(0.0, self.irrGrossDemand - landSurface.landCoverObj[self.name].netLqWaterToSoil)
             
             # minimum demand for start irrigating
             minimum_demand = 0.005   # unit: m/day                                                   # TODO: set the minimum demand in the ini/configuration file.
