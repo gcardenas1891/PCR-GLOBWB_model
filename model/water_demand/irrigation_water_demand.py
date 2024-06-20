@@ -421,7 +421,7 @@ class IrrigationWaterDemand(object):
             self.irrGrossDemand = pcr.rounddown( self.irrGrossDemand *1000.)/1000.                   
                                                                                                      
             # irrigation demand is only calculated for areas with fracVegCover > 0                   # DO WE NEED THIS ? 
-            self.irrGrossDemand = pcr.ifthenelse(self.fracVegCover >  0.0, self.irrGrossDemand, 0.0)
+            self.irrGrossDemand = pcr.ifthenelse(landSurface.landCoverObj[self.name].fracVegCover >  0.0, self.irrGrossDemand, 0.0)
 
         # total irrigation gross demand (m) per cover types (not limited by available water)
         self.totalPotentialMaximumIrrGrossDemandPaddy    = 0.0
