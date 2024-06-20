@@ -335,8 +335,8 @@ class IrrigationWaterDemand(object):
             adjDeplFactor = \
                      pcr.max(0.1,\
                      pcr.min(0.8,(self.cropDeplFactor + \
-                                  0.04*(5.-self.totalPotET*1000.))))       # original formula based on Allen et al. (1998)
-                                                                           # see: http://www.fao.org/docrep/x0490e/x0490e0e.htm#
+                                  0.04*(5.-landSurface.landCoverObj[self.name].totalPotET*1000.))))       # original formula based on Allen et al. (1998)
+                                                                                                          # see: http://www.fao.org/docrep/x0490e/x0490e0e.htm#
             #
             #~ # alternative 1: irrigation demand (to fill the entire totAvlWater, maintaining the field capacity) - NOT USED
             #~ self.irrGrossDemand = \
