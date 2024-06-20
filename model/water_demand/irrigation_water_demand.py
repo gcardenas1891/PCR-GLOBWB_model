@@ -313,7 +313,7 @@ class IrrigationWaterDemand(object):
         # - this will be done on the yearly basis
         if currTimeStep.doy == 1 or currTimeStep.timeStepPCR == 1:
             # - this will return self.irrigationEfficiency
-            self.get_irrigation_efficiency(self.iniItems, landmask, currTimeStep)
+            self.get_irrigation_efficiency(self.iniItems, self.landmask, currTimeStep)
 		
 
 		# for non paddy and paddy irrigation fields - TODO: to split between paddy and non-paddy fields
