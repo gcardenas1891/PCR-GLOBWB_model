@@ -299,12 +299,15 @@ class IrrigationWaterDemand(object):
         
         # get soil states from the landSurface.landCoverObj
         if self.numberOfLayers == 2: 
-            self.storUpp       = landSurface.landCoverObj[self.name].storUpp
-            self.storLow       = landSurface.landCoverObj[self.name].storLow
+            self.storUpp          = landSurface.landCoverObj[self.name].storUpp
+            self.storLow          = landSurface.landCoverObj[self.name].storLow
+            self.soilWaterStorage = self.storUpp + self.storLow
+
         if self.numberOfLayers == 3: 
-            self.storUpp000005 = landSurface.landCoverObj[self.name].storUpp000005
-            self.storUpp005030 = landSurface.landCoverObj[self.name].storUpp005030
-            self.storLow030150 = landSurface.landCoverObj[self.name].storLow030150  
+            self.storUpp000005    = landSurface.landCoverObj[self.name].storUpp000005
+            self.storUpp005030    = landSurface.landCoverObj[self.name].storUpp005030
+            self.storLow030150    = landSurface.landCoverObj[self.name].storLow030150
+            self.soilWaterStorage = self.storUpp000005 + self.storUpp005030 + self.storLow030150  
         
         # get_readily_available_water_within_the_root_zone
         self.readAvlWater  = self.get_readily_available_water_within_the_root_zone()      
@@ -315,7 +318,6 @@ class IrrigationWaterDemand(object):
         self.totalPotET        = landSurface.landCoverObj[self.name].totalPotET
         self.potBareSoilEvap   = landSurface.landCoverObj[self.name].potBareSoilEvap
         self.potTranspiration  = landSurface.landCoverObj[self.name].potTranspiration
-        self.soilWaterStorage  = landSurface.landCoverObj[self.name].soilWaterStorage
 
         # get irrigation efficiency
         # - this will be done on the yearly basis
