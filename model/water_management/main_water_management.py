@@ -377,7 +377,7 @@ class WaterManagement(object):
         #   - the updated self.available_nonrenewable_groundwater
 
 
-    def allocate_satisfied_demand_to_each_sector(totalVolWaterAllocation, sectoral_remaining_demand_volume, total_remaining_demand_volume):
+    def allocate_satisfied_demand_to_each_sector(self, totalVolWaterAllocation, sectoral_remaining_demand_volume, total_remaining_demand_volume):
 
         allocated_demand_per_sector = {}
         for sector_name in self.sector_names:
