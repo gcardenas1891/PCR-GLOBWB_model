@@ -48,7 +48,7 @@ class IrrigationWaterDemand(object):
         self.landmask = landmask
         
         # configuration for this land cover type
-        self.iniItemsIrrLC = iniItems.__getattribute__(nameOfSectionInIniFileThatIsRellevantForThisIrrLC)
+        self.iniItems = self.iniItems.__getattribute__(nameOfSectionInIniFileThatIsRellevantForThisIrrLC)
 
         # - name of this land cover type
         self.name = self.iniItemsLC['name']
@@ -60,7 +60,7 @@ class IrrigationWaterDemand(object):
         self.minTopWaterLayer = landCoverObject.minTopWaterLayer
         
         # crop depletion factor
-        self.cropDeplFactor = vos.readPCRmapClone(self.iniItemsIrrLC['cropDeplFactor'], self.cloneMap, \
+        self.cropDeplFactor = vos.readPCRmapClone(self.iniItems['cropDeplFactor'], self.cloneMap, \
                                                   self.tmpDir, self.inputDir)
              
         # number of soil layers
@@ -74,12 +74,12 @@ class IrrigationWaterDemand(object):
         self.calculateTotAvlWaterCapacityInRootZone()
         
         # infiltration/percolation losses for paddy fields
-        if self.name == 'irrPaddy' or self.name == 'irr_paddy': self.design_percolation_loss = self.estimate_paddy_infiltration_loss(iniPaddyOptions = self.iniItemsIrrLC)
+        if self.name == 'irrPaddy' or self.name == 'irr_paddy': self.design_percolation_loss = self.estimate_paddy_infiltration_loss(iniPaddyOptions = self.iniItems)
         
         # irrigation efficiency input (string or file name)
         self.ini_items_for_irrigation_efficiency = None
         if 'irrigationEfficiency' in self.iniItems.waterDemandOptions.keys(): self.ini_items_for_irrigation_efficiency = self.iniItems.waterDemandOptions['irrigationEfficiency']
-        if 'irrigationEfficiency' in self.iniItemsIrrLC.keys(): self.ini_items_for_irrigation_efficiency = self.iniItemsIrrLCOptions['irrigationEfficiency']
+        if 'irrigationEfficiency' in self.iniItems.keys(): self.ini_items_for_irrigation_efficiency = self.iniItemsOptions['irrigationEfficiency']
         if self.ini_items_for_irrigation_efficiency is None:
             logger.info("'irrigationEfficiency' is not defined, we set this to 1.0")
             self.ini_items_for_irrigation_efficiency = "1.0"
