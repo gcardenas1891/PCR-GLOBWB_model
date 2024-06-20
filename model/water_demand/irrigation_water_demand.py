@@ -309,6 +309,11 @@ class IrrigationWaterDemand(object):
         # get_readily_available_water_within_the_root_zone
         self.readAvlWater  = self.get_readily_available_water_within_the_root_zone()      
         
+        # get also the following variables from the landSurface.landCoverObj
+        self.netLqWaterToSoil  = landSurface.landCoverObj[self.name].netLqWaterToSoil
+        self.totalPotET        = landSurface.landCoverObj[self.name].totalPotET
+        self.fracVegCover      = landSurface.landCoverObj[self.name].fracVegCover
+
         # get irrigation efficiency
         # - this will be done on the yearly basis
         if currTimeStep.doy == 1 or currTimeStep.timeStepPCR == 1:
@@ -335,8 +340,8 @@ class IrrigationWaterDemand(object):
             adjDeplFactor = \
                      pcr.max(0.1,\
                      pcr.min(0.8,(self.cropDeplFactor + \
-                                  0.04*(5.-landSurface.landCoverObj[self.name].totalPotET*1000.))))       # original formula based on Allen et al. (1998)
-                                                                                                          # see: http://www.fao.org/docrep/x0490e/x0490e0e.htm#
+                                  0.04*(5.-self.totalPotET*1000.))))       # original formula based on Allen et al. (1998)
+                                                                           # see: http://www.fao.org/docrep/x0490e/x0490e0e.htm#
             #
             #~ # alternative 1: irrigation demand (to fill the entire totAvlWater, maintaining the field capacity) - NOT USED
             #~ self.irrGrossDemand = \
@@ -403,7 +408,7 @@ class IrrigationWaterDemand(object):
             self.irrGrossDemand = pcr.ifthen(self.landmask, self.irrGrossDemand)
             
             # reduce irrGrossDemand by netLqWaterToSoil
-            self.irrGrossDemand = pcr.max(0.0, self.irrGrossDemand - landSurface.landCoverObj[self.name].netLqWaterToSoil)
+            self.irrGrossDemand = pcr.max(0.0, self.irrGrossDemand - self.netLqWaterToSoil)
             
             # minimum demand for start irrigating
             minimum_demand = 0.005   # unit: m/day                                                   # TODO: set the minimum demand in the ini/configuration file.
@@ -421,7 +426,7 @@ class IrrigationWaterDemand(object):
             self.irrGrossDemand = pcr.rounddown( self.irrGrossDemand *1000.)/1000.                   
                                                                                                      
             # irrigation demand is only calculated for areas with fracVegCover > 0                   # DO WE NEED THIS ? 
-            self.irrGrossDemand = pcr.ifthenelse(landSurface.landCoverObj[self.name].fracVegCover >  0.0, self.irrGrossDemand, 0.0)
+            self.irrGrossDemand = pcr.ifthenelse(self.fracVegCover >  0.0, self.irrGrossDemand, 0.0)
 
         # total irrigation gross demand (m) per cover types (not limited by available water)
         self.totalPotentialMaximumIrrGrossDemandPaddy    = 0.0
