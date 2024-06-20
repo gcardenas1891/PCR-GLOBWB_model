@@ -462,7 +462,7 @@ class WaterManagement(object):
 
 
         # allocate the "desalination Abastraction" to each sector - unit: m3
-        self.allocated_withdrawal_per_sector["desalinated_water"] = self.allocate_withdrawal_to_each_source(totalVolCellWaterAbstraction = volDesalinationAbstraction, totalVolZoneAbstraction = volZoneDesalinationAbstraction, cellAllocatedDemandPerSector = self.allocated_demand_per_sector["desalinated_water"], allocation_zones = self.allocationSegmentsForDesalinatedWaterSource)
+        self.allocated_withdrawal_per_sector["desalinated_water"] = self.allocate_withdrawal_to_each_sector(totalVolCellWaterAbstraction = volDesalinationAbstraction, totalVolZoneAbstraction = volZoneDesalinationAbstraction, cellAllocatedDemandPerSector = self.allocated_demand_per_sector["desalinated_water"], allocation_zones = self.allocationSegmentsForDesalinatedWaterSource)
         
         
         # remaining desalination water use - unit: m3
@@ -573,7 +573,7 @@ class WaterManagement(object):
 
 
         # allocate the "surface water Abastraction" to each sector - unit: m3
-        self.allocated_withdrawal_per_sector["surface_water"] = self.allocate_withdrawal_to_each_source(totalVolCellWaterAbstraction = volSurfaceWaterAbstraction, totalVolZoneAbstraction = volZoneSurfaceWaterAbstraction, cellAllocatedDemandPerSector = self.allocated_demand_per_sector["surface_water"], allocation_zones = self.allocationSegmentsForSurfaceWaterSource)
+        self.allocated_withdrawal_per_sector["surface_water"] = self.allocate_withdrawal_to_each_sector(totalVolCellWaterAbstraction = volSurfaceWaterAbstraction, totalVolZoneAbstraction = volZoneSurfaceWaterAbstraction, cellAllocatedDemandPerSector = self.allocated_demand_per_sector["surface_water"], allocation_zones = self.allocationSegmentsForSurfaceWaterSource)
         
         
         # remaining surface water that can be extracted - unit: m3
@@ -742,7 +742,7 @@ class WaterManagement(object):
 
 
         # allocate the "renewable groundwater Abstraction" to each sector - unit: m3/day
-        self.allocated_withdrawal_per_sector["renewable_groundwater"] = self.allocate_withdrawal_to_each_source(totalVolCellWaterAbstraction = volRenewGroundwaterAbstraction, totalVolZoneAbstraction = volZoneRenewGroundwaterAbstraction, cellAllocatedDemandPerSector = self.allocated_demand_per_sector["renewable_groundwater"], allocation_zones = self.allocationSegmentsForGroundwaterSource)
+        self.allocated_withdrawal_per_sector["renewable_groundwater"] = self.allocate_withdrawal_to_each_sector(totalVolCellWaterAbstraction = volRenewGroundwaterAbstraction, totalVolZoneAbstraction = volZoneRenewGroundwaterAbstraction, cellAllocatedDemandPerSector = self.allocated_demand_per_sector["renewable_groundwater"], allocation_zones = self.allocationSegmentsForGroundwaterSource)
         
         # allocate the "renewable groundwater Allocation" to each sector - unit: m3/day
         self.allocated_demand_per_sector["renewable_groundwater"] = self.allocate_satisfied_demand_to_each_sector(totalVolWaterAllocation = volRenewGroundwaterAllocation, sectoral_remaining_demand_volume = remaining_gross_sectoral_water_demands, total_remaining_demand_volume = remainingTotalDemand)
@@ -981,7 +981,7 @@ class WaterManagement(object):
         self.allocated_demand_per_sector["nonrenewable_groundwater"] = self.allocate_satisfied_demand_to_each_sector(totalVolWaterAllocation = volFossilGroundwaterAllocation, sectoral_remaining_demand_volume = remaining_gross_sectoral_water_demands, total_remaining_demand_volume = remainingTotalDemand)
 
         # allocate the "nonrenewable groundwater Abstraction" to each sector - unit: m3/day
-        self.allocated_withdrawal_per_sector["nonrenewable_groundwater"] = self.allocate_withdrawal_to_each_source(totalVolCellWaterAbstraction = volFossilGroundwaterAbstraction, totalVolZoneAbstraction = volZoneFossilGroundwaterAbstraction, cellAllocatedDemandPerSector = self.allocated_demand_per_sector["nonrenewable_groundwater"], allocation_zones = self.allocationSegmentsForGroundwaterSource)
+        self.allocated_withdrawal_per_sector["nonrenewable_groundwater"] = self.allocate_withdrawal_to_each_sector(totalVolCellWaterAbstraction = volFossilGroundwaterAbstraction, totalVolZoneAbstraction = volZoneFossilGroundwaterAbstraction, cellAllocatedDemandPerSector = self.allocated_demand_per_sector["nonrenewable_groundwater"], allocation_zones = self.allocationSegmentsForGroundwaterSource)
         
         # update remaining_gross_sectoral_water_demands after the nonrenewable groundwater allocation
         for sector_name in remaining_gross_sectoral_water_demands.keys():
