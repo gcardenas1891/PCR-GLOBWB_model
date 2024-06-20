@@ -1299,7 +1299,7 @@ class LandSurface(object):
         # -- irrigation demand (m3)
         vol_gross_sectoral_water_demands["irrigation"] = pcr.scalar(0.0)
         for coverType in self.coverTypes: 
-            if coverType.startswith("irr"): vol_gross_sectoral_water_demands["irrigation"] += self.water_demand_irrigation[coverType].irrGrossDemand * routing.cellArea * self.landCoverObj[coverType].fracVegCover 
+            if coverType.startswith("irr"): vol_gross_sectoral_water_demands["irrigation"] += self.water_demand.water_demand_irrigation[coverType].irrGrossDemand * routing.cellArea * self.landCoverObj[coverType].fracVegCover 
         
         # pool the demands and do the allocation on the available storages at the land surface level / water allocation model and then pass the withdrawals to the surface and groundwater
         # - input: - sectoral water demands (calculated in "self.water_demand.update")
