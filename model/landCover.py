@@ -184,16 +184,25 @@ class LandCover(object):
             if input != "None":\
                vars(self)[var] = pcr.cover(vars(self)[var],0.0)                                
 
-        # get additional parameter(s) for irrigation areas (ALWAYS fixed for the entire simulation)
-        if self.includeIrrigation:
-             # - cropDeplFactor (dimesionless, crop depletion factor while irrigation is being applied), needed for NON paddy irrigation areas
-             if self.iniItemsLC['name'].startswith('irr') and self.name != "irrPaddy":
-                 self.cropDeplFactor = vos.readPCRmapClone(self.iniItemsLC['cropDeplFactor'], self.cloneMap, \
-                                                           self.tmpDir, self.inputDir)
-             # - infiltration/percolation losses for paddy fields
-             if self.name == 'irrPaddy' or self.name == 'irr_paddy':\
-                 self.design_percolation_loss = self.estimate_paddy_infiltration_loss(self.iniItemsLC)
+        # ~ # get additional parameter(s) for irrigation areas (ALWAYS fixed for the entire simulation)
+        # ~ if self.includeIrrigation:
+             # ~ # - cropDeplFactor (dimesionless, crop depletion factor while irrigation is being applied), needed for NON paddy irrigation areas
+             # ~ if self.iniItemsLC['name'].startswith('irr') and self.name != "irrPaddy":
+                 # ~ self.cropDeplFactor = vos.readPCRmapClone(self.iniItemsLC['cropDeplFactor'], self.cloneMap, \
+                                                           # ~ self.tmpDir, self.inputDir)
+             # ~ # - infiltration/percolation losses for paddy fields
+             # ~ if self.name == 'irrPaddy' or self.name == 'irr_paddy':\
+                 # ~ self.design_percolation_loss = self.estimate_paddy_infiltration_loss(self.iniItemsLC)
         
+        # get additional parameter(s) for irrigation areas (ALWAYS fixed for the entire simulation)
+        # - cropDeplFactor (dimesionless, crop depletion factor while irrigation is being applied), needed for NON paddy irrigation areas
+        if self.iniItemsLC['name'].startswith('irr') and self.name != "irrPaddy":
+            self.cropDeplFactor = vos.readPCRmapClone(self.iniItemsLC['cropDeplFactor'], self.cloneMap, \
+                                                      self.tmpDir, self.inputDir)
+        # - infiltration/percolation losses for paddy fields
+        if self.name == 'irrPaddy' or self.name == 'irr_paddy':\
+            self.design_percolation_loss = self.estimate_paddy_infiltration_loss(self.iniItemsLC)
+
         # water allocation zones:
         self.usingAllocSegments = usingAllocSegments # water allocation option:
         if self.usingAllocSegments:
