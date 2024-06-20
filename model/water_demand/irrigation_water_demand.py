@@ -311,9 +311,10 @@ class IrrigationWaterDemand(object):
         
         # get also the following variables from the landSurface.landCoverObj
         self.netLqWaterToSoil  = landSurface.landCoverObj[self.name].netLqWaterToSoil
-        self.totalPotET        = landSurface.landCoverObj[self.name].totalPotET
         self.fracVegCover      = landSurface.landCoverObj[self.name].fracVegCover
+        self.totalPotET        = landSurface.landCoverObj[self.name].totalPotET
         self.potBareSoilEvap   = landSurface.landCoverObj[self.name].potBareSoilEvap
+        self.potTranspiration  = landSurface.landCoverObj[self.name].potTranspiration
 
         # get irrigation efficiency
         # - this will be done on the yearly basis
