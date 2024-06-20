@@ -402,7 +402,7 @@ class WaterManagement(object):
 
 
 
-    def abstraction_and_allocation_from_desalination(remaining_gross_sectoral_water_demands):
+    def abstraction_and_allocation_from_desalination(self, remaining_gross_sectoral_water_demands):
 
         # get the TOTAL (remaining) demand (m3) 
         volTotalRemainingDemand = pcr.scalar(0.0) 
@@ -585,7 +585,7 @@ class WaterManagement(object):
 
 
 
-    def abstraction_and_allocation_from_groundwater(remaining_gross_sectoral_water_demands, routing, groundwater):
+    def abstraction_and_allocation_from_groundwater(self, remaining_gross_sectoral_water_demands, routing, groundwater):
         
         # calculate the remaining demands for the following combined sectors - NOTE THAT they are in VOLUME (m3/day)
         remainingIndustrialDomestic   = pcr.scalar(0.0)
