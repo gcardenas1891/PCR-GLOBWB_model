@@ -48,10 +48,10 @@ class IrrigationWaterDemand(object):
         self.landmask = landmask
         
         # configuration for this land cover type
-        self.iniItems = self.iniItems.__getattribute__(nameOfSectionInIniFileThatIsRellevantForThisIrrLC)
+        self.iniItemsIrrLC = iniItems.__getattribute__(nameOfSectionInIniFileThatIsRellevantForThisIrrLC)
 
         # - name of this land cover type
-        self.name = self.iniItemsLC['name']
+        self.name = self.iniItemsIrrLC['name']
         
         # set the 'static' parameters (mainly soil and topo)
         self.parameters = landCoverObject.parameters
@@ -60,7 +60,7 @@ class IrrigationWaterDemand(object):
         self.minTopWaterLayer = landCoverObject.minTopWaterLayer
         
         # crop depletion factor
-        self.cropDeplFactor = vos.readPCRmapClone(self.iniItems['cropDeplFactor'], self.cloneMap, \
+        self.cropDeplFactor = vos.readPCRmapClone(self.iniItemsIrrLC['cropDeplFactor'], self.cloneMap, \
                                                   self.tmpDir, self.inputDir)
              
         # number of soil layers
@@ -73,13 +73,16 @@ class IrrigationWaterDemand(object):
         # - this will return self.totAvlWater
         self.calculateTotAvlWaterCapacityInRootZone()
         
-        # infiltration/percolation losses for paddy fields
-        if self.name == 'irrPaddy' or self.name == 'irr_paddy': self.design_percolation_loss = self.estimate_paddy_infiltration_loss(iniPaddyOptions = self.iniItems)
+        # ~ # infiltration/percolation losses for paddy fields - CHECKTHIS: We think this part should be part of the landCover options
+        # ~ if self.name == 'irrPaddy' or self.name == 'irr_paddy': self.design_percolation_loss = self.estimate_paddy_infiltration_loss(iniPaddyOptions = self.iniItemsIrrLC)
         
         # irrigation efficiency input (string or file name)
         self.ini_items_for_irrigation_efficiency = None
+        # - by default, use the one defined in the waterDemandOptions
         if 'irrigationEfficiency' in self.iniItems.waterDemandOptions.keys(): self.ini_items_for_irrigation_efficiency = self.iniItems.waterDemandOptions['irrigationEfficiency']
-        if 'irrigationEfficiency' in self.iniItems.keys(): self.ini_items_for_irrigation_efficiency = self.iniItemsOptions['irrigationEfficiency']
+        # - if there is specific one defined in the landCoverOptions, then use it
+        if 'irrigationEfficiency' in self.iniItemsIrrLC.keys(): self.ini_items_for_irrigation_efficiency = self.iniItemsIrrLCOptions['irrigationEfficiency']
+        # - if not defined in the above part, we set this to 1.0
         if self.ini_items_for_irrigation_efficiency is None:
             logger.info("'irrigationEfficiency' is not defined, we set this to 1.0")
             self.ini_items_for_irrigation_efficiency = "1.0"
