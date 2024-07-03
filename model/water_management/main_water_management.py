@@ -495,7 +495,7 @@ class WaterManagement(object):
             logger.debug("Allocation of supply from desalination water.")
         #  
             volDesalinationAbstraction, volDesalinationAllocation, volZoneDesalinationAbstraction = \
-              waterAbstractionAndAllocation(
+              self.waterAbstractionAndAllocation(
               water_demand_volume = volTotalRemainingDemand,\
               available_water_volume = volDesalinationWaterUse,\
               allocation_zones = self.allocationSegmentsForDesalinatedWaterSource,\
