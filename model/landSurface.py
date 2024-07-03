@@ -285,13 +285,14 @@ class LandSurface(object):
                        pcr.min(self.maximumNonIrrigationSurfaceWaterAbstractionFractionData, \
                             self.predefinedNonIrrigationSurfaceWaterAbstractionFractionData))                                                                                   
         
-        # threshold values defining the preference for irrigation water source (unit: fraction/percentage)
-        self.treshold_to_maximize_irrigation_surface_water = \
-         vos.readPCRmapClone(iniItems.landSurfaceOptions['treshold_to_maximize_irrigation_surface_water'],\
-                                 self.cloneMap,self.tmpDir,self.inputDir)
-        self.treshold_to_minimize_fossil_groundwater_irrigation = \
-         vos.readPCRmapClone(iniItems.landSurfaceOptions['treshold_to_minimize_fossil_groundwater_irrigation'],\
-                                 self.cloneMap,self.tmpDir,self.inputDir)
+        # ~ # THE FOLLOWING IS DISACTIVATED DUE TO THE NEW WATER MANAGEMENT MODULE
+        # ~ # threshold values defining the preference for irrigation water source (unit: fraction/percentage)
+        # ~ self.treshold_to_maximize_irrigation_surface_water = \
+         # ~ vos.readPCRmapClone(iniItems.landSurfaceOptions['treshold_to_maximize_irrigation_surface_water'],\
+                                 # ~ self.cloneMap,self.tmpDir,self.inputDir)
+        # ~ self.treshold_to_minimize_fossil_groundwater_irrigation = \
+         # ~ vos.readPCRmapClone(iniItems.landSurfaceOptions['treshold_to_minimize_fossil_groundwater_irrigation'],\
+                                 # ~ self.cloneMap,self.tmpDir,self.inputDir)
         
         # assign the topography and soil parameters
         self.soil_topo_parameters = {}

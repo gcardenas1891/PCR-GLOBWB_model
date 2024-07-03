@@ -117,7 +117,29 @@ class WaterManagement(object):
             self.met_demand_per_sector[sector_name] = None
         
 
-        # THE FOLLOWING IS DISACTIVATED DUE TO THE NEW WATER MANAGEMENT MODULE
+        # pre-defined surface water source fraction for satisfying irrigation and livestock water demand
+        self.swAbstractionFractionData = None
+        self.swAbstractionFractionDataQuality = None
+        if 'irrigationSurfaceWaterAbstractionFractionData' in list(iniItems.waterManagementOptions.keys()) and\
+           'irrigationSurfaceWaterAbstractionFractionDataQuality' in list(iniItems.waterManagementOptions.keys()):
+            if iniItems.waterManagementOptions['irrigationSurfaceWaterAbstractionFractionData'] not in ["None", "False"] or\
+               iniItems.waterManagementOptions['irrigationSurfaceWaterAbstractionFractionDataQuality'] not in ["None", "False"]:
+                
+                logger.info('Using/incorporating the predefined surface water source of Siebert et al. (2010) for satisfying irrigation and livestock demand.')
+                self.swAbstractionFractionData = pcr.cover(\
+                                                 vos.readPCRmapClone(iniItems.waterManagementOptions['irrigationSurfaceWaterAbstractionFractionData'],\
+                                                                     self.cloneMap,self.tmpDir,self.inputDir), 0.0)
+                self.swAbstractionFractionData = pcr.ifthen(self.swAbstractionFractionData >= 0.0, \
+                                                            self.swAbstractionFractionData )
+                self.swAbstractionFractionDataQuality = \
+                                                 pcr.cover(\
+                                                 vos.readPCRmapClone(iniItems.waterManagementOptions['irrigationSurfaceWaterAbstractionFractionDataQuality'],\
+                                                                     self.cloneMap,self.tmpDir,self.inputDir), 0.0)
+                # ignore value with the quality above 5 (very bad) 
+                # - Note: The resulting map has values only in cells with the data auality <= 5.0 
+                self.swAbstractionFractionData = pcr.ifthen(self.swAbstractionFractionDataQuality <= 5.0, \
+                                                            self.swAbstractionFractionData)
+
         # threshold values defining the preference for irrigation water source (unit: fraction/percentage)
         self.threshold_to_maximize_irrigation_surface_water = \
          vos.readPCRmapClone(iniItems.waterManagementOptions['threshold_to_maximize_irrigation_surface_water'],\
