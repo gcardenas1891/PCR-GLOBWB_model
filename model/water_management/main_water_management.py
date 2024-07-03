@@ -1065,12 +1065,9 @@ class WaterManagement(object):
         # partitioning abstraction sources: groundwater and surface water
         # de Graaf et al., 2014 principle: partitioning based on local average baseflow (m3/s) and upstream average discharge (m3/s) 
         # - estimates of fractions of groundwater and surface water abstractions 
-        averageBaseflowInput = average_local_baseflow_in_m3ps
+        averageBaseflowInput = routing_module.avgBaseflow
         averageUpstreamInput = pcr.max(routing_module.avgDischarge, pcr.cover(pcr.upstream(routing_module.lddMap, routing_module.avgDischarge), 0.0))
 
-        swAbstractionFractionDict = self.partitioningGroundSurfaceAbstraction(routing_module.avgDischarge, routing_module.avgBaseflow)
-
-        
         if self.usingAllocationSegmentsForSurfaceWaterSource:
             
             averageBaseflowInput = pcr.max(0.0, pcr.ifthen(self.landmask, averageBaseflowInput))
