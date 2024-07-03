@@ -117,6 +117,16 @@ class WaterManagement(object):
             self.met_demand_per_sector[sector_name] = None
         
 
+        # THE FOLLOWING IS DISACTIVATED DUE TO THE NEW WATER MANAGEMENT MODULE
+        # threshold values defining the preference for irrigation water source (unit: fraction/percentage)
+        self.threshold_to_maximize_irrigation_surface_water = \
+         vos.readPCRmapClone(iniItems.waterManagementOptions['threshold_to_maximize_irrigation_surface_water'],\
+                                 self.cloneMap,self.tmpDir,self.inputDir)
+        self.threshold_to_minimize_fossil_groundwater_irrigation = \
+         vos.readPCRmapClone(iniItems.waterManagementOptions['threshold_to_minimize_fossil_groundwater_irrigation'],\
+                                 self.cloneMap,self.tmpDir,self.inputDir)
+
+
         # ~ # instantiate the following variable: - THIS MAY NOT BE NEEDED
         # ~ # - self.remaining_demand_per_sector[sector_name]: the amount of demand that has NOT been met for every "sector_name"
         # ~ # - note that this from the point of view of pixels that have demands 
