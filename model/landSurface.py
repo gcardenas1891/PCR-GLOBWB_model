@@ -1095,8 +1095,9 @@ class LandSurface(object):
         # - estimates of fractions of groundwater and surface water abstractions 
         averageBaseflowInput = routing.avgBaseflow
         averageUpstreamInput = pcr.max(routing.avgDischarge, pcr.cover(pcr.upstream(routing.lddMap, routing.avgDischarge), 0.0))
+
         
-        if self.usingAllocSegments:
+        if self.usingAllocationSegmentsForSurfaceWaterSource:
             
             averageBaseflowInput = pcr.max(0.0, pcr.ifthen(self.landmask, averageBaseflowInput))
             averageUpstreamInput = pcr.max(0.0, pcr.ifthen(self.landmask, averageUpstreamInput))
@@ -1114,7 +1115,7 @@ class LandSurface(object):
         swAbstractionFraction = pcr.max(0.0, swAbstractionFraction)
         swAbstractionFraction = pcr.min(1.0, swAbstractionFraction)
 
-        if self.usingAllocSegments:
+        if self.usingAllocationSegmentsForSurfaceWaterSource:
             swAbstractionFraction = pcr.areamaximum(swAbstractionFraction, self.allocSegments)
             
         swAbstractionFraction = pcr.cover(swAbstractionFraction, 1.0)
