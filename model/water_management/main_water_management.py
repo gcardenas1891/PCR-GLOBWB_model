@@ -218,7 +218,7 @@ class WaterManagement(object):
                                       available_water_volume, 
                                       allocation_zones,
                                       zone_area = None,
-                                      high_volume_treshold = None,
+                                      high_volume_threshold = None,
                                       debug_water_balance = True,\
                                       extra_info_for_water_balance_reporting = "",
                                       landmask = None,
@@ -290,10 +290,10 @@ class WaterManagement(object):
        cellAbstraction = pcr.min(cellAbstraction, cellAvlWater)                                                                   
        
        # to minimize numerical errors
-       if high_volume_treshold is not None:
+       if high_volume_threshold is not None:
            # mask: 0 for small volumes ; 1 for large volumes (e.g. lakes and reservoirs)
            mask = pcr.cover(\
-                  pcr.ifthen(cellAbstraction > high_volume_treshold, pcr.boolean(1)), pcr.boolean(0))
+                  pcr.ifthen(cellAbstraction > high_volume_threshold, pcr.boolean(1)), pcr.boolean(0))
            zoneAbstraction  = pcr.areatotal(
                               pcr.ifthenelse(mask, 0.0, cellAbstraction), allocation_zones)
            zoneAbstraction += pcr.areatotal(                
@@ -448,7 +448,7 @@ class WaterManagement(object):
               available_water_volume = volDesalinationWaterUse,\
               allocation_zones = self.allocationSegmentsForDesalinatedWaterSource,\
               zone_area = self.allocationSegmentsForDesalinatedWaterSourceAreas,\
-              high_volume_treshold = None,\
+              high_volume_threshold = None,\
               debug_water_balance = True,\
               extra_info_for_water_balance_reporting = str(currTimeStep.fulldate), 
               landmask = self.landmask,
@@ -517,7 +517,7 @@ class WaterManagement(object):
 
         # - surface water source as priority if groundwater irrigation fraction is relatively low  
         surface_water_irrigation_demand_estimate = \
-           pcr.ifthenelse(swAbstractionFractionDict['irrigation'] >= swAbstractionFractionDict['treshold_to_maximize_irrigation_surface_water'],\
+           pcr.ifthenelse(swAbstractionFractionDict['irrigation'] >= swAbstractionFractionDict['threshold_to_maximize_irrigation_surface_water'],\
            remainingIrrigationLivestock, surface_water_irrigation_demand_estimate)
 
         # - update estimate of surface water demand withdrawal (unit: m3/day)
@@ -561,7 +561,7 @@ class WaterManagement(object):
               available_water_volume = available_surface_water_volume,\
               allocation_zones = self.allocationSegmentsForSurfaceWaterSource,\
               zone_area = self.allocationSegmentsForSurfaceWaterSourceAreas,\
-              high_volume_treshold = None,\
+              high_volume_threshold = None,\
               debug_water_balance = True,\
               extra_info_for_water_balance_reporting = str(currTimeStep.fulldate), 
               landmask = self.landmask,
@@ -733,7 +733,7 @@ class WaterManagement(object):
               available_water_volume = readAvlStorGroundwater,\
               allocation_zones = self.allocationSegmentsForGroundwaterSource,\
               zone_area = self.allocationSegmentsForGroundwaterSourceAreas,\
-              high_volume_treshold = None,\
+              high_volume_threshold = None,\
               debug_water_balance = True,\
               extra_info_for_water_balance_reporting = str(currTimeStep.fulldate), 
               landmask = self.landmask,
@@ -895,7 +895,7 @@ class WaterManagement(object):
             
             # ignore fossil groundwater abstraction in irrigation areas dominated by swAbstractionFractionDict['irrigation']
             correctedRemainingIrrigationLivestock = pcr.ifthenelse(\
-                               self.swAbstractionFractionDict['irrigation'] >= self.swAbstractionFractionDict['treshold_to_minimize_fossil_groundwater_irrigation'], 0.0,\
+                               self.swAbstractionFractionDict['irrigation'] >= self.swAbstractionFractionDict['threshold_to_minimize_fossil_groundwater_irrigation'], 0.0,\
                                correctedRemainingIrrigationLivestock)
 
 
@@ -967,7 +967,7 @@ class WaterManagement(object):
                        available_water_volume = pcr.max(0.00, readAvlFossilGroundwaterVol),\
                        allocation_zones = groundwater.allocSegments,\
                        zone_area = groundwater.segmentArea,\
-                       high_volume_treshold = None,\
+                       high_volume_threshold = None,\
                        debug_water_balance = True,\
                        extra_info_for_water_balance_reporting = str(currTimeStep.fulldate),  
                        landmask = self.landmask,
@@ -1111,14 +1111,14 @@ class WaterManagement(object):
         # - for industrial and domestic purpose
         swAbstractionFractionDict['max_for_non_irrigation'] = swAbstractionFraction
         #
-        # - a treshold fraction value to optimize/maximize surface water withdrawal for irrigation 
-        #   Principle: Areas with swAbstractionFractionDict['irrigation'] above this treshold will prioritize surface water use for irrigation purpose.
-        #              A zero treshold value will ignore this principle.    
-        swAbstractionFractionDict['treshold_to_maximize_irrigation_surface_water'] = self.treshold_to_maximize_irrigation_surface_water
+        # - a threshold fraction value to optimize/maximize surface water withdrawal for irrigation 
+        #   Principle: Areas with swAbstractionFractionDict['irrigation'] above this threshold will prioritize surface water use for irrigation purpose.
+        #              A zero threshold value will ignore this principle.    
+        swAbstractionFractionDict['threshold_to_maximize_irrigation_surface_water'] = self.threshold_to_maximize_irrigation_surface_water
         #
-        # - a treshold fraction value to minimize fossil groundwater withdrawal, particularly to remove the unrealistic areas of fossil groundwater abstraction
-        #   Principle: Areas with swAbstractionFractionDict['irrigation'] above this treshold will not extract fossil groundwater.
-        swAbstractionFractionDict['treshold_to_minimize_fossil_groundwater_irrigation'] = self.treshold_to_minimize_fossil_groundwater_irrigation
+        # - a threshold fraction value to minimize fossil groundwater withdrawal, particularly to remove the unrealistic areas of fossil groundwater abstraction
+        #   Principle: Areas with swAbstractionFractionDict['irrigation'] above this threshold will not extract fossil groundwater.
+        swAbstractionFractionDict['threshold_to_minimize_fossil_groundwater_irrigation'] = self.threshold_to_minimize_fossil_groundwater_irrigation
         
 
         # the default value of surface water source fraction is None or not defined (in this case, this value will be the 'estimate' and limited with 'max_for_non_irrigation')
@@ -1215,7 +1215,7 @@ class WaterManagement(object):
               # ~ available_water_volume = pcr.max(0.00, desalinationWaterUse*routing.cellArea),\
               # ~ allocation_zones = allocSegments,\
               # ~ zone_area = self.segmentArea,\
-              # ~ high_volume_treshold = None,\
+              # ~ high_volume_threshold = None,\
               # ~ debug_water_balance = True,\
               # ~ extra_info_for_water_balance_reporting = str(currTimeStep.fulldate), 
               # ~ landmask = self.landmask,
@@ -1285,7 +1285,7 @@ class WaterManagement(object):
         # ~ surface_water_irrigation_demand_estimate = swAbstractionFractionDict['irrigation'] * remainingIrrigationLivestock
         # ~ # - surface water source as priority if groundwater irrigation fraction is relatively low  
         # ~ surface_water_irrigation_demand_estimate = \
-           # ~ pcr.ifthenelse(swAbstractionFractionDict['irrigation'] >= swAbstractionFractionDict['treshold_to_maximize_irrigation_surface_water'],\
+           # ~ pcr.ifthenelse(swAbstractionFractionDict['irrigation'] >= swAbstractionFractionDict['threshold_to_maximize_irrigation_surface_water'],\
            # ~ remainingIrrigationLivestock, surface_water_irrigation_demand_estimate)
         # ~ # - update estimate of surface water demand withdrawal (unit: m/day)
         # ~ surface_water_demand_estimate += surface_water_irrigation_demand_estimate
@@ -1320,7 +1320,7 @@ class WaterManagement(object):
              # ~ available_water_volume = pcr.max(0.00, routing.readAvlChannelStorage),\
              # ~ allocation_zones = allocSegments,\
              # ~ zone_area = self.segmentArea,\
-             # ~ high_volume_treshold = None,\
+             # ~ high_volume_threshold = None,\
              # ~ debug_water_balance = True,\
              # ~ extra_info_for_water_balance_reporting = str(currTimeStep.fulldate), 
              # ~ landmask = self.landmask,
@@ -1496,7 +1496,7 @@ class WaterManagement(object):
              # ~ available_water_volume = pcr.max(0.00, readAvlStorGroundwater*routing.cellArea),\
              # ~ allocation_zones = groundwater.allocSegments,\
              # ~ zone_area = groundwater.segmentArea,\
-             # ~ high_volume_treshold = None,\
+             # ~ high_volume_threshold = None,\
              # ~ debug_water_balance = True,\
              # ~ extra_info_for_water_balance_reporting = str(currTimeStep.fulldate),  
              # ~ landmask = self.landmask,
@@ -1659,7 +1659,7 @@ class WaterManagement(object):
             
             # ~ # ignore fossil groundwater abstraction in irrigation areas dominated by swAbstractionFractionDict['irrigation']
             # ~ correctedRemainingIrrigationLivestock = pcr.ifthenelse(\
-                               # ~ swAbstractionFractionDict['irrigation'] >= swAbstractionFractionDict['treshold_to_minimize_fossil_groundwater_irrigation'], 0.0,\
+                               # ~ swAbstractionFractionDict['irrigation'] >= swAbstractionFractionDict['threshold_to_minimize_fossil_groundwater_irrigation'], 0.0,\
                                # ~ correctedRemainingIrrigationLivestock)
 
             # ~ # reduce the fossil irrigation and livestock demands with enough supply of non fossil groundwater (in order to minimize unrealistic areas of fossil groundwater abstraction)
@@ -1723,7 +1723,7 @@ class WaterManagement(object):
                        # ~ available_water_volume = pcr.max(0.00, readAvlFossilGroundwater*routing.cellArea),\
                        # ~ allocation_zones = groundwater.allocSegments,\
                        # ~ zone_area = groundwater.segmentArea,\
-                       # ~ high_volume_treshold = None,\
+                       # ~ high_volume_threshold = None,\
                        # ~ debug_water_balance = True,\
                        # ~ extra_info_for_water_balance_reporting = str(currTimeStep.fulldate),  
                        # ~ landmask = self.landmask,
