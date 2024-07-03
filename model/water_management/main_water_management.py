@@ -149,6 +149,35 @@ class WaterManagement(object):
                                  self.cloneMap,self.tmpDir,self.inputDir)
 
 
+        # maximum pre-defined surface water source fraction for satisfying industrial and domestic water demand:
+        # - if not defined (default), set it to the maximum 
+        self.maximumNonIrrigationSurfaceWaterAbstractionFractionData = pcr.scalar(1.0)
+        if 'maximumNonIrrigationSurfaceWaterAbstractionFractionData' in list(iniItems.waterManagementOptions.keys()):
+            if iniItems.waterManagementOptions['maximumNonIrrigationSurfaceWaterAbstractionFractionData'] != "None" or\
+               iniItems.waterManagementOptions['maximumNonIrrigationSurfaceWaterAbstractionFractionData'] != "False":
+
+                logger.info('Set the maximum fraction for predefined surface water source for satisfying domestic and industrial demand.')
+                self.maximumNonIrrigationSurfaceWaterAbstractionFractionData = pcr.min(1.0,\
+                                                                               pcr.cover(\
+                                                                               vos.readPCRmapClone(iniItems.waterManagementOptions['maximumNonIrrigationSurfaceWaterAbstractionFractionData'],\
+                                                                                                   self.cloneMap,self.tmpDir,self.inputDir), 1.0))
+
+        # pre-defined surface water source fraction for satisfying industrial and domestic water demand
+        self.predefinedNonIrrigationSurfaceWaterAbstractionFractionData = None
+        if 'predefinedNonIrrigationSurfaceWaterAbstractionFractionData' in list(iniItems.waterManagementOptions.keys()) and \
+           (iniItems.waterManagementOptions['predefinedNonIrrigationSurfaceWaterAbstractionFractionData'] != "None" or \
+            iniItems.waterManagementOptions['predefinedNonIrrigationSurfaceWaterAbstractionFractionData'] != "False"):
+            
+            logger.info('Set the predefined fraction of surface water source for satisfying domestic and industrial demand.')
+            self.predefinedNonIrrigationSurfaceWaterAbstractionFractionData = pcr.min(1.0,\
+                                                                              pcr.cover(\
+                                                                              vos.readPCRmapClone(iniItems.waterManagementOptions['predefinedNonIrrigationSurfaceWaterAbstractionFractionData'],\
+                                                                                                  self.cloneMap,self.tmpDir,self.inputDir), 1.0))
+            self.predefinedNonIrrigationSurfaceWaterAbstractionFractionData = pcr.max(0.0, \
+                       pcr.min(self.maximumNonIrrigationSurfaceWaterAbstractionFractionData, \
+                            self.predefinedNonIrrigationSurfaceWaterAbstractionFractionData))                                                                                   
+
+
         # ~ # instantiate the following variable: - THIS MAY NOT BE NEEDED
         # ~ # - self.remaining_demand_per_sector[sector_name]: the amount of demand that has NOT been met for every "sector_name"
         # ~ # - note that this from the point of view of pixels that have demands 

@@ -234,57 +234,62 @@ class LandSurface(object):
         
         # TODO: Make an option so that users can easily perform natural runs (without water user, without reservoirs).
         
-        # pre-defined surface water source fraction for satisfying irrigation and livestock water demand
-        self.swAbstractionFractionData = None
-        self.swAbstractionFractionDataQuality = None
-        if 'irrigationSurfaceWaterAbstractionFractionData' in list(iniItems.landSurfaceOptions.keys()) and\
-           'irrigationSurfaceWaterAbstractionFractionDataQuality' in list(iniItems.landSurfaceOptions.keys()):
-            if iniItems.landSurfaceOptions['irrigationSurfaceWaterAbstractionFractionData'] not in ["None", "False"] or\
-               iniItems.landSurfaceOptions['irrigationSurfaceWaterAbstractionFractionDataQuality'] not in ["None", "False"]:
+
+        # ~ # THE FOLLOWING IS DISACTIVATED DUE TO THE NEW WATER MANAGEMENT MODULE
+        # ~ # pre-defined surface water source fraction for satisfying irrigation and livestock water demand
+        # ~ self.swAbstractionFractionData = None
+        # ~ self.swAbstractionFractionDataQuality = None
+        # ~ if 'irrigationSurfaceWaterAbstractionFractionData' in list(iniItems.landSurfaceOptions.keys()) and\
+           # ~ 'irrigationSurfaceWaterAbstractionFractionDataQuality' in list(iniItems.landSurfaceOptions.keys()):
+            # ~ if iniItems.landSurfaceOptions['irrigationSurfaceWaterAbstractionFractionData'] not in ["None", "False"] or\
+               # ~ iniItems.landSurfaceOptions['irrigationSurfaceWaterAbstractionFractionDataQuality'] not in ["None", "False"]:
                 
-                logger.info('Using/incorporating the predefined surface water source of Siebert et al. (2010) for satisfying irrigation and livestock demand.')
-                self.swAbstractionFractionData = pcr.cover(\
-                                                 vos.readPCRmapClone(iniItems.landSurfaceOptions['irrigationSurfaceWaterAbstractionFractionData'],\
-                                                                     self.cloneMap,self.tmpDir,self.inputDir), 0.0)
-                self.swAbstractionFractionData = pcr.ifthen(self.swAbstractionFractionData >= 0.0, \
-                                                            self.swAbstractionFractionData )
-                self.swAbstractionFractionDataQuality = \
-                                                 pcr.cover(\
-                                                 vos.readPCRmapClone(iniItems.landSurfaceOptions['irrigationSurfaceWaterAbstractionFractionDataQuality'],\
-                                                                     self.cloneMap,self.tmpDir,self.inputDir), 0.0)
-                # ignore value with the quality above 5 (very bad) 
-                # - Note: The resulting map has values only in cells with the data auality <= 5.0 
-                self.swAbstractionFractionData = pcr.ifthen(self.swAbstractionFractionDataQuality <= 5.0, \
-                                                            self.swAbstractionFractionData)
+                # ~ logger.info('Using/incorporating the predefined surface water source of Siebert et al. (2010) for satisfying irrigation and livestock demand.')
+                # ~ self.swAbstractionFractionData = pcr.cover(\
+                                                 # ~ vos.readPCRmapClone(iniItems.landSurfaceOptions['irrigationSurfaceWaterAbstractionFractionData'],\
+                                                                     # ~ self.cloneMap,self.tmpDir,self.inputDir), 0.0)
+                # ~ self.swAbstractionFractionData = pcr.ifthen(self.swAbstractionFractionData >= 0.0, \
+                                                            # ~ self.swAbstractionFractionData )
+                # ~ self.swAbstractionFractionDataQuality = \
+                                                 # ~ pcr.cover(\
+                                                 # ~ vos.readPCRmapClone(iniItems.landSurfaceOptions['irrigationSurfaceWaterAbstractionFractionDataQuality'],\
+                                                                     # ~ self.cloneMap,self.tmpDir,self.inputDir), 0.0)
+                # ~ # ignore value with the quality above 5 (very bad) 
+                # ~ # - Note: The resulting map has values only in cells with the data auality <= 5.0 
+                # ~ self.swAbstractionFractionData = pcr.ifthen(self.swAbstractionFractionDataQuality <= 5.0, \
+                                                            # ~ self.swAbstractionFractionData)
 
-        # maximum pre-defined surface water source fraction for satisfying industrial and domestic water demand:
-        # - if not defined (default), set it to the maximum 
-        self.maximumNonIrrigationSurfaceWaterAbstractionFractionData = pcr.scalar(1.0)
-        if 'maximumNonIrrigationSurfaceWaterAbstractionFractionData' in list(iniItems.landSurfaceOptions.keys()):
-            if iniItems.landSurfaceOptions['maximumNonIrrigationSurfaceWaterAbstractionFractionData'] != "None" or\
-               iniItems.landSurfaceOptions['maximumNonIrrigationSurfaceWaterAbstractionFractionData'] != "False":
 
-                logger.info('Set the maximum fraction for predefined surface water source for satisfying domestic and industrial demand.')
-                self.maximumNonIrrigationSurfaceWaterAbstractionFractionData = pcr.min(1.0,\
-                                                                               pcr.cover(\
-                                                                               vos.readPCRmapClone(iniItems.landSurfaceOptions['maximumNonIrrigationSurfaceWaterAbstractionFractionData'],\
-                                                                                                   self.cloneMap,self.tmpDir,self.inputDir), 1.0))
+        # ~ # THE FOLLOWING IS DISACTIVATED DUE TO THE NEW WATER MANAGEMENT MODULE
+        # ~ # maximum pre-defined surface water source fraction for satisfying industrial and domestic water demand:
+        # ~ # - if not defined (default), set it to the maximum 
+        # ~ self.maximumNonIrrigationSurfaceWaterAbstractionFractionData = pcr.scalar(1.0)
+        # ~ if 'maximumNonIrrigationSurfaceWaterAbstractionFractionData' in list(iniItems.landSurfaceOptions.keys()):
+            # ~ if iniItems.landSurfaceOptions['maximumNonIrrigationSurfaceWaterAbstractionFractionData'] != "None" or\
+               # ~ iniItems.landSurfaceOptions['maximumNonIrrigationSurfaceWaterAbstractionFractionData'] != "False":
 
-        # pre-defined surface water source fraction for satisfying industrial and domestic water demand
-        self.predefinedNonIrrigationSurfaceWaterAbstractionFractionData = None
-        if 'predefinedNonIrrigationSurfaceWaterAbstractionFractionData' in list(iniItems.landSurfaceOptions.keys()) and \
-           (iniItems.landSurfaceOptions['predefinedNonIrrigationSurfaceWaterAbstractionFractionData'] != "None" or \
-            iniItems.landSurfaceOptions['predefinedNonIrrigationSurfaceWaterAbstractionFractionData'] != "False"):
+                # ~ logger.info('Set the maximum fraction for predefined surface water source for satisfying domestic and industrial demand.')
+                # ~ self.maximumNonIrrigationSurfaceWaterAbstractionFractionData = pcr.min(1.0,\
+                                                                               # ~ pcr.cover(\
+                                                                               # ~ vos.readPCRmapClone(iniItems.landSurfaceOptions['maximumNonIrrigationSurfaceWaterAbstractionFractionData'],\
+                                                                                                   # ~ self.cloneMap,self.tmpDir,self.inputDir), 1.0))
+
+        # ~ # pre-defined surface water source fraction for satisfying industrial and domestic water demand
+        # ~ self.predefinedNonIrrigationSurfaceWaterAbstractionFractionData = None
+        # ~ if 'predefinedNonIrrigationSurfaceWaterAbstractionFractionData' in list(iniItems.landSurfaceOptions.keys()) and \
+           # ~ (iniItems.landSurfaceOptions['predefinedNonIrrigationSurfaceWaterAbstractionFractionData'] != "None" or \
+            # ~ iniItems.landSurfaceOptions['predefinedNonIrrigationSurfaceWaterAbstractionFractionData'] != "False"):
             
-            logger.info('Set the predefined fraction of surface water source for satisfying domestic and industrial demand.')
-            self.predefinedNonIrrigationSurfaceWaterAbstractionFractionData = pcr.min(1.0,\
-                                                                              pcr.cover(\
-                                                                              vos.readPCRmapClone(iniItems.landSurfaceOptions['predefinedNonIrrigationSurfaceWaterAbstractionFractionData'],\
-                                                                                                  self.cloneMap,self.tmpDir,self.inputDir), 1.0))
-            self.predefinedNonIrrigationSurfaceWaterAbstractionFractionData = pcr.max(0.0, \
-                       pcr.min(self.maximumNonIrrigationSurfaceWaterAbstractionFractionData, \
-                            self.predefinedNonIrrigationSurfaceWaterAbstractionFractionData))                                                                                   
+            # ~ logger.info('Set the predefined fraction of surface water source for satisfying domestic and industrial demand.')
+            # ~ self.predefinedNonIrrigationSurfaceWaterAbstractionFractionData = pcr.min(1.0,\
+                                                                              # ~ pcr.cover(\
+                                                                              # ~ vos.readPCRmapClone(iniItems.landSurfaceOptions['predefinedNonIrrigationSurfaceWaterAbstractionFractionData'],\
+                                                                                                  # ~ self.cloneMap,self.tmpDir,self.inputDir), 1.0))
+            # ~ self.predefinedNonIrrigationSurfaceWaterAbstractionFractionData = pcr.max(0.0, \
+                       # ~ pcr.min(self.maximumNonIrrigationSurfaceWaterAbstractionFractionData, \
+                            # ~ self.predefinedNonIrrigationSurfaceWaterAbstractionFractionData))                                                                                   
         
+
         # ~ # THE FOLLOWING IS DISACTIVATED DUE TO THE NEW WATER MANAGEMENT MODULE
         # ~ # threshold values defining the preference for irrigation water source (unit: fraction/percentage)
         # ~ self.treshold_to_maximize_irrigation_surface_water = \
@@ -294,6 +299,7 @@ class LandSurface(object):
          # ~ vos.readPCRmapClone(iniItems.landSurfaceOptions['treshold_to_minimize_fossil_groundwater_irrigation'],\
                                  # ~ self.cloneMap,self.tmpDir,self.inputDir)
         
+
         # assign the topography and soil parameters
         self.soil_topo_parameters = {}
         # - default values used for all land cover types 
