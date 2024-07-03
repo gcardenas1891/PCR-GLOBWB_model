@@ -480,7 +480,7 @@ class WaterManagement(object):
         # calculate the estimate of surface water demand (considering by swAbstractionFractionDict)
         
         # - get a dictionary containing the partitioning of withdrawal/abstraction sources: (from groundwater and surface water)
-        swAbstractionFractionDict = self.partitioningGroundSurfaceAbstraction(routing.avgDischarge, routing.avgBaseflow)
+        swAbstractionFractionDict = self.partitioningGroundSurfaceAbstraction(routing)
         
         # - surface water abstraction fraction for industrial and domestic (as well as manufacture and thermoelectic, excluding irrigation and livestock)
         swAbstractionFraction_industrial_domestic = pcr.min(swAbstractionFractionDict['max_for_non_irrigation'],\
@@ -1060,14 +1060,14 @@ class WaterManagement(object):
 
 
 
-    def partitioningGroundSurfaceAbstraction(self, average_discharge_in_m3ps, average_local_baseflow_in_m3ps):
+    def partitioningGroundSurfaceAbstraction(self, routing_module):
 
         # partitioning abstraction sources: groundwater and surface water
         # de Graaf et al., 2014 principle: partitioning based on local average baseflow (m3/s) and upstream average discharge (m3/s) 
         # - estimates of fractions of groundwater and surface water abstractions 
-        averageBaseflowInput = average_local_baseflow_in_m3ps
-        averageUpstreamInput = pcr.max(average_discharge_in_m3ps, pcr.cover(pcr.upstream(self.lddMap, average_discharge_in_m3ps), 0.0))
-        
+        averageBaseflowInput = routing_module.avgBaseflow
+        averageUpstreamInput = pcr.max(routing_module.avgDischarge, pcr.cover(pcr.upstream(routing_module.lddMap, routing_module.avgDischarge), 0.0))
+
         if self.usingAllocSegments:
             
             averageBaseflowInput = pcr.max(0.0, pcr.ifthen(self.landmask, averageBaseflowInput))
