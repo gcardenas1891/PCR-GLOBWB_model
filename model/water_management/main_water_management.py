@@ -72,15 +72,16 @@ class WaterManagement(object):
         
         # zonal IDs at which allocations of desalined water, surface water, and groundwater sources are performed  
         # - if not defined, only local cell water availability is considered
-        self.usingAllocationSegmentsForDesalinatedWaterSource = False
-        self.usingAllocationSegmentsForSurfaceWaterSource     = False
-        self.usingAllocationSegmentsForGroundwaterSource      = False
+        self.using_allocationSegmentsForDesalinatedWaterSource = False
+        self.using_allocationSegmentsForSurfaceWaterSource     = False
+        self.using_allocationSegmentsForGroundwaterSource      = False
         sources = ["allocationSegmentsForDesalinatedWaterSource",
-                   "allocationSegmentsForSurfaceWaterSource    ",
-                   "allocationSegmentsForGroundwaterSource     "]
+                   "allocationSegmentsForSurfaceWaterSource",
+                   "allocationSegmentsForGroundwaterSource"]
         for source in sources:
             var = source
             if ((source in iniItems.waterManagementOptions.keys()) and (iniItems.waterManagementOptions[var] not in ["False", "None"])):
+                vars(self)[ "using_" + var] = True
                 vars(self)[var], vars(self)[var+"Areas"] = self.get_allocation_zone(iniItems.waterManagementOptions[var])
             else:
                 vars(self)[var], vars(self)[var+"Areas"] = None, None
@@ -489,7 +490,7 @@ class WaterManagement(object):
         # Abstraction and Allocation of DESALINATED WATER
         # ##################################################################################################################
         # - desalination water to satisfy water demand
-        if self.usingAllocationSegmentsForDesalinatedWaterSource:
+        if self.using_allocationSegmentsForDesalinatedWaterSource:
         #  
             logger.debug("Allocation of supply from desalination water.")
         #  
@@ -602,7 +603,7 @@ class WaterManagement(object):
         # Abstraction and Allocation of SURFACE WATER
         # ##################################################################################################################
         # - surface water to satisfy water demand
-        if self.usingAllocationSegmentsForSurfaceWaterSource:
+        if self.using_allocationSegmentsForSurfaceWaterSource:
         #  
             logger.debug("Allocation of supply from surfacen water.")
         #  
@@ -774,7 +775,7 @@ class WaterManagement(object):
         # Abstraction and Allocation of RENEWABLE GROUNDWATER
         # ##################################################################################################################
         # - renewable groundwater to satisfy water demand
-        if self.usingAllocationSegmentsForGroundwaterSource:
+        if self.using_allocationSegmentsForGroundwaterSource:
         #  
             logger.debug("Allocation of supply from renewable groundwater.")
         #  
@@ -1005,7 +1006,7 @@ class WaterManagement(object):
                 # accesible fossil groundwater in the volume unit (unit: m3/day)
                 readAvlFossilGroundwaterVol = readAvlFossilGroundwater * self.cellArea
                 
-                if self.usingAllocationSegmentsForGroundwaterSource:
+                if self.using_allocationSegmentsForGroundwaterSource:
                 
                     logger.debug('Allocation of fossil groundwater abstraction.')
                 
@@ -1129,7 +1130,7 @@ class WaterManagement(object):
         averageBaseflowInput = routing_module.avgBaseflow
         averageUpstreamInput = pcr.max(routing_module.avgDischarge, pcr.cover(pcr.upstream(routing_module.lddMap, routing_module.avgDischarge), 0.0))
 
-        if self.usingAllocationSegmentsForSurfaceWaterSource:
+        if self.using_allocationSegmentsForSurfaceWaterSource:
             
             averageBaseflowInput = pcr.max(0.0, pcr.ifthen(self.landmask, averageBaseflowInput))
             averageUpstreamInput = pcr.max(0.0, pcr.ifthen(self.landmask, averageUpstreamInput))
@@ -1147,7 +1148,7 @@ class WaterManagement(object):
         swAbstractionFraction = pcr.max(0.0, swAbstractionFraction)
         swAbstractionFraction = pcr.min(1.0, swAbstractionFraction)
 
-        if self.usingAllocationSegmentsForSurfaceWaterSource:
+        if self.using_allocationSegmentsForSurfaceWaterSource:
             swAbstractionFraction = pcr.areamaximum(swAbstractionFraction, self.allocSegments)
             
         swAbstractionFraction = pcr.cover(swAbstractionFraction, 1.0)
