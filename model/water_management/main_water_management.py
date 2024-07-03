@@ -392,7 +392,7 @@ class WaterManagement(object):
         # - this will return the following:
         #   - self.allocated_demand_per_sector["desalinated_water"]
         #   - self.allocated_withdrawal_per_sector["desalinated_water"]
-        self.abstraction_and_allocation_from_desalination(self.remaining_gross_sectoral_water_demands)
+        self.abstraction_and_allocation_from_desalination(self.remaining_gross_sectoral_water_demands, currTimeStep)
         
         # update the following after abstraction and allocation of desalinated water
         #   - the updated self.remaining_gross_sectoral_water_demands (after desalinated_water use)
@@ -462,7 +462,7 @@ class WaterManagement(object):
 
 
 
-    def abstraction_and_allocation_from_desalination(self, remaining_gross_sectoral_water_demands):
+    def abstraction_and_allocation_from_desalination(self, remaining_gross_sectoral_water_demands, currTimeStep):
 
         # get the TOTAL (remaining) demand (m3) 
         volTotalRemainingDemand = pcr.scalar(0.0) 
