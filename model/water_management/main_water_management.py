@@ -339,7 +339,7 @@ class WaterManagement(object):
        
        # actual water abstraction volume in each cell (unit: m3)
        cellAbstraction = vos.getValDivZero(\
-                         cellAvlWater, zoneAvlWater, smallNumber) * zoneAbstraction
+                         cellAvlWater, zoneAvlWater, vos.smallNumber) * zoneAbstraction
        cellAbstraction = pcr.min(cellAbstraction, cellAvlWater)                                                                   
        
        # to minimize numerical errors
@@ -354,7 +354,7 @@ class WaterManagement(object):
        
        # allocation water to meet water demand (unit: m3)
        cellAllocation  = vos.getValDivZero(\
-                         cellVolDemand, zoneVolDemand, smallNumber) * zoneAbstraction 
+                         cellVolDemand, zoneVolDemand, vos.smallNumber) * zoneAbstraction 
        cellAllocation  = pcr.min(cellAllocation,  cellVolDemand)
        
        # adding local abstraction and local allocation
