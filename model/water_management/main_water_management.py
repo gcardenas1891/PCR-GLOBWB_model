@@ -494,6 +494,8 @@ class WaterManagement(object):
         #  
             logger.debug("Allocation of supply from desalination water.")
         #  
+            pcr.aguila(volTotalRemainingDemand)
+            
             volDesalinationAbstraction, volDesalinationAllocation, volZoneDesalinationAbstraction = \
               self.waterAbstractionAndAllocation(
               water_demand_volume = volTotalRemainingDemand,\
