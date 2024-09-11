@@ -363,13 +363,13 @@ class WaterManagement(object):
        
        if debug_water_balance and zone_area is not None:
        
-           waterBalanceCheck([pcr.cover(pcr.areatotal(cellAbstraction, allocation_zones)/zone_area, 0.0)],\
-                             [pcr.cover(pcr.areatotal(cellAllocation , allocation_zones)/zone_area, 0.0)],\
-                             [pcr.scalar(0.0)],\
-                             [pcr.scalar(0.0)],\
-                             'abstraction - allocation per zone/segment (PS: Error here may be caused by rounding error.)' ,\
-                              True,\
-                              extra_info_for_water_balance_reporting,threshold=1e-4)
+           vos.waterBalanceCheck([pcr.cover(pcr.areatotal(cellAbstraction, allocation_zones)/zone_area, 0.0)],\
+                                 [pcr.cover(pcr.areatotal(cellAllocation , allocation_zones)/zone_area, 0.0)],\
+                                 [pcr.scalar(0.0)],\
+                                 [pcr.scalar(0.0)],\
+                                 'abstraction - allocation per zone/segment (PS: Error here may be caused by rounding error.)' ,\
+                                  True,\
+                                  extra_info_for_water_balance_reporting,threshold=1e-4)
        
        return cellAbstraction, cellAllocation, zoneAbstraction
 
