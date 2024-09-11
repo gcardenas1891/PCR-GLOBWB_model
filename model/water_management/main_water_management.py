@@ -609,7 +609,7 @@ class WaterManagement(object):
             logger.debug("Allocation of supply from surfacen water.")
         #  
             volSurfaceWaterAbstraction, volSurfaceWaterAllocation, volZoneSurfaceWaterAbstraction = \
-              waterAbstractionAndAllocation(
+              self.waterAbstractionAndAllocation(
               water_demand_volume = surface_water_demand,\
               available_water_volume = available_surface_water_volume,\
               allocation_zones = self.allocationSegmentsForSurfaceWaterSource,\
