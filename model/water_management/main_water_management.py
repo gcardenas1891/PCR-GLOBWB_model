@@ -823,6 +823,8 @@ class WaterManagement(object):
         # allocate the "renewable groundwater Abstraction" to each sector - unit: m3/day
         self.allocated_withdrawal_per_sector["renewable_groundwater"] = self.allocate_withdrawal_to_each_sector(totalVolCellWaterAbstraction = volRenewGroundwaterAbstraction, totalVolZoneAbstraction = volZoneRenewGroundwaterAbstraction, cellAllocatedDemandPerSector = self.allocated_demand_per_sector["renewable_groundwater"], allocation_zones = self.allocationSegmentsForGroundwaterSource)
         
+        # somehow the following is needed for allocating fossil groundwater
+        self.satisfiedIrrigationDemandFromNonFossilGroundwater = self.allocated_demand_per_sector["renewable_groundwater"]["irrigation"]
 
         # update remaining_gross_sectoral_water_demands after renewable groundwater allocation
         for sector_name in remaining_gross_sectoral_water_demands.keys():
@@ -958,7 +960,7 @@ class WaterManagement(object):
                                                              correctedRemainingIrrigationLivestock) 
             correctedRemainingIrrigationLivestock = pcr.max(0.0,\
              pcr.min(correctedRemainingIrrigationLivestock,\
-             pcr.max(0.0, self.volTotalIrrigationLivestockDemand) * (1.0 - self.swAbstractionFractionDict['irrigation']) - satisfiedIrrigationDemandFromNonFossilGroundwater))
+             pcr.max(0.0, self.volTotalIrrigationLivestockDemand) * (1.0 - self.swAbstractionFractionDict['irrigation']) - self.satisfiedIrrigationDemandFromNonFossilGroundwater))
             
             # ignore fossil groundwater abstraction in irrigation areas dominated by swAbstractionFractionDict['irrigation']
             correctedRemainingIrrigationLivestock = pcr.ifthenelse(\
