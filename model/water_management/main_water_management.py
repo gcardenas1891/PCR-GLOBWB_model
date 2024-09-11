@@ -1003,8 +1003,10 @@ class WaterManagement(object):
                  pcr.min(\
                  pcr.max(0.0, groundwater.maximumDailyGroundwaterAbstraction * self.cellArea - volRenewGroundwaterAbstraction), self.fossilGroundwaterAbstrVol)
                 
-                # fossil groundwater allocation (unit: m/day)
+                # fossil groundwater allocation (unit: m3/day)
                 self.fossilGroundwaterAllocVol = self.fossilGroundwaterAbstrVol
+                
+                pietje
 
         
             if groundwater.limitFossilGroundwaterAbstraction and self.limitAbstraction == False:
