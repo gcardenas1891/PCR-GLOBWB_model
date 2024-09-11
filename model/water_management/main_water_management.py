@@ -783,7 +783,7 @@ class WaterManagement(object):
             logger.debug("Allocation of supply from renewable groundwater.")
         #  
             volRenewGroundwaterAbstraction, volRenewGroundwaterAllocation, volZoneRenewGroundwaterAbstraction = \
-              waterAbstractionAndAllocation(
+              self.waterAbstractionAndAllocation(
               water_demand_volume = self.potVolGroundwaterAbstract,\
               available_water_volume = readAvlStorGroundwater,\
               allocation_zones = self.allocationSegmentsForGroundwaterSource,\
@@ -1017,7 +1017,7 @@ class WaterManagement(object):
 
                     # fossil groundwater abstraction and allocation in volume (unit: m3)
                     volFossilGroundwaterAbstraction, volFossilGroundwaterAllocation, volZoneFossilGroundwaterAbstraction = \
-                       waterAbstractionAndAllocation(
+                       self.waterAbstractionAndAllocation(
                        water_demand_volume = self.potVolFossilGroundwaterAbstract,\
                        available_water_volume = pcr.max(0.00, readAvlFossilGroundwaterVol),\
                        allocation_zones = groundwater.allocSegments,\
