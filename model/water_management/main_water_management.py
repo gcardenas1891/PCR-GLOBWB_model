@@ -459,9 +459,6 @@ class WaterManagement(object):
             zonal_allocated_withdrawal_per_sector = {}
             for sector_name in self.sector_names:
                 
-                print(cellAllocatedDemandPerSector[sector_name])
-                print(allocation_zones)
-                
                 zonal_allocated_withdrawal_per_sector[sector_name] = pcr.areatotal(cellAllocatedDemandPerSector[sector_name], allocation_zones)   
                 allocated_withdrawal_per_sector[sector_name] = totalVolCellWaterAbstraction * vos.getValDivZero(zonal_allocated_withdrawal_per_sector[sector_name], totalVolZoneAbstraction)
         
@@ -810,12 +807,13 @@ class WaterManagement(object):
 
 
 
-        # allocate the "renewable groundwater Abstraction" to each sector - unit: m3/day
-        self.allocated_withdrawal_per_sector["renewable_groundwater"] = self.allocate_withdrawal_to_each_sector(totalVolCellWaterAbstraction = volRenewGroundwaterAbstraction, totalVolZoneAbstraction = volZoneRenewGroundwaterAbstraction, cellAllocatedDemandPerSector = self.allocated_demand_per_sector["renewable_groundwater"], allocation_zones = self.allocationSegmentsForGroundwaterSource)
-        
         # allocate the "renewable groundwater Allocation" to each sector - unit: m3/day
         self.allocated_demand_per_sector["renewable_groundwater"] = self.allocate_satisfied_demand_to_each_sector(totalVolWaterAllocation = volRenewGroundwaterAllocation, sectoral_remaining_demand_volume = remaining_gross_sectoral_water_demands, total_remaining_demand_volume = remainingTotalDemand)
         
+        # allocate the "renewable groundwater Abstraction" to each sector - unit: m3/day
+        self.allocated_withdrawal_per_sector["renewable_groundwater"] = self.allocate_withdrawal_to_each_sector(totalVolCellWaterAbstraction = volRenewGroundwaterAbstraction, totalVolZoneAbstraction = volZoneRenewGroundwaterAbstraction, cellAllocatedDemandPerSector = self.allocated_demand_per_sector["renewable_groundwater"], allocation_zones = self.allocationSegmentsForGroundwaterSource)
+        
+
         # update remaining_gross_sectoral_water_demands after renewable groundwater allocation
         for sector_name in remaining_gross_sectoral_water_demands.keys():
              remaining_gross_sectoral_water_demands[sector_name] = pcr.max(0.0, remaining_gross_sectoral_water_demands[sector_name] - \
