@@ -458,6 +458,10 @@ class WaterManagement(object):
         if allocation_zones is not None:
             zonal_allocated_withdrawal_per_sector = {}
             for sector_name in self.sector_names:
+                
+                print(cellAllocatedDemandPerSector[sector_name])
+                print(allocation_zones)
+                
                 zonal_allocated_withdrawal_per_sector[sector_name] = pcr.areatotal(cellAllocatedDemandPerSector[sector_name], allocation_zones)   
                 allocated_withdrawal_per_sector[sector_name] = totalVolCellWaterAbstraction * vos.getValDivZero(zonal_allocated_withdrawal_per_sector[sector_name], totalVolZoneAbstraction)
         
