@@ -381,6 +381,10 @@ class WaterManagement(object):
 
     def update(self, vol_gross_sectoral_water_demands, groundwater, routing, currTimeStep):
 
+        # total volume of irrigation and livestock demand (not limited by available water) - somehow this is needed while allocating groundwater use
+        self.volTotalIrrigationLivestockDemand = vol_gross_sectoral_water_demands["irrigation"] +\
+                                                 vol_gross_sectoral_water_demands["livestock"]
+        
         # initiate the variables for remaining sectoral water demands and accumulated/satisfied_gross_sectoral_water_demand variables
         # - both have the unit m3
         self.satisfied_gross_sectoral_water_demands = {}
@@ -924,7 +928,7 @@ class WaterManagement(object):
 
             correctedRemainingTotalDemand = pcr.min(self.potVolFossilGroundwaterAbstract, remainingTotalDemand)
 
-            # the remaining industrial and domestic demand and livestock (unit: m/day) limited to self.potFossilGroundwaterAbstract
+            # the remaining industrial and domestic demand and livestock (unit: m3/day) limited to self.potVolFossilGroundwaterAbstract
             # - no correction, we will always try to fulfil these demands
             correctedRemainingIndustrialDomesticLivestock = pcr.min(remainingIndustrialDomestic + remainingLivestock, correctedRemainingTotalDemand)
             
@@ -934,7 +938,7 @@ class WaterManagement(object):
             # - ignore small irrigation demand (less than 1 mm)
             correctedRemainingIrrigation = pcr.rounddown(correctedRemainingIrrigation/self.cellArea*1000.)/1000. * self.cellArea
             
-            # the (corrected) remaining total demand (limited to self.potFossilGroundwaterAbstract)
+            # the (corrected) remaining total demand (limited to self.potVolFossilGroundwaterAbstract)
             correctedRemainingTotalDemand = correctedRemainingIndustrialDomesticLivestock + correctedRemainingIrrigation
             
             # the (corrected) remaining industrial and domestic demand (excluding livestock)
@@ -944,7 +948,7 @@ class WaterManagement(object):
             correctedRemainingIrrigationLivestock = pcr.min(remainingIrrigationLivestock, \
                                                     pcr.max(0.0, correctedRemainingTotalDemand - correctedRemainingIndustrialDomestic))
                                                   
-            # the (corrected) remaining total demand (unit: m/day) limited to self.potFossilGroundwaterAbstract
+            # the (corrected) remaining total demand (unit: m3/day) limited to self.potFossilGroundwaterAbstract
             correctedRemainingTotalDemand = correctedRemainingIrrigationLivestock + correctedRemainingIndustrialDomestic
             
             # TODO: Do the water balance check: correctedRemainingIrrigationLivestock + correctedRemainingIndustrialDomestic <= self.potFossilGroundwaterAbstract                                          
@@ -954,7 +958,7 @@ class WaterManagement(object):
                                                              correctedRemainingIrrigationLivestock) 
             correctedRemainingIrrigationLivestock = pcr.max(0.0,\
              pcr.min(correctedRemainingIrrigationLivestock,\
-             pcr.max(0.0, totalIrrigationLivestockDemand) * (1.0 - self.swAbstractionFractionDict['irrigation']) - satisfiedIrrigationDemandFromNonFossilGroundwater))
+             pcr.max(0.0, self.volTotalIrrigationLivestockDemand) * (1.0 - self.swAbstractionFractionDict['irrigation']) - satisfiedIrrigationDemandFromNonFossilGroundwater))
             
             # ignore fossil groundwater abstraction in irrigation areas dominated by swAbstractionFractionDict['irrigation']
             correctedRemainingIrrigationLivestock = pcr.ifthenelse(\
@@ -977,7 +981,7 @@ class WaterManagement(object):
 
             ###############################################################################################################################
 
-            # water demand that must be satisfied by fossil groundwater abstraction           
+            # water demand that must be satisfied by fossil groundwater abstraction - note that this is the volume unit           
             self.potVolFossilGroundwaterAbstract = pcr.min(self.potVolFossilGroundwaterAbstract, correctedRemainingTotalDemand)
             
             
