@@ -54,13 +54,15 @@ class LandCover(object):
         self.iniItemsLC = iniItems.__getattribute__(nameOfSectionInIniFile)
         self.name = self.iniItemsLC['name']
 
-        # limitAbstraction
-        self.limitAbstraction = False
-        if iniItems.landSurfaceOptions['limitAbstraction'] == "True": self.limitAbstraction = True
+        # ~ # THE FOLLOWING WAS DISACTIVATED during the development of new water use and water management modules (TODO: Please check whether the following lines SHOULD ALSO BE DELETED)  
+        # ~ # limitAbstraction
+        # ~ self.limitAbstraction = False
+        # ~ if iniItems.landSurfaceOptions['limitAbstraction'] == "True": self.limitAbstraction = True
         
-        # if using MODFLOW, limitAbstraction must be True (the abstraction cannot exceed storGroundwater)
-        if "useMODFLOW" in list(iniItems.groundwaterOptions.keys()):
-            if iniItems.groundwaterOptions["useMODFLOW"] == "True": self.limitAbstraction = True
+        # ~ # THE FOLLOWING WAS DISACTIVATED during the development of new water use and water management modules (TODO: Please check whether the following lines SHOULD ALSO BE DELETED)  
+        # ~ # if using MODFLOW, limitAbstraction must be True (the abstraction cannot exceed storGroundwater)
+        # ~ if "useMODFLOW" in list(iniItems.groundwaterOptions.keys()):
+            # ~ if iniItems.groundwaterOptions["useMODFLOW"] == "True": self.limitAbstraction = True
         
         # THE FOLLOWING WAS DISACTIVATED during the development of new water use and water management modules (TODO: Please check whether the following lines SHOULD ALSO BE DELETED)  
         # ~ # includeIrrigation

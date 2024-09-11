@@ -47,6 +47,12 @@ class WaterManagement(object):
         self.inputDir = iniItems.globalOptions['inputDir']
         self.landmask = landmask
         
+        self.limitAbstraction = False
+        if iniItems.landSurfaceOptions['limitAbstraction'] == "True": self.limitAbstraction = True
+        
+        # if using MODFLOW, limitAbstraction must be True (the abstraction cannot exceed storGroundwater)
+        if "useMODFLOW" in list(iniItems.groundwaterOptions.keys()):
+            if iniItems.groundwaterOptions["useMODFLOW"] == "True": self.limitAbstraction = True
         
         # option to prioritize local sources before abstracting water from neighboring cells
         self.prioritizeLocalSourceToMeetWaterDemand = True
