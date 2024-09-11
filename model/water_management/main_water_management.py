@@ -338,7 +338,7 @@ class WaterManagement(object):
        zoneAbstraction = pcr.min(zoneAvlWater, zoneVolDemand)
        
        # actual water abstraction volume in each cell (unit: m3)
-       cellAbstraction = getValDivZero(\
+       cellAbstraction = vos.getValDivZero(\
                          cellAvlWater, zoneAvlWater, smallNumber) * zoneAbstraction
        cellAbstraction = pcr.min(cellAbstraction, cellAvlWater)                                                                   
        
@@ -353,7 +353,7 @@ class WaterManagement(object):
                               pcr.ifthenelse(mask, cellAbstraction, 0.0), allocation_zones)
        
        # allocation water to meet water demand (unit: m3)
-       cellAllocation  = getValDivZero(\
+       cellAllocation  = vos.getValDivZero(\
                          cellVolDemand, zoneVolDemand, smallNumber) * zoneAbstraction 
        cellAllocation  = pcr.min(cellAllocation,  cellVolDemand)
        
