@@ -1136,8 +1136,8 @@ class WaterManagement(object):
             averageBaseflowInput = pcr.max(0.0, pcr.ifthen(self.landmask, averageBaseflowInput))
             averageUpstreamInput = pcr.max(0.0, pcr.ifthen(self.landmask, averageUpstreamInput))
             
-            averageBaseflowInput = pcr.cover(pcr.areaaverage(averageBaseflowInput, self.allocSegments), 0.0)
-            averageUpstreamInput = pcr.cover(pcr.areamaximum(averageUpstreamInput, self.allocSegments), 0.0)
+            averageBaseflowInput = pcr.cover(pcr.areaaverage(averageBaseflowInput, self.allocationSegmentsForSurfaceWaterSource), 0.0)
+            averageUpstreamInput = pcr.cover(pcr.areamaximum(averageUpstreamInput, self.allocationSegmentsForSurfaceWaterSource), 0.0)
 
         else:
             logger.debug("Water demand can only be satisfied by local source.")
@@ -1150,7 +1150,7 @@ class WaterManagement(object):
         swAbstractionFraction = pcr.min(1.0, swAbstractionFraction)
 
         if self.using_allocationSegmentsForSurfaceWaterSource:
-            swAbstractionFraction = pcr.areamaximum(swAbstractionFraction, self.allocSegments)
+            swAbstractionFraction = pcr.areamaximum(swAbstractionFraction, self.allocationSegmentsForSurfaceWaterSource)
             
         swAbstractionFraction = pcr.cover(swAbstractionFraction, 1.0)
         swAbstractionFraction = pcr.ifthen(self.landmask, swAbstractionFraction)
