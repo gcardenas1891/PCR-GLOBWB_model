@@ -411,7 +411,8 @@ class WaterManagement(object):
         self.abstraction_and_allocation_from_surface_water(remaining_gross_sectoral_water_demands = self.remaining_gross_sectoral_water_demands, \
                                                            available_surface_water_volume         = self.available_surface_water_volume, \
                                                            routing                                = routing, \
-                                                           groundwater                            = groundwater)
+                                                           groundwater                            = groundwater,\
+                                                           currTimeStep                           = currTimeStep)
 
         # update the following after abstraction and allocation of surface water
         #   - the updated self.remaining_gross_sectoral_water_demands
@@ -431,7 +432,8 @@ class WaterManagement(object):
         #   - self.allocated_withdrawal_per_sector["nonrenewable_groundwater"]
         self.abstraction_and_allocation_from_groundwater(remaining_gross_sectoral_water_demands = self.remaining_gross_sectoral_water_demands,\
                                                          routing                                = routing,\
-                                                         groundwater                            = groundwater)
+                                                           groundwater                          = groundwater,\
+                                                           currTimeStep                         = currTimeStep)
 
 
         #   - the updated self.available_renewable_groundwater   
@@ -535,7 +537,7 @@ class WaterManagement(object):
                                                      
 
     def abstraction_and_allocation_from_surface_water(self, remaining_gross_sectoral_water_demands,\
-                                                            available_surface_water_volume, routing, groundwater):
+                                                            available_surface_water_volume, routing, groundwater, currTimeStep):
 
 
         # Abstraction and Allocation of SURFACE WATER
@@ -648,7 +650,7 @@ class WaterManagement(object):
 
 
 
-    def abstraction_and_allocation_from_groundwater(self, remaining_gross_sectoral_water_demands, routing, groundwater):
+    def abstraction_and_allocation_from_groundwater(self, remaining_gross_sectoral_water_demands, routing, groundwater, currTimeStep):
         
         # calculate the remaining demands for the following combined sectors - NOTE THAT they are in VOLUME (m3/day)
         remainingIndustrialDomestic   = pcr.scalar(0.0)
