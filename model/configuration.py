@@ -362,29 +362,39 @@ class Configuration(object):
                 self.timeStep     = None
                 self.timeStepUnit = None
         
-        # adjustment for limitAbstraction (to use only renewable water)
-        if 'limitAbstraction' not in list(self.landSurfaceOptions.keys()):
-            self.landSurfaceOptions['limitAbstraction'] = False
-
-        # irrigation efficiency map 
-        if 'irrigationEfficiency' not in list(self.landSurfaceOptions.keys()) or\
-            self.landSurfaceOptions['irrigationEfficiency'] == "False" or\
-            self.landSurfaceOptions['irrigationEfficiency'] == "None":
-            logger.warning('The "irrigationEfficiency" map is not defined in the configuration file. This run assumes 100% efficiency.')
-            self.landSurfaceOptions['irrigationEfficiency'] = "1.00"
-        
-        # adjustment for desalinationWater
-        if 'desalinationWater' not in list(self.landSurfaceOptions.keys()):
-            msg  = 'The option "desalinationWater" is not defined in the "landSurfaceOptions" of the configuration file. '
-            msg += 'We assume "None" for this option. Desalination water use is NOT included in the calculation.'
-            logger.warning(msg)
-            self.landSurfaceOptions['desalinationWater'] = "None"
 
         # adjustment for routingOptions
         if 'routingMethod' not in list(self.routingOptions.keys()):
             logger.warning('The "routingMethod" is not defined in the "routingOptions" of the configuration file. "accuTravelTime" is used in this run.')
             iniItems.routingOptions['routingMethod'] = "accuTravelTime"
 
+
+
+        # ~ ########################################################################################################################################################
+        # ~ # the following things are disactivated due to the development of new water management and water use modules
+        # ~ ########################################################################################################################################################
+
+        # ~ # adjustment for limitAbstraction (to use only renewable water)
+        # ~ if 'limitAbstraction' not in list(self.waterManagementOptions.keys()):
+            # ~ self.waterManagementOptions['limitAbstraction'] = False
+
+        # ~ # irrigation efficiency map 
+        # ~ if 'irrigationEfficiency' not in list(self.landSurfaceOptions.keys()) or\
+            # ~ self.landSurfaceOptions['irrigationEfficiency'] == "False" or\
+            # ~ self.landSurfaceOptions['irrigationEfficiency'] == "None":
+            # ~ logger.warning('The "irrigationEfficiency" map is not defined in the configuration file. This run assumes 100% efficiency.')
+            # ~ self.landSurfaceOptions['irrigationEfficiency'] = "1.00"
+
+        # ~ # adjustment for desalinationWater
+        # ~ if 'desalinationWater' not in list(self.landSurfaceOptions.keys()):
+            # ~ msg  = 'The option "desalinationWater" is not defined in the "landSurfaceOptions" of the configuration file. '
+            # ~ msg += 'We assume "None" for this option. Desalination water use is NOT included in the calculation.'
+            # ~ logger.warning(msg)
+            # ~ self.landSurfaceOptions['desalinationWater'] = "None"
+
+
+        # WE CONTINUE FROM THIS AT 3.00
+        
         # adjustment for option 'limitRegionalAnnualGroundwaterAbstraction'
         if 'pumpingCapacityNC' not in list(self.groundwaterOptions.keys()):
             msg  = 'The "pumpingCapacityNC" (annual groundwater pumping capacity limit netcdf file) '
@@ -394,6 +404,7 @@ class Configuration(object):
             logger.warning(msg)
             self.groundwaterOptions['pumpingCapacityNC'] = "None"
         
+
         # adjustment for option 'allocationSegmentsForGroundSurfaceWater'
         if 'allocationSegmentsForGroundSurfaceWater' not in list(self.landSurfaceOptions.keys()):
             msg  = 'The option "allocationSegmentsForGroundSurfaceWater" is not defined in the "groundwaterOptions" of the configuration file. '

@@ -211,7 +211,7 @@ class LandSurface(object):
         
         # limitAbstraction
         self.limitAbstraction = False
-        if iniItems.landSurfaceOptions['limitAbstraction'] == "True": self.limitAbstraction = True
+        if iniItems.waterManagementOptions['limitAbstraction'] == "True": self.limitAbstraction = True
 
         # landCover types included in the simulation: 
         self.coverTypes = ["forest","grassland"]
@@ -1458,184 +1458,185 @@ class LandSurface(object):
         self.old_style_land_surface_reporting(currTimeStep)
 
 
-    def old_update(self,meteo,groundwater,routing,currTimeStep):
+    
+    # ~ def old_update(self,meteo,groundwater,routing,currTimeStep):
         
-        # updating regional groundwater abstraction limit (at the begining of the year or at the beginning of simulation)
-        if groundwater.limitRegionalAnnualGroundwaterAbstraction:
+        # ~ # updating regional groundwater abstraction limit (at the begining of the year or at the beginning of simulation)
+        # ~ if groundwater.limitRegionalAnnualGroundwaterAbstraction:
 
-            logger.debug('Total groundwater abstraction is limited by regional annual pumping capacity.')
-            if currTimeStep.doy == 1 or currTimeStep.timeStepPCR == 1:
+            # ~ logger.debug('Total groundwater abstraction is limited by regional annual pumping capacity.')
+            # ~ if currTimeStep.doy == 1 or currTimeStep.timeStepPCR == 1:
             
-                self.groundwater_pumping_region_ids = \
-                     vos.netcdf2PCRobjClone(groundwater.pumpingCapacityNC,'region_ids',\
-                         currTimeStep.fulldate, useDoy = 'yearly', cloneMapFileName = self.cloneMap)
-                other_ids = pcr.mapmaximum(self.groundwater_pumping_region_ids) + pcr.scalar(1000.) + pcr.uniqueid(self.landmask)
-                self.groundwater_pumping_region_ids = pcr.cover(self.groundwater_pumping_region_ids, other_ids)
-                self.groundwater_pumping_region_ids = pcr.ifthen(self.landmask, pcr.nominal(self.groundwater_pumping_region_ids))
+                # ~ self.groundwater_pumping_region_ids = \
+                     # ~ vos.netcdf2PCRobjClone(groundwater.pumpingCapacityNC,'region_ids',\
+                         # ~ currTimeStep.fulldate, useDoy = 'yearly', cloneMapFileName = self.cloneMap)
+                # ~ other_ids = pcr.mapmaximum(self.groundwater_pumping_region_ids) + pcr.scalar(1000.) + pcr.uniqueid(self.landmask)
+                # ~ self.groundwater_pumping_region_ids = pcr.cover(self.groundwater_pumping_region_ids, other_ids)
+                # ~ self.groundwater_pumping_region_ids = pcr.ifthen(self.landmask, pcr.nominal(self.groundwater_pumping_region_ids))
 
-                self.regionalAnnualGroundwaterAbstractionLimit = \
-                     pcr.ifthen(self.landmask,\
-                     pcr.cover(\
-                     vos.netcdf2PCRobjClone(groundwater.pumpingCapacityNC,'regional_pumping_limit',\
-                         currTimeStep.fulldate, useDoy = 'yearly', cloneMapFileName = self.cloneMap), 0.0))
+                # ~ self.regionalAnnualGroundwaterAbstractionLimit = \
+                     # ~ pcr.ifthen(self.landmask,\
+                     # ~ pcr.cover(\
+                     # ~ vos.netcdf2PCRobjClone(groundwater.pumpingCapacityNC,'regional_pumping_limit',\
+                         # ~ currTimeStep.fulldate, useDoy = 'yearly', cloneMapFileName = self.cloneMap), 0.0))
             
-                self.regionalAnnualGroundwaterAbstractionLimit = pcr.areamaximum(self.regionalAnnualGroundwaterAbstractionLimit, self.groundwater_pumping_region_ids)
+                # ~ self.regionalAnnualGroundwaterAbstractionLimit = pcr.areamaximum(self.regionalAnnualGroundwaterAbstractionLimit, self.groundwater_pumping_region_ids)
             
-                self.regionalAnnualGroundwaterAbstractionLimit *= 1000. * 1000. * 1000. # unit: m3/year
-                self.regionalAnnualGroundwaterAbstractionLimit  = pcr.ifthen(self.landmask,\
-                                                                         self.regionalAnnualGroundwaterAbstractionLimit)
-                # minimum value (unit: m3/year at the regional scale)
-                minimum_value = 1000.
-                self.regionalAnnualGroundwaterAbstractionLimit  = pcr.max(minimum_value,\
-                                                                  self.regionalAnnualGroundwaterAbstractionLimit)                                                         
-        else:
+                # ~ self.regionalAnnualGroundwaterAbstractionLimit *= 1000. * 1000. * 1000. # unit: m3/year
+                # ~ self.regionalAnnualGroundwaterAbstractionLimit  = pcr.ifthen(self.landmask,\
+                                                                         # ~ self.regionalAnnualGroundwaterAbstractionLimit)
+                # ~ # minimum value (unit: m3/year at the regional scale)
+                # ~ minimum_value = 1000.
+                # ~ self.regionalAnnualGroundwaterAbstractionLimit  = pcr.max(minimum_value,\
+                                                                  # ~ self.regionalAnnualGroundwaterAbstractionLimit)                                                         
+        # ~ else:
             
-            logger.debug('Total groundwater abstraction is NOT limited by regional annual pumping capacity.')
-            self.groundwater_pumping_region_ids = None
-            self.regionalAnnualGroundwaterAbstractionLimit = None
+            # ~ logger.debug('Total groundwater abstraction is NOT limited by regional annual pumping capacity.')
+            # ~ self.groundwater_pumping_region_ids = None
+            # ~ self.regionalAnnualGroundwaterAbstractionLimit = None
         
-        # updating fracVegCover of each landCover (landCover fraction) 
-        # - if considering dynamic/historical irrigation areas (expansion/reduction of irrigated areas)
-        # - done at yearly basis, at the beginning of each year, also at the beginning of simulation
-        #
-        if self.dynamicIrrigationArea and self.includeIrrigation and \
-          (currTimeStep.timeStepPCR == 1 or currTimeStep.doy == 1) and self.noLandCoverFractionCorrection == False:     
+        # ~ # updating fracVegCover of each landCover (landCover fraction) 
+        # ~ # - if considering dynamic/historical irrigation areas (expansion/reduction of irrigated areas)
+        # ~ # - done at yearly basis, at the beginning of each year, also at the beginning of simulation
+        # ~ #
+        # ~ if self.dynamicIrrigationArea and self.includeIrrigation and \
+          # ~ (currTimeStep.timeStepPCR == 1 or currTimeStep.doy == 1) and self.noLandCoverFractionCorrection == False:     
             
-            # scale land cover fraction (due to expansion/reduction of irrigated areas)
-            self.scaleDynamicIrrigation(currTimeStep.year)
+            # ~ # scale land cover fraction (due to expansion/reduction of irrigated areas)
+            # ~ self.scaleDynamicIrrigation(currTimeStep.year)
 
-            ####################################################################################################################################################################
-            # correcting land cover fractions
-            total_fractions = pcr.scalar(0.0)
-            for coverType in self.coverTypes:
-                total_fractions += self.landCoverObj[coverType].fracVegCover                                                                                                   
+            # ~ ####################################################################################################################################################################
+            # ~ # correcting land cover fractions
+            # ~ total_fractions = pcr.scalar(0.0)
+            # ~ for coverType in self.coverTypes:
+                # ~ total_fractions += self.landCoverObj[coverType].fracVegCover                                                                                                   
             
-            if 'grassland' in list(self.landCoverObj.keys()):
-                self.landCoverObj['grassland'].fracVegCover = pcr.ifthenelse(total_fractions > 0.1, self.landCoverObj['grassland'].fracVegCover, 1.0)
+            # ~ if 'grassland' in list(self.landCoverObj.keys()):
+                # ~ self.landCoverObj['grassland'].fracVegCover = pcr.ifthenelse(total_fractions > 0.1, self.landCoverObj['grassland'].fracVegCover, 1.0)
             
-            if 'short_natural' in list(self.landCoverObj.keys()):
-                self.landCoverObj['short_natural'].fracVegCover = pcr.ifthenelse(total_fractions > 0.1, self.landCoverObj['short_natural'].fracVegCover, 1.0)
+            # ~ if 'short_natural' in list(self.landCoverObj.keys()):
+                # ~ self.landCoverObj['short_natural'].fracVegCover = pcr.ifthenelse(total_fractions > 0.1, self.landCoverObj['short_natural'].fracVegCover, 1.0)
             
-            total_fractions = pcr.scalar(0.0)
-            for coverType in self.coverTypes:
-                total_fractions += self.landCoverObj[coverType].fracVegCover                                                                                                   
+            # ~ total_fractions = pcr.scalar(0.0)
+            # ~ for coverType in self.coverTypes:
+                # ~ total_fractions += self.landCoverObj[coverType].fracVegCover                                                                                                   
             
-            for coverType in self.coverTypes:
-                self.landCoverObj[coverType].fracVegCover = self.landCoverObj[coverType].fracVegCover / total_fractions                                                                                                   
-            ####################################################################################################################################################################
-
-
-        # read land cover fractions from netcdf files
-        # - assumption: annual resolution
-        if self.noAnnualChangesInLandCoverParameter == False and self.dynamicIrrigationArea == False and \
-          (currTimeStep.timeStepPCR == 1 or currTimeStep.doy == 1):
-            msg = 'Read land cover fractions based on the given netcdf file.'
-            logger.debug(msg)
-            for coverType in self.coverTypes:
-                self.landCoverObj[coverType].fracVegCover = self.landCoverObj[coverType].get_land_cover_parameters(date_in_string = str(currTimeStep.fulldate), \
-                                                                                                                   get_only_fracVegCover = True)
-
-            ####################################################################################################################################################################
-            # correcting land cover fractions
-            total_fractions = pcr.scalar(0.0)
-            for coverType in self.coverTypes:
-                total_fractions += self.landCoverObj[coverType].fracVegCover                                                                                                   
-            
-            if 'grassland' in list(self.landCoverObj.keys()):
-                self.landCoverObj['grassland'].fracVegCover = pcr.ifthenelse(total_fractions > 0.1, self.landCoverObj['grassland'].fracVegCover, 1.0)
-            
-            if 'short_natural' in list(self.landCoverObj.keys()):
-                self.landCoverObj['short_natural'].fracVegCover = pcr.ifthenelse(total_fractions > 0.1, self.landCoverObj['short_natural'].fracVegCover, 1.0)
-            
-            total_fractions = pcr.scalar(0.0)
-            for coverType in self.coverTypes:
-                total_fractions += self.landCoverObj[coverType].fracVegCover                                                                                                   
-            
-            for coverType in self.coverTypes:
-                self.landCoverObj[coverType].fracVegCover = self.landCoverObj[coverType].fracVegCover / total_fractions                                                                                                   
-            ####################################################################################################################################################################
+            # ~ for coverType in self.coverTypes:
+                # ~ self.landCoverObj[coverType].fracVegCover = self.landCoverObj[coverType].fracVegCover / total_fractions                                                                                                   
+            # ~ ####################################################################################################################################################################
 
 
-        # transfer some states, due to changes/dynamics in land cover conditions
-        # - if considering dynamic/historical irrigation areas (expansion/reduction of irrigated areas)
-        # - done at yearly basis, at the beginning of each year
-        # - note that this must be done at the beginning of each year, including for the first time step (timeStepPCR == 1)
-        #
-        if ((self.dynamicIrrigationArea and self.includeIrrigation) or self.noAnnualChangesInLandCoverParameter == False) and currTimeStep.doy == 1:
-            #
-            # loop for all main states:
-            for var in self.mainStates:
+        # ~ # read land cover fractions from netcdf files
+        # ~ # - assumption: annual resolution
+        # ~ if self.noAnnualChangesInLandCoverParameter == False and self.dynamicIrrigationArea == False and \
+          # ~ (currTimeStep.timeStepPCR == 1 or currTimeStep.doy == 1):
+            # ~ msg = 'Read land cover fractions based on the given netcdf file.'
+            # ~ logger.debug(msg)
+            # ~ for coverType in self.coverTypes:
+                # ~ self.landCoverObj[coverType].fracVegCover = self.landCoverObj[coverType].get_land_cover_parameters(date_in_string = str(currTimeStep.fulldate), \
+                                                                                                                   # ~ get_only_fracVegCover = True)
+
+            # ~ ####################################################################################################################################################################
+            # ~ # correcting land cover fractions
+            # ~ total_fractions = pcr.scalar(0.0)
+            # ~ for coverType in self.coverTypes:
+                # ~ total_fractions += self.landCoverObj[coverType].fracVegCover                                                                                                   
+            
+            # ~ if 'grassland' in list(self.landCoverObj.keys()):
+                # ~ self.landCoverObj['grassland'].fracVegCover = pcr.ifthenelse(total_fractions > 0.1, self.landCoverObj['grassland'].fracVegCover, 1.0)
+            
+            # ~ if 'short_natural' in list(self.landCoverObj.keys()):
+                # ~ self.landCoverObj['short_natural'].fracVegCover = pcr.ifthenelse(total_fractions > 0.1, self.landCoverObj['short_natural'].fracVegCover, 1.0)
+            
+            # ~ total_fractions = pcr.scalar(0.0)
+            # ~ for coverType in self.coverTypes:
+                # ~ total_fractions += self.landCoverObj[coverType].fracVegCover                                                                                                   
+            
+            # ~ for coverType in self.coverTypes:
+                # ~ self.landCoverObj[coverType].fracVegCover = self.landCoverObj[coverType].fracVegCover / total_fractions                                                                                                   
+            # ~ ####################################################################################################################################################################
+
+
+        # ~ # transfer some states, due to changes/dynamics in land cover conditions
+        # ~ # - if considering dynamic/historical irrigation areas (expansion/reduction of irrigated areas)
+        # ~ # - done at yearly basis, at the beginning of each year
+        # ~ # - note that this must be done at the beginning of each year, including for the first time step (timeStepPCR == 1)
+        # ~ #
+        # ~ if ((self.dynamicIrrigationArea and self.includeIrrigation) or self.noAnnualChangesInLandCoverParameter == False) and currTimeStep.doy == 1:
+            # ~ #
+            # ~ # loop for all main states:
+            # ~ for var in self.mainStates:
                 
-                logger.info("Transfering states for the variable "+str(var))
+                # ~ logger.info("Transfering states for the variable "+str(var))
 
-                moving_fraction = pcr.scalar(0.0)                       # total land cover fractions that will be transferred
-                moving_states   = pcr.scalar(0.0)                       # total states that will be transferred
+                # ~ moving_fraction = pcr.scalar(0.0)                       # total land cover fractions that will be transferred
+                # ~ moving_states   = pcr.scalar(0.0)                       # total states that will be transferred
                 
-                for coverType in self.coverTypes:
+                # ~ for coverType in self.coverTypes:
                     
-                    old_fraction = self.landCoverObj[coverType].previousFracVegCover
-                    new_fraction = self.landCoverObj[coverType].fracVegCover
+                    # ~ old_fraction = self.landCoverObj[coverType].previousFracVegCover
+                    # ~ new_fraction = self.landCoverObj[coverType].fracVegCover
                     
-                    moving_fraction += pcr.max(0.0, old_fraction-new_fraction)
-                    moving_states   += pcr.max(0.0, old_fraction-new_fraction) * vars(self.landCoverObj[coverType])[var]
+                    # ~ moving_fraction += pcr.max(0.0, old_fraction-new_fraction)
+                    # ~ moving_states   += pcr.max(0.0, old_fraction-new_fraction) * vars(self.landCoverObj[coverType])[var]
 
-                previous_state = pcr.scalar(0.0)
-                rescaled_state = pcr.scalar(0.0)
+                # ~ previous_state = pcr.scalar(0.0)
+                # ~ rescaled_state = pcr.scalar(0.0)
                 
-                # correcting states
-                for coverType in self.coverTypes:
+                # ~ # correcting states
+                # ~ for coverType in self.coverTypes:
                     
-                    old_states   = vars(self.landCoverObj[coverType])[var]
-                    old_fraction = self.landCoverObj[coverType].previousFracVegCover
-                    new_fraction = self.landCoverObj[coverType].fracVegCover
+                    # ~ old_states   = vars(self.landCoverObj[coverType])[var]
+                    # ~ old_fraction = self.landCoverObj[coverType].previousFracVegCover
+                    # ~ new_fraction = self.landCoverObj[coverType].fracVegCover
                     
-                    correction   = moving_states *\
-                                   vos.getValDivZero( pcr.max(0.0, new_fraction - old_fraction),\
-                                                      moving_fraction, vos.smallNumber )
+                    # ~ correction   = moving_states *\
+                                   # ~ vos.getValDivZero( pcr.max(0.0, new_fraction - old_fraction),\
+                                                      # ~ moving_fraction, vos.smallNumber )
                      
-                    new_states   = pcr.ifthenelse(new_fraction > old_fraction, 
-                                   vos.getValDivZero( 
-                                   old_states * old_fraction + correction, \
-                                   new_fraction, vos.smallNumber), old_states) 
+                    # ~ new_states   = pcr.ifthenelse(new_fraction > old_fraction, 
+                                   # ~ vos.getValDivZero( 
+                                   # ~ old_states * old_fraction + correction, \
+                                   # ~ new_fraction, vos.smallNumber), old_states) 
                     
-                    new_states   = pcr.ifthenelse(new_fraction > 0.0, new_states, pcr.scalar(0.0))
+                    # ~ new_states   = pcr.ifthenelse(new_fraction > 0.0, new_states, pcr.scalar(0.0))
                     
-                    vars(self.landCoverObj[coverType])[var] = new_states
+                    # ~ vars(self.landCoverObj[coverType])[var] = new_states
 
-                    previous_state += old_fraction * old_states
-                    rescaled_state += new_fraction * new_states
+                    # ~ previous_state += old_fraction * old_states
+                    # ~ rescaled_state += new_fraction * new_states
             
-                # check and make sure that previous_state == rescaled_state
-                check_map = previous_state - rescaled_state
-                a,b,c = vos.getMinMaxMean(check_map)
-                threshold = 1e-5
-                if abs(a) > threshold or abs(b) > threshold:
-                    logger.warning("Error in transfering states (due to dynamic in land cover fractions) ... Min %f Max %f Mean %f" %(a,b,c))
-                else:     
-                    logger.info("Successful in transfering states (after change in land cover fractions) ... Min %f Max %f Mean %f" %(a,b,c))
+                # ~ # check and make sure that previous_state == rescaled_state
+                # ~ check_map = previous_state - rescaled_state
+                # ~ a,b,c = vos.getMinMaxMean(check_map)
+                # ~ threshold = 1e-5
+                # ~ if abs(a) > threshold or abs(b) > threshold:
+                    # ~ logger.warning("Error in transfering states (due to dynamic in land cover fractions) ... Min %f Max %f Mean %f" %(a,b,c))
+                # ~ else:     
+                    # ~ logger.info("Successful in transfering states (after change in land cover fractions) ... Min %f Max %f Mean %f" %(a,b,c))
 
-        # for the last day of the year, we have to save the previous land cover fractions (to be considered in the next time step) 
-        if self.dynamicIrrigationArea and self.includeIrrigation and currTimeStep.isLastDayOfYear:     
-            # save the current state of fracVegCover
-            for coverType in self.coverTypes:\
-                self.landCoverObj[coverType].previousFracVegCover = self.landCoverObj[coverType].fracVegCover
+        # ~ # for the last day of the year, we have to save the previous land cover fractions (to be considered in the next time step) 
+        # ~ if self.dynamicIrrigationArea and self.includeIrrigation and currTimeStep.isLastDayOfYear:     
+            # ~ # save the current state of fracVegCover
+            # ~ for coverType in self.coverTypes:\
+                # ~ self.landCoverObj[coverType].previousFracVegCover = self.landCoverObj[coverType].fracVegCover
                 
-        #- RvB: irrigation water efficiency
-        # added here are the lines required to read in the water efficiency
-        # irrigation water efficiency is updated at the start of the year and 
-        if self.includeIrrigation and (currTimeStep.doy == 1 or currTimeStep.timeStepPCR == 1):
-                    logger.info("Setting irrigation water efficiency")
-                    for coverType in self.coverTypes:
-                        self.landCoverObj[coverType].updateIrrigationWaterEfficiency(currTimeStep)
+        # ~ #- RvB: irrigation water efficiency
+        # ~ # added here are the lines required to read in the water efficiency
+        # ~ # irrigation water efficiency is updated at the start of the year and 
+        # ~ if self.includeIrrigation and (currTimeStep.doy == 1 or currTimeStep.timeStepPCR == 1):
+                    # ~ logger.info("Setting irrigation water efficiency")
+                    # ~ for coverType in self.coverTypes:
+                        # ~ self.landCoverObj[coverType].updateIrrigationWaterEfficiency(currTimeStep)
                 
-        # calculate cell fraction influenced by capillary rise:
-        self.capRiseFrac = self.calculateCapRiseFrac(groundwater,routing,currTimeStep)
+        # ~ # calculate cell fraction influenced by capillary rise:
+        # ~ self.capRiseFrac = self.calculateCapRiseFrac(groundwater,routing,currTimeStep)
             
-        # get a dictionary containing livestock, domestic and industrial water demand, including their return flow fractions
-        self.nonIrrigationWaterDemandDict = self.obtainNonIrrWaterDemand(routing, currTimeStep)
+        # ~ # get a dictionary containing livestock, domestic and industrial water demand, including their return flow fractions
+        # ~ self.nonIrrigationWaterDemandDict = self.obtainNonIrrWaterDemand(routing, currTimeStep)
         
-        # get a dictionary containing the partitioning of withdrawal/abstraction sources: (from groundwater and surface water)
-        self.swAbstractionFractionDict = self.partitioningGroundSurfaceAbstraction(groundwater,routing)
+        # ~ # get a dictionary containing the partitioning of withdrawal/abstraction sources: (from groundwater and surface water)
+        # ~ self.swAbstractionFractionDict = self.partitioningGroundSurfaceAbstraction(groundwater,routing)
         
         # ~ # the following is disactivated due to the development of new water use modules
         # ~ # get desalination water use (m/day); assume this one as potential supply
@@ -1652,44 +1653,45 @@ class LandSurface(object):
             # ~ logger.debug("Monthly desalination water use is NOT included.")
             # ~ self.desalinationWaterUse = pcr.scalar(0.0)
         
-        # update (loop per each land cover type):
-        for coverType in self.coverTypes:
+        # ~ # update (loop per each land cover type):
+        # ~ for coverType in self.coverTypes:
             
-            logger.info("Updating land cover: "+str(coverType))
-            self.landCoverObj[coverType].updateLC(meteo,groundwater,routing,\
-                                                  self.capRiseFrac,\
-                                                  self.nonIrrigationWaterDemandDict,\
-                                                  self.swAbstractionFractionDict,\
-                                                  currTimeStep,\
-                                                  self.allocSegments,\
-                                                  self.desalinationWaterUse,\
-                                                  self.groundwater_pumping_region_ids,self.regionalAnnualGroundwaterAbstractionLimit)
+            # ~ logger.info("Updating land cover: "+str(coverType))
+            # ~ self.landCoverObj[coverType].updateLC(meteo,groundwater,routing,\
+                                                  # ~ self.capRiseFrac,\
+                                                  # ~ self.nonIrrigationWaterDemandDict,\
+                                                  # ~ self.swAbstractionFractionDict,\
+                                                  # ~ currTimeStep,\
+                                                  # ~ self.allocSegments,\
+                                                  # ~ self.desalinationWaterUse,\
+                                                  # ~ self.groundwater_pumping_region_ids,self.regionalAnnualGroundwaterAbstractionLimit)
             
-        # first, we set all aggregated values/variables to zero: 
-        for var in self.aggrVars: vars(self)[var] = pcr.scalar(0.0)
-        #
-        # get or calculate the values of all aggregated values/variables
-        for coverType in self.coverTypes:
-            # calculate the aggregrated or global landSurface values: 
-            for var in self.aggrVars:
-                vars(self)[var] += \
-                     self.landCoverObj[coverType].fracVegCover * vars(self.landCoverObj[coverType])[var]
+        # ~ # first, we set all aggregated values/variables to zero: 
+        # ~ for var in self.aggrVars: vars(self)[var] = pcr.scalar(0.0)
+        # ~ #
+        # ~ # get or calculate the values of all aggregated values/variables
+        # ~ for coverType in self.coverTypes:
+            # ~ # calculate the aggregrated or global landSurface values: 
+            # ~ for var in self.aggrVars:
+                # ~ vars(self)[var] += \
+                     # ~ self.landCoverObj[coverType].fracVegCover * vars(self.landCoverObj[coverType])[var]
                      
-        # total storages (unit: m3) in the entire landSurface module
-        if self.numberOfSoilLayers == 2: self.totalSto = \
-                        self.snowCoverSWE + self.snowFreeWater + self.interceptStor +\
-                        self.topWaterLayer +\
-                        self.storUpp +\
-                        self.storLow
-        #
-        if self.numberOfSoilLayers == 3: self.totalSto = \
-                        self.snowCoverSWE + self.snowFreeWater + self.interceptStor +\
-                        self.topWaterLayer +\
-                        self.storUpp000005 + self.storUpp005030 +\
-                        self.storLow030150
+        # ~ # total storages (unit: m3) in the entire landSurface module
+        # ~ if self.numberOfSoilLayers == 2: self.totalSto = \
+                        # ~ self.snowCoverSWE + self.snowFreeWater + self.interceptStor +\
+                        # ~ self.topWaterLayer +\
+                        # ~ self.storUpp +\
+                        # ~ self.storLow
+        # ~ #
+        # ~ if self.numberOfSoilLayers == 3: self.totalSto = \
+                        # ~ self.snowCoverSWE + self.snowFreeWater + self.interceptStor +\
+                        # ~ self.topWaterLayer +\
+                        # ~ self.storUpp000005 + self.storUpp005030 +\
+                        # ~ self.storLow030150
 
-        # old-style reporting (this is useful for debugging)                            
-        self.old_style_land_surface_reporting(currTimeStep)
+        # ~ # old-style reporting (this is useful for debugging)                            
+        # ~ self.old_style_land_surface_reporting(currTimeStep)
+
 
     def old_style_land_surface_reporting(self,currTimeStep):
 

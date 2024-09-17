@@ -47,8 +47,12 @@ class WaterManagement(object):
         self.inputDir = iniItems.globalOptions['inputDir']
         self.landmask = landmask
         
+        # adjustment for limitAbstraction (to use only renewable water) ; if limitAbstraction = True, this means only renewable groundwater use 
+        if 'limitAbstraction' not in list(self.waterManagementOptions.keys()):
+            self.waterManagementOptions['limitAbstraction'] = False
+
         self.limitAbstraction = False
-        if iniItems.landSurfaceOptions['limitAbstraction'] == "True": self.limitAbstraction = True
+        if iniItems.waterManagementOptions['limitAbstraction'] == "True": self.limitAbstraction = True
         
         # if using MODFLOW, limitAbstraction must be True (the abstraction cannot exceed storGroundwater)
         if "useMODFLOW" in list(iniItems.groundwaterOptions.keys()):
