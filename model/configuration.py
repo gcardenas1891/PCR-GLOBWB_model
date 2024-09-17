@@ -369,6 +369,27 @@ class Configuration(object):
             iniItems.routingOptions['routingMethod'] = "accuTravelTime"
 
 
+        # adjustment for option 'dynamicFloodPlain'
+        if 'dynamicFloodPlain' not in list(self.routingOptions.keys()):
+            msg  = 'The option "dynamicFloodPlain" is not defined in the "routingOptions" of the configuration file. '
+            msg += 'We assume "False" for this option. Hence, the flood plain extent is constant for the entire simulation.'
+            logger.warning(msg)
+            self.routingOptions['dynamicFloodPlain'] = "False"
+
+
+        # adjustment for option 'useMODFLOW'
+        if 'useMODFLOW' not in list(self.groundwaterOptions.keys()):
+            msg  = 'The option "useMODFLOW" is not defined in the "groundwaterOptions" of the configuration file. '
+            msg += 'We assume "False" for this option.'
+            logger.warning(msg)
+            self.groundwaterOptions['useMODFLOW'] = "False"
+
+        # adjustments for the options to read different forcing files for different years (one file for each year):
+        if 'precipitation_set_per_year' not in list(self.meteoOptions.keys()): self.meteoOptions['precipitation_set_per_year'] = "False"
+        if 'temperature_set_per_year' not in list(self.meteoOptions.keys()): self.meteoOptions['temperature_set_per_year'] = "False"
+        if 'refETPotFileNC_set_per_year' not in list(self.meteoOptions.keys()): self.meteoOptions['refETPotFileNC_set_per_year'] = "False"
+
+
 
         # ~ ########################################################################################################################################################
         # ~ # the following things are disactivated due to the development of new water management and water use modules
@@ -393,139 +414,16 @@ class Configuration(object):
             # ~ self.landSurfaceOptions['desalinationWater'] = "None"
 
 
-        # WE CONTINUE FROM THIS AT 3.00
-        
-        # adjustment for option 'limitRegionalAnnualGroundwaterAbstraction'
-        if 'pumpingCapacityNC' not in list(self.groundwaterOptions.keys()):
-            msg  = 'The "pumpingCapacityNC" (annual groundwater pumping capacity limit netcdf file) '
-            msg += 'is not defined in the "groundwaterOptions" of the configuration file. '
-            msg += 'We assume no annual pumping limit used in this run. '
-            msg += 'It may result too high groundwater abstraction.'
-            logger.warning(msg)
-            self.groundwaterOptions['pumpingCapacityNC'] = "None"
-        
+        # ~ # adjustment for option 'limitRegionalAnnualGroundwaterAbstraction'
+        # ~ if 'pumpingCapacityNC' not in list(self.groundwaterOptions.keys()):
+            # ~ msg  = 'The "pumpingCapacityNC" (annual groundwater pumping capacity limit netcdf file) '
+            # ~ msg += 'is not defined in the "groundwaterOptions" of the configuration file. '
+            # ~ msg += 'We assume no annual pumping limit used in this run. '
+            # ~ msg += 'It may result too high groundwater abstraction.'
+            # ~ logger.warning(msg)
+            # ~ self.groundwaterOptions['pumpingCapacityNC'] = "None"
 
-        # adjustment for option 'allocationSegmentsForGroundSurfaceWater'
-        if 'allocationSegmentsForGroundSurfaceWater' not in list(self.landSurfaceOptions.keys()):
-            msg  = 'The option "allocationSegmentsForGroundSurfaceWater" is not defined in the "groundwaterOptions" of the configuration file. '
-            msg += 'We assume "None" for this option. Here, water demand will be satisfied by local source only. '
-            logger.warning(msg)
-            self.landSurfaceOptions['allocationSegmentsForGroundSurfaceWater'] = "None"
-        
-        # adjustment for option 'dynamicFloodPlain'
-        if 'dynamicFloodPlain' not in list(self.routingOptions.keys()):
-            msg  = 'The option "dynamicFloodPlain" is not defined in the "routingOptions" of the configuration file. '
-            msg += 'We assume "False" for this option. Hence, the flood plain extent is constant for the entire simulation.'
-            logger.warning(msg)
-            self.routingOptions['dynamicFloodPlain'] = "False"
-        
-        # adjustment for option 'useMODFLOW'
-        if 'useMODFLOW' not in list(self.groundwaterOptions.keys()):
-            msg  = 'The option "useMODFLOW" is not defined in the "groundwaterOptions" of the configuration file. '
-            msg += 'We assume "False" for this option.'
-            logger.warning(msg)
-            self.groundwaterOptions['useMODFLOW'] = "False"
 
-        # adjustment for initial conditions in the routingOptions
-        #
-        if 'm2tChannelDischargeLongIni' in list(self.routingOptions.keys()):
-            self.routingOptions['m2tDischargeLongIni'] = self.routingOptions['m2tChannelDischargeLongIni']
-        #
-        if 'waterBodyStorageIni' not in list(self.routingOptions.keys()):
-            logger.warning("Note that 'waterBodyStorageIni' is not defined in the ini/configuration file will be calculated from 'channelStorageIni'.")
-            self.routingOptions['waterBodyStorageIni'] = "None"
-        if self.routingOptions['waterBodyStorageIni'] == "None":
-            self.routingOptions['waterBodyStorageIni'] = None
-        #
-        if 'avgChannelDischargeIni' in list(self.routingOptions.keys()):
-            self.routingOptions['avgDischargeLongIni'] = self.routingOptions['avgChannelDischargeIni']
-        #
-        if 'm2tChannelDischargeIni' in list(self.routingOptions.keys()):
-            self.routingOptions['m2tDischargeLongIni'] = self.routingOptions['m2tChannelDischargeIni']
-        #
-        if 'avgBaseflowIni' in list(self.routingOptions.keys()):
-            self.routingOptions['avgBaseflowLongIni'] = self.routingOptions['avgBaseflowIni']
-
-        if 'avgInflowLakeReservIni' in list(self.routingOptions.keys()):
-            self.routingOptions['avgLakeReservoirInflowShortIni'] = self.routingOptions['avgInflowLakeReservIni']
-
-        if 'avgOutflowDischargeIni' in list(self.routingOptions.keys()):
-            self.routingOptions['avgLakeReservoirOutflowLongIni'] = self.routingOptions['avgOutflowDischargeIni']
-
-        if 'avgDischargeShortIni' not in list(self.routingOptions.keys()):
-            logger.warning('The initial condition "avgDischargeShortIni" is not defined. "avgDischargeLongIni" is used in this run.')
-            self.routingOptions['avgDischargeShortIni'] = self.routingOptions['avgDischargeLongIni']
-
-        if 'avgSurfaceWaterInputLongIni' in list(self.routingOptions.keys()):
-            logger.warning("Note that avgSurfaceWaterInputLongIni is not used and not needed in the ini/configuration file.")
-            
-        if 'subDischargeIni' not in list(self.routingOptions.keys()):
-            msg  = 'The initial condition "subDischargeIni" is not defined. The "avgDischargeShortIni" is used in this run. '
-            msg += 'Note that the "subDischargeIni" is only relevant if kinematic wave approaches are used.'
-            logger.warning(msg)
-            self.routingOptions['subDischargeIni'] = self.routingOptions['avgDischargeShortIni']
-
-        if self.routingOptions['subDischargeIni'] == "None":
-            msg  = 'The initial condition "subDischargeIni" is given as "None". The "avgDischargeShortIni" is used in this run. '
-            msg += 'Note that the "subDischargeIni" is only relevant if kinematic wave approaches are used.'
-            logger.warning(msg)
-            self.routingOptions['subDischargeIni'] = self.routingOptions['avgDischargeShortIni']
-
-        if 'storGroundwaterFossilIni' not in list(self.groundwaterOptions.keys()):
-            msg  = 'The initial condition "storGroundwaterFossilIni" is not defined. '
-            msg += 'Zero initial condition is assumed here. '
-            logger.warning(msg)
-            self.groundwaterOptions['storGroundwaterFossilIni'] = "0.0"
-            # Note for Edwin: Zero initial condition cannot be used for the run with IWMI project.
-             
-        if 'avgTotalGroundwaterAbstractionIni' not in list(self.groundwaterOptions.keys()):
-            msg  = "The initial condition 'avgTotalGroundwaterAbstractionIni' is not defined, "
-            msg += 'Zero initial condition is assumed here. '
-            logger.warning(msg)
-            self.groundwaterOptions['avgTotalGroundwaterAbstractionIni'] = "0.0"
-
-        if 'avgTotalGroundwaterAllocationLongIni' not in list(self.groundwaterOptions.keys()):
-            msg  = "The initial condition 'avgTotalGroundwaterAllocationLongIni' is not defined, "
-            msg += 'Zero initial condition is assumed here. '
-            logger.warning(msg)
-            self.groundwaterOptions['avgTotalGroundwaterAllocationLongIni'] = "0.0"
-
-        if 'avgTotalGroundwaterAllocationShortIni' not in list(self.groundwaterOptions.keys()):
-            msg  = "The initial condition 'avgTotalGroundwaterAllocationShortIni' is not defined, "
-            msg += 'Zero initial condition is assumed here. '
-            logger.warning(msg)
-            self.groundwaterOptions['avgTotalGroundwaterAllocationShortIni'] = "0.0"
-
-        if 'avgNonFossilGroundwaterAllocationLongIni' not in list(self.groundwaterOptions.keys()):
-            msg  = "The initial condition 'avgNonFossilGroundwaterAllocationLongIni' is not defined, "
-            msg += 'Zero initial condition is assumed here. '
-            logger.warning(msg)
-            self.groundwaterOptions['avgNonFossilGroundwaterAllocationLongIni'] = "0.0"
-
-        if 'avgNonFossilGroundwaterAllocationShortIni' not in list(self.groundwaterOptions.keys()):
-            msg  = "The initial condition 'avgNonFossilGroundwaterAllocationShortIni' is not defined, "
-            msg += "'avgNonFossilGroundwaterAllocationLongIni' is used here."
-            logger.warning(msg)
-            self.groundwaterOptions['avgNonFossilGroundwaterAllocationShortIni'] = self.groundwaterOptions['avgNonFossilGroundwaterAllocationLongIni']
-        
-        if 'relativeGroundwaterHeadIni' not in list(self.groundwaterOptions.keys()):
-            msg  = 'The initial condition "relativeGroundwaterHeadIni" is not defined. "None" is assumed here. '
-            msg += 'Note that the "relativeGroundwaterIni" is only relevant for the run that couples PCR-GLOBWB and MODFLOW.'
-            logger.warning(msg)
-            self.groundwaterOptions['relativeGroundwaterHeadIni'] = "None"
-
-        if 'baseflowIni' not in list(self.groundwaterOptions.keys()):
-            msg  = 'The initial condition "relativeGroundWaterIni" is not defined. "0.0" is assumed here. '
-            msg += 'Note that the "baseflowIni" is only relevant for the run that couples PCR-GLOBWB and MODFLOW.'
-            logger.warning(msg)
-            self.groundwaterOptions['baseflowIni'] = "0.0"
-
-        if 'limitFossilGroundWaterAbstraction' not in list(self.groundwaterOptions.keys()):
-            msg  = 'The option "limitFossilGroundWaterAbstraction" is not defined in the "groundwaterOptions" of the configuration file. '
-            msg += 'This run assumes "False" for this option.'
-            logger.warning(msg)
-            self.groundwaterOptions['limitFossilGroundWaterAbstraction'] = "False"
-        
         if 'treshold_to_maximize_irrigation_surface_water' not in list(self.landSurfaceOptions.keys()):
             msg  = 'The option "treshold_to_maximize_irrigation_surface_water" is not defined in the "landSurfaceOptions" of the configuration file. '
             msg += 'This run assumes "1.0" for this option.'
@@ -553,14 +451,6 @@ class Configuration(object):
             msg += 'This run assumes "0.020 m/day" for this option.'
             logger.warning(msg)
             self.groundwaterOptions['maximumDailyFossilGroundwaterAbstraction'] = "0.020"
-
-        # THE FOLLOWING WAS DISACTIVATED during the development of new water use and water management modules (TODO: later the following lines SHOULD ALSO BE DELETED)  
-        # ~ # option to include irrigation
-        # ~ if 'includeIrrigation' not in list(self.landSurfaceOptions.keys()):
-            # ~ msg  = 'The option "includeIrrigation" is not defined in the "landSurfaceOptions" of the configuration file. '
-            # ~ msg += 'This run assumes "False" for this option.'
-            # ~ logger.warning(msg)
-            # ~ self.landSurfaceOptions['includeIrrigation'] = "False"
 
         # adjustment for the option 'historicalIrrigationArea'
         if 'historicalIrrigationArea' not in list(self.landSurfaceOptions.keys()):
@@ -611,17 +501,122 @@ class Configuration(object):
             logger.warning(msg)
             self.landSurfaceOptions['livestockWaterDemandFile'] = "None"
 
-        # adjustments for the options to read different forcing files for different years (one file for each year):
-        if 'precipitation_set_per_year' not in list(self.meteoOptions.keys()): self.meteoOptions['precipitation_set_per_year'] = "False"
-        if 'temperature_set_per_year' not in list(self.meteoOptions.keys()): self.meteoOptions['temperature_set_per_year'] = "False"
-        if 'refETPotFileNC_set_per_year' not in list(self.meteoOptions.keys()): self.meteoOptions['refETPotFileNC_set_per_year'] = "False"
-
         # adjustment for the option 'prioritizeLocalSourceToMeetWaterDemand':
         if 'prioritizeLocalSourceToMeetWaterDemand' not in list(self.landSurfaceOptions.keys()):
             msg  = 'The option "prioritizeLocalSourceToMeetWaterDemand" is not defined in the "landSurfaceOptions" of the configuration file. '
             msg += 'We assume "True" for this option. Local water sources are first used before abstracting water from neighboring cells.'
             logger.warning(msg)
             self.landSurfaceOptions['prioritizeLocalSourceToMeetWaterDemand'] = "True"
+
+        
+        # THE FOLLOWING WAS DISACTIVATED during the development of new water use and water management modules (as users often are not aware with these automatic adjustments)  
+
+        # ~ # adjustment for initial conditions in the routingOptions
+        # ~ #
+        # ~ if 'm2tChannelDischargeLongIni' in list(self.routingOptions.keys()):
+            # ~ self.routingOptions['m2tDischargeLongIni'] = self.routingOptions['m2tChannelDischargeLongIni']
+        # ~ #
+        # ~ if 'waterBodyStorageIni' not in list(self.routingOptions.keys()):
+            # ~ logger.warning("Note that 'waterBodyStorageIni' is not defined in the ini/configuration file will be calculated from 'channelStorageIni'.")
+            # ~ self.routingOptions['waterBodyStorageIni'] = "None"
+        # ~ if self.routingOptions['waterBodyStorageIni'] == "None":
+            # ~ self.routingOptions['waterBodyStorageIni'] = None
+        # ~ #
+        # ~ if 'avgChannelDischargeIni' in list(self.routingOptions.keys()):
+            # ~ self.routingOptions['avgDischargeLongIni'] = self.routingOptions['avgChannelDischargeIni']
+        # ~ #
+        # ~ if 'm2tChannelDischargeIni' in list(self.routingOptions.keys()):
+            # ~ self.routingOptions['m2tDischargeLongIni'] = self.routingOptions['m2tChannelDischargeIni']
+        # ~ #
+        # ~ if 'avgBaseflowIni' in list(self.routingOptions.keys()):
+            # ~ self.routingOptions['avgBaseflowLongIni'] = self.routingOptions['avgBaseflowIni']
+
+        # ~ if 'avgInflowLakeReservIni' in list(self.routingOptions.keys()):
+            # ~ self.routingOptions['avgLakeReservoirInflowShortIni'] = self.routingOptions['avgInflowLakeReservIni']
+
+        # ~ if 'avgOutflowDischargeIni' in list(self.routingOptions.keys()):
+            # ~ self.routingOptions['avgLakeReservoirOutflowLongIni'] = self.routingOptions['avgOutflowDischargeIni']
+
+        # ~ if 'avgDischargeShortIni' not in list(self.routingOptions.keys()):
+            # ~ logger.warning('The initial condition "avgDischargeShortIni" is not defined. "avgDischargeLongIni" is used in this run.')
+            # ~ self.routingOptions['avgDischargeShortIni'] = self.routingOptions['avgDischargeLongIni']
+
+        # ~ if 'avgSurfaceWaterInputLongIni' in list(self.routingOptions.keys()):
+            # ~ logger.warning("Note that avgSurfaceWaterInputLongIni is not used and not needed in the ini/configuration file.")
+            
+        # ~ if 'subDischargeIni' not in list(self.routingOptions.keys()):
+            # ~ msg  = 'The initial condition "subDischargeIni" is not defined. The "avgDischargeShortIni" is used in this run. '
+            # ~ msg += 'Note that the "subDischargeIni" is only relevant if kinematic wave approaches are used.'
+            # ~ logger.warning(msg)
+            # ~ self.routingOptions['subDischargeIni'] = self.routingOptions['avgDischargeShortIni']
+
+        # ~ if self.routingOptions['subDischargeIni'] == "None":
+            # ~ msg  = 'The initial condition "subDischargeIni" is given as "None". The "avgDischargeShortIni" is used in this run. '
+            # ~ msg += 'Note that the "subDischargeIni" is only relevant if kinematic wave approaches are used.'
+            # ~ logger.warning(msg)
+            # ~ self.routingOptions['subDischargeIni'] = self.routingOptions['avgDischargeShortIni']
+
+        # ~ if 'storGroundwaterFossilIni' not in list(self.groundwaterOptions.keys()):
+            # ~ msg  = 'The initial condition "storGroundwaterFossilIni" is not defined. '
+            # ~ msg += 'Zero initial condition is assumed here. '
+            # ~ logger.warning(msg)
+            # ~ self.groundwaterOptions['storGroundwaterFossilIni'] = "0.0"
+            # ~ # Note for Edwin: Zero initial condition cannot be used for the run with IWMI project.
+             
+        # ~ if 'avgTotalGroundwaterAbstractionIni' not in list(self.groundwaterOptions.keys()):
+            # ~ msg  = "The initial condition 'avgTotalGroundwaterAbstractionIni' is not defined, "
+            # ~ msg += 'Zero initial condition is assumed here. '
+            # ~ logger.warning(msg)
+            # ~ self.groundwaterOptions['avgTotalGroundwaterAbstractionIni'] = "0.0"
+
+        # ~ if 'avgTotalGroundwaterAllocationLongIni' not in list(self.groundwaterOptions.keys()):
+            # ~ msg  = "The initial condition 'avgTotalGroundwaterAllocationLongIni' is not defined, "
+            # ~ msg += 'Zero initial condition is assumed here. '
+            # ~ logger.warning(msg)
+            # ~ self.groundwaterOptions['avgTotalGroundwaterAllocationLongIni'] = "0.0"
+
+        # ~ if 'avgTotalGroundwaterAllocationShortIni' not in list(self.groundwaterOptions.keys()):
+            # ~ msg  = "The initial condition 'avgTotalGroundwaterAllocationShortIni' is not defined, "
+            # ~ msg += 'Zero initial condition is assumed here. '
+            # ~ logger.warning(msg)
+            # ~ self.groundwaterOptions['avgTotalGroundwaterAllocationShortIni'] = "0.0"
+
+        # ~ if 'avgNonFossilGroundwaterAllocationLongIni' not in list(self.groundwaterOptions.keys()):
+            # ~ msg  = "The initial condition 'avgNonFossilGroundwaterAllocationLongIni' is not defined, "
+            # ~ msg += 'Zero initial condition is assumed here. '
+            # ~ logger.warning(msg)
+            # ~ self.groundwaterOptions['avgNonFossilGroundwaterAllocationLongIni'] = "0.0"
+
+        # ~ if 'avgNonFossilGroundwaterAllocationShortIni' not in list(self.groundwaterOptions.keys()):
+            # ~ msg  = "The initial condition 'avgNonFossilGroundwaterAllocationShortIni' is not defined, "
+            # ~ msg += "'avgNonFossilGroundwaterAllocationLongIni' is used here."
+            # ~ logger.warning(msg)
+            # ~ self.groundwaterOptions['avgNonFossilGroundwaterAllocationShortIni'] = self.groundwaterOptions['avgNonFossilGroundwaterAllocationLongIni']
+        
+        # ~ if 'relativeGroundwaterHeadIni' not in list(self.groundwaterOptions.keys()):
+            # ~ msg  = 'The initial condition "relativeGroundwaterHeadIni" is not defined. "None" is assumed here. '
+            # ~ msg += 'Note that the "relativeGroundwaterIni" is only relevant for the run that couples PCR-GLOBWB and MODFLOW.'
+            # ~ logger.warning(msg)
+            # ~ self.groundwaterOptions['relativeGroundwaterHeadIni'] = "None"
+
+        # ~ if 'baseflowIni' not in list(self.groundwaterOptions.keys()):
+            # ~ msg  = 'The initial condition "relativeGroundWaterIni" is not defined. "0.0" is assumed here. '
+            # ~ msg += 'Note that the "baseflowIni" is only relevant for the run that couples PCR-GLOBWB and MODFLOW.'
+            # ~ logger.warning(msg)
+            # ~ self.groundwaterOptions['baseflowIni'] = "0.0"
+
+        
+
+        # THE FOLLOWING WAS DISACTIVATED during the development of new water use and water management modules (TODO: later the following lines SHOULD ALSO BE DELETED)  
+        # ~ # option to include irrigation
+        # ~ if 'includeIrrigation' not in list(self.landSurfaceOptions.keys()):
+            # ~ msg  = 'The option "includeIrrigation" is not defined in the "landSurfaceOptions" of the configuration file. '
+            # ~ msg += 'This run assumes "False" for this option.'
+            # ~ logger.warning(msg)
+            # ~ self.landSurfaceOptions['includeIrrigation'] = "False"
+
+
+
         
         # TODO: repair key names while somebody wants to run 3 layer model but use 2 layer initial conditions (and vice versa).
 
