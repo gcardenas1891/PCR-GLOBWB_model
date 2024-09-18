@@ -209,10 +209,6 @@ class LandSurface(object):
         self.debugWaterBalance = iniItems.landSurfaceOptions['debugWaterBalance']
         # TDOD: Perform water balance checks for aggregates values (from values of each land cover type).   
         
-        # ~ # limitAbstraction
-        # ~ self.limitAbstraction = False
-        # ~ if iniItems.waterManagementOptions['limitAbstraction'] == "True": self.limitAbstraction = True
-
         # landCover types included in the simulation: 
         self.coverTypes = ["forest","grassland"]
         #

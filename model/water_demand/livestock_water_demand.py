@@ -49,7 +49,7 @@ class LivestockWaterDemand(object):
         
         # get the file information for livestock water demand (unit: m/day)
         self.livestockWaterDemandOption = False
-        if iniItems.landSurfaceOptions['includeLivestockWaterDemand']  == "True":
+        if iniItems.waterDemandOptions['includeLivestockWaterDemand']  == "True":
             self.livestockWaterDemandOption = True
             logger.info("Livestock water demand is included in the calculation.")
         else:
