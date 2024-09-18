@@ -384,6 +384,13 @@ class Configuration(object):
             logger.warning(msg)
             self.groundwaterOptions['useMODFLOW'] = "False"
 
+        # adjustment for the option 'historicalIrrigationArea'
+        if 'historicalIrrigationArea' not in list(self.landSurfaceOptions.keys()):
+            msg  = 'The option "historicalIrrigationArea" is not defined in the "landSurfaceOptions" of the configuration file. '
+            msg += 'This run assumes "None" for this option.'
+            logger.warning(msg)
+            self.landSurfaceOptions['historicalIrrigationArea'] = "None"
+
         # adjustments for the options to read different forcing files for different years (one file for each year):
         if 'precipitation_set_per_year' not in list(self.meteoOptions.keys()): self.meteoOptions['precipitation_set_per_year'] = "False"
         if 'temperature_set_per_year' not in list(self.meteoOptions.keys()): self.meteoOptions['temperature_set_per_year'] = "False"
@@ -424,91 +431,40 @@ class Configuration(object):
             # ~ self.groundwaterOptions['pumpingCapacityNC'] = "None"
 
 
-        if 'treshold_to_maximize_irrigation_surface_water' not in list(self.landSurfaceOptions.keys()):
-            msg  = 'The option "treshold_to_maximize_irrigation_surface_water" is not defined in the "landSurfaceOptions" of the configuration file. '
-            msg += 'This run assumes "1.0" for this option.'
-            logger.warning(msg)
-            self.landSurfaceOptions['treshold_to_maximize_irrigation_surface_water'] = "1.0"
-            # The default value is 1.0 such that this threshold value is not used. 
         
-        if 'treshold_to_minimize_fossil_groundwater_irrigation' not in list(self.landSurfaceOptions.keys()):
-            msg  = 'The option "treshold_to_minimize_fossil_groundwater_irrigation" is not defined in the "landSurfaceOptions" of the configuration file. '
-            msg += 'This run assumes "1.0" for this option.'
-            logger.warning(msg)
-            self.landSurfaceOptions['treshold_to_minimize_fossil_groundwater_irrigation'] = "1.0"
-            # The default value is 1.0 such that this threshold value is not used. 
+        # ~ threshold_to_maximize_irrigation_surface_water
+        # ~ if 'treshold_to_maximize_irrigation_surface_water' not in list(self.landSurfaceOptions.keys()):
+            # ~ msg  = 'The option "treshold_to_maximize_irrigation_surface_water" is not defined in the "landSurfaceOptions" of the configuration file. '
+            # ~ msg += 'This run assumes "1.0" for this option.'
+            # ~ logger.warning(msg)
+            # ~ self.landSurfaceOptions['treshold_to_maximize_irrigation_surface_water'] = "1.0"
+            # ~ # The default value is 1.0 such that this threshold value is not used. 
         
-        # maximum daily rate of groundwater abstraction (unit: m/day)
-        if 'maximumDailyGroundwaterAbstraction' not in list(self.groundwaterOptions.keys()):
-            msg  = 'The option "maximumDailyGroundwaterAbstraction" is not defined in the "groundwaterOptions" of the configuration file. '
-            msg += 'This run assumes "0.050 m/day" for this option.'
-            logger.warning(msg)
-            self.groundwaterOptions['maximumDailyGroundwaterAbstraction'] = "0.050"
-        
-        # maximum daily rate of fossil groundwater abstraction (unit: m/day)
-        if 'maximumDailyFossilGroundwaterAbstraction' not in list(self.groundwaterOptions.keys()):
-            msg  = 'The option "maximumDailyFossilGroundwaterAbstraction" is not defined in the "groundwaterOptions" of the configuration file. '
-            msg += 'This run assumes "0.020 m/day" for this option.'
-            logger.warning(msg)
-            self.groundwaterOptions['maximumDailyFossilGroundwaterAbstraction'] = "0.020"
 
-        # adjustment for the option 'historicalIrrigationArea'
-        if 'historicalIrrigationArea' not in list(self.landSurfaceOptions.keys()):
-            msg  = 'The option "historicalIrrigationArea" is not defined in the "landSurfaceOptions" of the configuration file. '
-            msg += 'This run assumes "None" for this option.'
-            logger.warning(msg)
-            self.landSurfaceOptions['historicalIrrigationArea'] = "None"
-
-        # adjustment for the option 'includeDomesticWaterDemand'
-        if 'includeDomesticWaterDemand' not in list(self.landSurfaceOptions.keys()):
-            msg  = 'The option "includeDommesticWaterDemand" is not defined in the "landSurfaceOptions" of the configuration file. '
-            msg += 'We assume "False" for this option. Domestic water demand is NOT included in the calculation.'
-            logger.warning(msg)
-            self.landSurfaceOptions['includeDomesticWaterDemand'] = "False"
-
-        # adjustment for the option 'domesticWaterDemandFile'
-        if (self.landSurfaceOptions['includeDomesticWaterDemand'] == "False") and ('domesticWaterDemandFile' not in list(self.landSurfaceOptions.keys())):
-            msg  = 'The option "domesticWaterDemandFile" is not defined in the "landSurfaceOptions" of the configuration file. '
-            msg += 'We assume "None" for this option. Domestic water demand is NOT included in the calculation.'
-            logger.warning(msg)
-            self.landSurfaceOptions['domesticWaterDemandFile'] = "None"
-
-        # adjustment for the option 'includeIndustryWaterDemand'
-        if 'includeIndustryWaterDemand' not in list(self.landSurfaceOptions.keys()):
-            msg  = 'The option "includeDommesticWaterDemand" is not defined in the "landSurfaceOptions" of the configuration file. '
-            msg += 'We assume "False" for this option. Industry water demand is NOT included in the calculation.'
-            logger.warning(msg)
-            self.landSurfaceOptions['includeIndustryWaterDemand'] = "False"
-
-        # adjustment for the option 'industryWaterDemandFile'
-        if (self.landSurfaceOptions['includeIndustryWaterDemand'] == "False") and ('industryWaterDemandFile' not in list(self.landSurfaceOptions.keys())):
-            msg  = 'The option "industryWaterDemandFile" is not defined in the "landSurfaceOptions" of the configuration file. '
-            msg += 'We assume "None" for this option. Industry water demand is NOT included in the calculation.'
-            logger.warning(msg)
-            self.landSurfaceOptions['industryWaterDemandFile'] = "None"
-
-        # adjustment for the option 'includeLivestockWaterDemand'
-        if 'includeLivestockWaterDemand' not in list(self.landSurfaceOptions.keys()):
-            msg  = 'The option "includeLivestockWaterDemand" is not defined in the "landSurfaceOptions" of the configuration file. '
-            msg += 'We assume "False" for this option. Livestock water demand is NOT included in the calculation.'
-            logger.warning(msg)
-            self.landSurfaceOptions['includeLivestockWaterDemand'] = "False"
-
-        # adjustment for the option 'livestockWaterDemandFile'
-        if (self.landSurfaceOptions['includeLivestockWaterDemand'] == "False") and ('livestockWaterDemandFile' not in list(self.landSurfaceOptions.keys())):
-            msg  = 'The option "livestockWaterDemandFile" is not defined in the "landSurfaceOptions" of the configuration file. '
-            msg += 'We assume "None" for this option. Livestock water demand is NOT included in the calculation.'
-            logger.warning(msg)
-            self.landSurfaceOptions['livestockWaterDemandFile'] = "None"
-
-        # adjustment for the option 'prioritizeLocalSourceToMeetWaterDemand':
-        if 'prioritizeLocalSourceToMeetWaterDemand' not in list(self.landSurfaceOptions.keys()):
-            msg  = 'The option "prioritizeLocalSourceToMeetWaterDemand" is not defined in the "landSurfaceOptions" of the configuration file. '
-            msg += 'We assume "True" for this option. Local water sources are first used before abstracting water from neighboring cells.'
-            logger.warning(msg)
-            self.landSurfaceOptions['prioritizeLocalSourceToMeetWaterDemand'] = "True"
+        # ~ threshold_to_minimize_fossil_groundwater_irrigation
+        # ~ if 'treshold_to_minimize_fossil_groundwater_irrigation' not in list(self.landSurfaceOptions.keys()):
+            # ~ msg  = 'The option "treshold_to_minimize_fossil_groundwater_irrigation" is not defined in the "landSurfaceOptions" of the configuration file. '
+            # ~ msg += 'This run assumes "1.0" for this option.'
+            # ~ logger.warning(msg)
+            # ~ self.landSurfaceOptions['treshold_to_minimize_fossil_groundwater_irrigation'] = "1.0"
+            # ~ # The default value is 1.0 such that this threshold value is not used. 
 
         
+        # ~ # maximum daily rate of groundwater abstraction (unit: m/day)
+        # ~ if 'maximumDailyGroundwaterAbstraction' not in list(self.groundwaterOptions.keys()):
+            # ~ msg  = 'The option "maximumDailyGroundwaterAbstraction" is not defined in the "groundwaterOptions" of the configuration file. '
+            # ~ msg += 'This run assumes "0.050 m/day" for this option.'
+            # ~ logger.warning(msg)
+            # ~ self.groundwaterOptions['maximumDailyGroundwaterAbstraction'] = "0.050"
+        
+        # ~ # maximum daily rate of fossil groundwater abstraction (unit: m/day)
+        # ~ if 'maximumDailyFossilGroundwaterAbstraction' not in list(self.groundwaterOptions.keys()):
+            # ~ msg  = 'The option "maximumDailyFossilGroundwaterAbstraction" is not defined in the "groundwaterOptions" of the configuration file. '
+            # ~ msg += 'This run assumes "0.020 m/day" for this option.'
+            # ~ logger.warning(msg)
+            # ~ self.groundwaterOptions['maximumDailyFossilGroundwaterAbstraction'] = "0.020"
+
+
         # THE FOLLOWING WAS DISACTIVATED during the development of new water use and water management modules (as users often are not aware with these automatic adjustments)  
 
         # ~ # adjustment for initial conditions in the routingOptions

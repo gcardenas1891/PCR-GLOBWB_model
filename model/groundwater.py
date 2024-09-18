@@ -328,20 +328,6 @@ class Groundwater(object):
         #####################################################################################################################################################
 
 
-        #####################################################################################################################################################
-        # maximumDailyGroundwaterAbstraction (unit: m/day) - in order to avoid over-abstraction of groundwater source
-        self.maximumDailyGroundwaterAbstraction = vos.readPCRmapClone(iniItems.groundwaterOptions['maximumDailyGroundwaterAbstraction'],
-                                                                      self.cloneMap,self.tmpDir,self.inputDir)
-        #####################################################################################################################################################
-
-
-        #####################################################################################################################################################
-        # maximumDailyFossilGroundwaterAbstraction (unit: m/day) - in order to avoid over-abstraction of groundwater source
-        self.maximumDailyFossilGroundwaterAbstraction = vos.readPCRmapClone(iniItems.groundwaterOptions['maximumDailyFossilGroundwaterAbstraction'],
-                                                                      self.cloneMap,self.tmpDir,self.inputDir)
-        #####################################################################################################################################################
-
-
         # get the initial conditions
         self.getICs(iniItems,spinUp)
 

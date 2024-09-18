@@ -1786,7 +1786,7 @@ class LandCover(object):
         self.satAreaFrac= None
 
 
-    def calculateWaterDemand(self, nonIrrGrossDemandDict, \
+    def OLD_calculateWaterDemand(self, nonIrrGrossDemandDict, \
                                    swAbstractionFractionDict, \
                                    groundwater, \
                                    routing, \

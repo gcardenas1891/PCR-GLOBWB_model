@@ -81,7 +81,10 @@ class WaterManagement(object):
 
         # option to prioritize local sources before abstracting water from neighboring cells
         self.prioritizeLocalSourceToMeetWaterDemand = True
-        
+        if (('prioritizeLocalSourceToMeetWaterDemand' in list(iniItems.waterManagementOptions.keys())) and (iniItems.waterManagementgOptions['pumpingCapacityNC'] == "False")):
+            logger.info("The option prioritizeLocalSourceToMeetWaterDemand is set to 'False'.")
+            self.prioritizeLocalSourceToMeetWaterDemand = False
+
         # option to prioritize surface water (at this moment, this is always False)
         self.surfaceWaterPiority = False
         
@@ -172,13 +175,45 @@ class WaterManagement(object):
                 self.swAbstractionFractionData = pcr.ifthen(self.swAbstractionFractionDataQuality <= 5.0, \
                                                             self.swAbstractionFractionData)
 
+        
         # threshold values defining the preference for irrigation water source (unit: fraction/percentage)
+        #
+        # - threshold_to_maximize_irrigation_surface_water
+        if 'threshold_to_maximize_irrigation_surface_water' not in list(self.waterManagementOptions.keys()):
+            msg  = 'The option "threshold_to_maximize_irrigation_surface_water" is not defined in the "waterManagementOptions" of the configuration file. '
+            msg += 'This run assumes "1.0" for this option.'
+            logger.warning(msg)
+            self.waterManagementOptions['threshold_to_maximize_irrigation_surface_water'] = "1.0"
+            # The default value is 1.0 such that this threshold value is not used. 
         self.threshold_to_maximize_irrigation_surface_water = \
          vos.readPCRmapClone(iniItems.waterManagementOptions['threshold_to_maximize_irrigation_surface_water'],\
                                  self.cloneMap,self.tmpDir,self.inputDir)
+        #
+        # - threshold_to_minimize_fossil_groundwater_irrigation
+        if 'threshold_to_minimize_fossil_groundwater_irrigation' not in list(self.waterManagementOptions.keys()):
+            msg  = 'The option "threshold_to_minimize_fossil_groundwater_irrigation" is not defined in the "waterManagementOptions" of configuration file. '
+            msg += 'This run assumes "1.0" for this option.'
+            logger.warning(msg)
+            self.waterManagementOptions['threshold_to_minimize_fossil_groundwater_irrigation'] = "1.0"
+            # The default value is 1.0 such that this threshold value is not used. 
         self.threshold_to_minimize_fossil_groundwater_irrigation = \
          vos.readPCRmapClone(iniItems.waterManagementOptions['threshold_to_minimize_fossil_groundwater_irrigation'],\
                                  self.cloneMap,self.tmpDir,self.inputDir)
+
+
+        # maximum daily rate of groundwater abstraction (unit: m/day)
+        if 'maximumDailyGroundwaterAbstraction' not in list(self.waterManagementOptions.keys()):
+            msg  = 'The option "maximumDailyGroundwaterAbstraction" is not defined in the "waterManagementOptions" of the configuration file. '
+            msg += 'This run assumes "0.050 m/day" for this option.'
+            logger.warning(msg)
+            self.waterManagementOptions['maximumDailyGroundwaterAbstraction'] = "0.050"
+        
+        # maximum daily rate of fossil groundwater abstraction (unit: m/day)
+        if 'maximumDailyFossilGroundwaterAbstraction' not in list(self.waterManagementOptions.keys()):
+            msg  = 'The option "maximumDailyFossilGroundwaterAbstraction" is not defined in the "waterManagementOptions" of the configuration file. '
+            msg += 'This run assumes "0.020 m/day" for this option.'
+            logger.warning(msg)
+            self.waterManagementOptions['maximumDailyFossilGroundwaterAbstraction'] = "0.020"
 
 
         # maximum pre-defined surface water source fraction for satisfying industrial and domestic water demand:
