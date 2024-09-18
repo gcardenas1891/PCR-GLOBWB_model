@@ -67,7 +67,7 @@ class WaterManagement(object):
             iniItems.waterManagementOptions['pumpingCapacityNC'] = "None"
 
         # option for limitting regional groundwater abstractions
-        if iniItems.waterManagementgOptions['pumpingCapacityNC'] != "None":
+        if iniItems.waterManagementOptions['pumpingCapacityNC'] != "None":
             logger.info('Limit for annual regional groundwater abstraction is used.')
             self.limitRegionalAnnualGroundwaterAbstraction = True
             self.pumpingCapacityNC = vos.getFullPath(\
@@ -80,7 +80,7 @@ class WaterManagement(object):
 
         # option to prioritize local sources before abstracting water from neighboring cells
         self.prioritizeLocalSourceToMeetWaterDemand = True
-        if (('prioritizeLocalSourceToMeetWaterDemand' in list(iniItems.waterManagementOptions.keys())) and (iniItems.waterManagementgOptions['pumpingCapacityNC'] == "False")):
+        if (('prioritizeLocalSourceToMeetWaterDemand' in list(iniItems.waterManagementOptions.keys())) and (iniItems.waterManagementOptions['pumpingCapacityNC'] == "False")):
             logger.info("The option prioritizeLocalSourceToMeetWaterDemand is set to 'False'.")
             self.prioritizeLocalSourceToMeetWaterDemand = False
 
