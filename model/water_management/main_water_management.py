@@ -48,9 +48,8 @@ class WaterManagement(object):
         self.landmask = landmask
         
         # adjustment for limitAbstraction (to use only renewable water) ; if limitAbstraction = True, this means only renewable groundwater use 
-        if 'limitAbstraction' not in list(self.waterManagementOptions.keys()):
-            self.waterManagementOptions['limitAbstraction'] = False
-
+        if 'limitAbstraction' not in list(iniItems.waterManagementOptions.keys()):
+            iniItems.waterManagementOptions['limitAbstraction'] = False
         self.limitAbstraction = False
         if iniItems.waterManagementOptions['limitAbstraction'] == "True": self.limitAbstraction = True
         
