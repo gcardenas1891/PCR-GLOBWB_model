@@ -58,7 +58,7 @@ class LivestockWaterDemand(object):
         if self.livestockWaterDemandOption:
             self.livestockWaterDemandFile = \
                 vos.getFullPath( \
-                    inputPath        = iniItems.landSurfaceOptions['livestockWaterDemandFile'], \
+                    inputPath        = iniItems.waterDemandOptions['livestockWaterDemandFile'], \
                     absolutePath     = self.inputDir, \
                     completeFileName = False)
 
