@@ -1036,7 +1036,7 @@ class WaterManagement(object):
                 # - residence time (day-1) or safety factor  (to avoid 'unrealistic' zero fossil groundwater)
                 readAvlFossilGroundwater *= 0.10
                 # - considering maximum daily groundwater abstraction
-                readAvlFossilGroundwater = pcr.min(readAvlFossilGroundwater, groundwater.maximumDailyFossilGroundwaterAbstraction, \
+                readAvlFossilGroundwater = pcr.min(readAvlFossilGroundwater, self.maximumDailyFossilGroundwaterAbstraction, \
                                            pcr.max(0.0, self.maximumDailyGroundwaterAbstraction - volRenewGroundwaterAbstraction/self.cellArea))
                 readAvlFossilGroundwater = pcr.max(pcr.cover(readAvlFossilGroundwater, 0.0), 0.0)                                           
                 
@@ -1795,7 +1795,7 @@ class WaterManagement(object):
                 # ~ # - residence time (day-1) or safety factor  (to avoid 'unrealistic' zero fossil groundwater)
                 # ~ readAvlFossilGroundwater *= 0.10
                 # ~ # - considering maximum daily groundwater abstraction
-                # ~ readAvlFossilGroundwater = pcr.min(readAvlFossilGroundwater, groundwater.maximumDailyFossilGroundwaterAbstraction, \
+                # ~ readAvlFossilGroundwater = pcr.min(readAvlFossilGroundwater, self.maximumDailyFossilGroundwaterAbstraction, \
                                            # ~ pcr.max(0.0, self.maximumDailyGroundwaterAbstraction - self.nonFossilGroundwaterAbs))
                 # ~ readAvlFossilGroundwater = pcr.max(pcr.cover(readAvlFossilGroundwater, 0.0), 0.0)                                           
                 
