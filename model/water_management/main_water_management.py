@@ -95,10 +95,10 @@ class WaterManagement(object):
 
         # desalination water supply option
         self.includeDesalination = False
-        if iniItems.landSurfaceOptions['desalinationWater'] not in ["None", "False"]:
+        if iniItems.waterManagementOptions['desalinationWater'] not in ["None", "False"]:
             logger.info("Monthly desalination water use is included.")
             self.includeDesalination = True
-            self.desalinationWaterFile = vos.getFullPath(iniItems.landSurfaceOptions['desalinationWater'], self.inputDir)
+            self.desalinationWaterFile = vos.getFullPath(iniItems.waterManagementOptions['desalinationWater'], self.inputDir)
         else:    
             logger.info("Monthly desalination water is NOT included.")
 
