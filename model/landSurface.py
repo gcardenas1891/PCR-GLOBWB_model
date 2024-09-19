@@ -1316,7 +1316,7 @@ class LandSurface(object):
         # allocate the satisfied irrigation gross demands to every land cover:
         total_satisfied_irrigation_water_volume = self.water_management.satisfied_gross_sectoral_water_demands['irrigation']
         self.satisfied_irrigation_water_volume = {}
-        self.satisfied_irrigation_water = {}
+        self.satisfied_irrigation_water_height = {}
         for coverType in self.coverTypes: 
             
             # for irrigation land cover types
