@@ -1325,7 +1325,7 @@ class LandSurface(object):
                 self.satisfied_irrigation_water_volume[coverType] = total_satisfied_irrigation_water_volume *\
                                                                                             vos.getValDivZero( self.water_demand.water_demand_irrigation[coverType].irrGrossDemand * routing.cellArea * self.landCoverObj[coverType].fracVegCover, vol_gross_sectoral_water_demands["irrigation"])
                 # - in water slice/height
-                self.satisfied_irrigation_water_height[coverType] = self.satisfied_irrigation_water_volume[coverType] / (self.routing.cellArea * self.landCoverObj[coverType].fracVegCover)
+                self.satisfied_irrigation_water_height[coverType] = self.satisfied_irrigation_water_volume[coverType] / (routing.cellArea * self.landCoverObj[coverType].fracVegCover)
 
             # for non irrigation land cover types
             else:
