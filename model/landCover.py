@@ -56,7 +56,7 @@ class LandCover(object):
 
         # includeIrrigation
         self.includeIrrigation = False
-        if iniItems.waterManagementOptions['includeIrrigation'] == "True": self.includeIrrigation = True
+        if iniItems.waterDemandOptions['includeIrrigation'] == "True": self.includeIrrigation = True
         
         # irrigation efficiency map (dimensionless)
         self.irrigationEfficiency = irrigationEfficiency
