@@ -208,7 +208,6 @@ class WaterManagement(object):
             iniItems.waterManagementOptions['maximumDailyGroundwaterAbstraction'] = "0.050"
         self.maximumDailyGroundwaterAbstraction = vos.readPCRmapClone(iniItems.waterManagementOptions['maximumDailyGroundwaterAbstraction'],\
                                                                       self.cloneMap, self.tmpDir, self.inputDir)
-    
         
         # maximum daily rate of fossil groundwater abstraction (unit: m/day)
         if 'maximumDailyFossilGroundwaterAbstraction' not in list(iniItems.waterManagementOptions.keys()):
@@ -216,6 +215,8 @@ class WaterManagement(object):
             msg += 'This run assumes "0.020 m/day" for this option.'
             logger.warning(msg)
             iniItems.waterManagementOptions['maximumDailyFossilGroundwaterAbstraction'] = "0.020"
+        self.maximumDailyFossilGroundwaterAbstraction = vos.readPCRmapClone(iniItems.waterManagementOptions['maximumDailyFossilGroundwaterAbstraction'],\
+                                                                            self.cloneMap, self.tmpDir, self.inputDir)    
 
 
         # maximum pre-defined surface water source fraction for satisfying industrial and domestic water demand:
