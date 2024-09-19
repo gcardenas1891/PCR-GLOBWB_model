@@ -1415,7 +1415,7 @@ class LandSurface(object):
             for coverType in self.coverTypes:\
                 self.landCoverObj[coverType].previousFracVegCover = self.landCoverObj[coverType].fracVegCover
 
-    def land_surface_hydrology_update(self,meteo,groundwater,routing,currTimeStep):
+    def land_surface_hydrology_update(self, meteo, groundwater, routing, currTimeStep):
 		
         # calculate cell fraction influenced by capillary rise:
         self.capRiseFrac = self.calculateCapRiseFrac(groundwater, routing, currTimeStep)
@@ -1425,7 +1425,7 @@ class LandSurface(object):
         for coverType in self.coverTypes:
             
             logger.info("Updating land cover: "+str(coverType))
-            self.landCoverObj[coverType].land_surface_hydrology_update_for_every_lc(self.capRiseFrac, currTimeStep, self.satisfied_irrigation_water_height[coverType])
+            self.landCoverObj[coverType].land_surface_hydrology_update_for_every_lc(self.capRiseFrac, currTimeStep, groundwater, self.satisfied_irrigation_water_height[coverType])
             
         # first, we set all aggregated values/variables to zero: 
         for var in self.aggrVars: vars(self)[var] = pcr.scalar(0.0)

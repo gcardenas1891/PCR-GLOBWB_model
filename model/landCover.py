@@ -997,11 +997,11 @@ class LandCover(object):
 
 
 
-    def land_surface_hydrology_update_for_every_lc(self, capRiseFrac, currTimeStep, satisfied_irrigation_water_height = 0.0):
+    def land_surface_hydrology_update_for_every_lc(self, capRiseFrac, currTimeStep, groundwater, satisfied_irrigation_water_height = 0.0):
 
         
         # calculate qDR & qSF & q23 (and update storages)
-        self.upperSoilUpdate(capRiseFrac, currTimeStep, satisfied_irrigation_water_height)
+        self.upperSoilUpdate(capRiseFrac, currTimeStep, satisfied_irrigation_water_height, groundwater)
 
         # saturation degrees (needed only for reporting):
         if self.numberOfSoilLayers == 2:
@@ -1129,14 +1129,14 @@ class LandCover(object):
 
 
 
-    def OLDupdateLC(self,meteo,groundwater,routing,\
-                 capRiseFrac,\
-                 nonIrrGrossDemandDict,swAbstractionFractionDict,\
-                 currTimeStep,\
-                 allocSegments,\
-                 desalinationWaterUse,\
-                 groundwater_pumping_region_ids,\
-                 regionalAnnualGroundwaterAbstractionLimit):
+    # ~ def OLDupdateLC(self,meteo,groundwater,routing,\
+                 # ~ capRiseFrac,\
+                 # ~ nonIrrGrossDemandDict,swAbstractionFractionDict,\
+                 # ~ currTimeStep,\
+                 # ~ allocSegments,\
+                 # ~ desalinationWaterUse,\
+                 # ~ groundwater_pumping_region_ids,\
+                 # ~ regionalAnnualGroundwaterAbstractionLimit):
 
         
         # ~ # the following is DISACTIVATED due to developments of new water use module.
@@ -1152,140 +1152,140 @@ class LandCover(object):
         # ~ if self.snowModuleType  == "Simple": self.snowMeltHBVSimple(meteo,currTimeStep)
         # ~ # TODO: Define other snow modules
 
-        # calculate qDR & qSF & q23 (and update storages)
-        self.upperSoilUpdate(meteo, \
-                             groundwater, \
-                             routing, \
-                             capRiseFrac, \
-                             nonIrrGrossDemandDict, 
-                             swAbstractionFractionDict,\
-                             currTimeStep, \
-                             allocSegments, \
-                             desalinationWaterUse, \
-                             groundwater_pumping_region_ids,regionalAnnualGroundwaterAbstractionLimit)
+        # ~ # calculate qDR & qSF & q23 (and update storages)
+        # ~ self.upperSoilUpdate(meteo, \
+                             # ~ groundwater, \
+                             # ~ routing, \
+                             # ~ capRiseFrac, \
+                             # ~ nonIrrGrossDemandDict, 
+                             # ~ swAbstractionFractionDict,\
+                             # ~ currTimeStep, \
+                             # ~ allocSegments, \
+                             # ~ desalinationWaterUse, \
+                             # ~ groundwater_pumping_region_ids,regionalAnnualGroundwaterAbstractionLimit)
 
-        # saturation degrees (needed only for reporting):
-        if self.numberOfSoilLayers == 2:
-            self.satDegUpp = vos.getValDivZero(\
-                  self.storUpp, self.parameters.storCapUpp,\
-                  vos.smallNumber,0.)
-            self.satDegUpp = pcr.ifthen(self.landmask, self.satDegUpp)
-            self.satDegLow = vos.getValDivZero(\
-                  self.storLow, self.parameters.storCapLow,\
-                  vos.smallNumber,0.)
-            self.satDegLow = pcr.ifthen(self.landmask, self.satDegLow)
+        # ~ # saturation degrees (needed only for reporting):
+        # ~ if self.numberOfSoilLayers == 2:
+            # ~ self.satDegUpp = vos.getValDivZero(\
+                  # ~ self.storUpp, self.parameters.storCapUpp,\
+                  # ~ vos.smallNumber,0.)
+            # ~ self.satDegUpp = pcr.ifthen(self.landmask, self.satDegUpp)
+            # ~ self.satDegLow = vos.getValDivZero(\
+                  # ~ self.storLow, self.parameters.storCapLow,\
+                  # ~ vos.smallNumber,0.)
+            # ~ self.satDegLow = pcr.ifthen(self.landmask, self.satDegLow)
 
-            self.satDegUppTotal = self.satDegUpp
-            self.satDegLowTotal = self.satDegLow
+            # ~ self.satDegUppTotal = self.satDegUpp
+            # ~ self.satDegLowTotal = self.satDegLow
             
-            self.satDegTotal = pcr.ifthen(self.landmask, \
-                  vos.getValDivZero(\
-                  self.storUpp + self.storLow, self.parameters.storCapUpp + self.parameters.storCapLow,\
-                  vos.smallNumber, 0.0))
+            # ~ self.satDegTotal = pcr.ifthen(self.landmask, \
+                  # ~ vos.getValDivZero(\
+                  # ~ self.storUpp + self.storLow, self.parameters.storCapUpp + self.parameters.storCapLow,\
+                  # ~ vos.smallNumber, 0.0))
 
-        if self.numberOfSoilLayers == 3:
-            self.satDegUpp000005 = vos.getValDivZero(\
-                  self.storUpp000005, self.parameters.storCapUpp000005,\
-                  vos.smallNumber,0.)
-            self.satDegUpp000005 = pcr.ifthen(self.landmask, self.satDegUpp000005)
-            self.satDegUpp005030 = vos.getValDivZero(\
-                  self.storUpp005030, self.parameters.storCapUpp005030,\
-                  vos.smallNumber,0.)
-            self.satDegUpp005030 = pcr.ifthen(self.landmask, self.satDegUpp005030)
-            self.satDegLow030150 = vos.getValDivZero(\
-                  self.storLow030150, self.parameters.storCapLow030150,\
-                  vos.smallNumber,0.)
-            self.satDegLow030150 = pcr.ifthen(self.landmask, self.satDegLow030150)
+        # ~ if self.numberOfSoilLayers == 3:
+            # ~ self.satDegUpp000005 = vos.getValDivZero(\
+                  # ~ self.storUpp000005, self.parameters.storCapUpp000005,\
+                  # ~ vos.smallNumber,0.)
+            # ~ self.satDegUpp000005 = pcr.ifthen(self.landmask, self.satDegUpp000005)
+            # ~ self.satDegUpp005030 = vos.getValDivZero(\
+                  # ~ self.storUpp005030, self.parameters.storCapUpp005030,\
+                  # ~ vos.smallNumber,0.)
+            # ~ self.satDegUpp005030 = pcr.ifthen(self.landmask, self.satDegUpp005030)
+            # ~ self.satDegLow030150 = vos.getValDivZero(\
+                  # ~ self.storLow030150, self.parameters.storCapLow030150,\
+                  # ~ vos.smallNumber,0.)
+            # ~ self.satDegLow030150 = pcr.ifthen(self.landmask, self.satDegLow030150)
 
-            self.satDegUppTotal  = vos.getValDivZero(\
-                  self.storUpp000005 + self.storUpp005030,\
-                  self.parameters.storCapUpp000005 + \
-                  self.parameters.storCapUpp005030,\
-                  vos.smallNumber,0.)
-            self.satDegUppTotal = pcr.ifthen(self.landmask, self.satDegUppTotal)
-            self.satDegLowTotal = self.satDegLow030150
+            # ~ self.satDegUppTotal  = vos.getValDivZero(\
+                  # ~ self.storUpp000005 + self.storUpp005030,\
+                  # ~ self.parameters.storCapUpp000005 + \
+                  # ~ self.parameters.storCapUpp005030,\
+                  # ~ vos.smallNumber,0.)
+            # ~ self.satDegUppTotal = pcr.ifthen(self.landmask, self.satDegUppTotal)
+            # ~ self.satDegLowTotal = self.satDegLow030150
 
-            self.satDegTotal = pcr.ifthen(self.landmask, \
-                  vos.getValDivZero(\
-                  self.storUpp000005 + self.storUpp005030 + self.satDegLow030150, self.parameters.storCapUpp000005 + self.parameters.storCapUpp005030 + self.parameters.storCapLow030150,\
-                  vos.smallNumber, 0.0))
+            # ~ self.satDegTotal = pcr.ifthen(self.landmask, \
+                  # ~ vos.getValDivZero(\
+                  # ~ self.storUpp000005 + self.storUpp005030 + self.satDegLow030150, self.parameters.storCapUpp000005 + self.parameters.storCapUpp005030 + self.parameters.storCapLow030150,\
+                  # ~ vos.smallNumber, 0.0))
 
         
-        if self.report == True:
-            # writing Output to netcdf files
-            # - daily output:
-            timeStamp = datetime.datetime(currTimeStep.year,\
-                                          currTimeStep.month,\
-                                          currTimeStep.day,\
-                                          0)
-            timestepPCR = currTimeStep.timeStepPCR
-            if self.outDailyTotNC[0] != "None":
-                for var in self.outDailyTotNC:
-                    self.netcdfObj.data2NetCDF(str(self.outNCDir)+ \
-                                     str(var) + "_" + \
-                                     str(self.iniItemsLC['name']) + "_" + \
-                                     "dailyTot.nc",\
-                                     var,\
-                      pcr.pcr2numpy(self.__getattribute__(var),vos.MV),\
-                                     timeStamp,timestepPCR-1)
+        # ~ if self.report == True:
+            # ~ # writing Output to netcdf files
+            # ~ # - daily output:
+            # ~ timeStamp = datetime.datetime(currTimeStep.year,\
+                                          # ~ currTimeStep.month,\
+                                          # ~ currTimeStep.day,\
+                                          # ~ 0)
+            # ~ timestepPCR = currTimeStep.timeStepPCR
+            # ~ if self.outDailyTotNC[0] != "None":
+                # ~ for var in self.outDailyTotNC:
+                    # ~ self.netcdfObj.data2NetCDF(str(self.outNCDir)+ \
+                                     # ~ str(var) + "_" + \
+                                     # ~ str(self.iniItemsLC['name']) + "_" + \
+                                     # ~ "dailyTot.nc",\
+                                     # ~ var,\
+                      # ~ pcr.pcr2numpy(self.__getattribute__(var),vos.MV),\
+                                     # ~ timeStamp,timestepPCR-1)
         
-            # writing monthly output to netcdf files
-            # -cummulative
-            if self.outMonthTotNC[0] != "None":
-                for var in self.outMonthTotNC:
-                    # introduce variables at the beginning of simulation:
-                    if currTimeStep.timeStepPCR == 1: vars(self)[var+'Tot'] = \
-                                              pcr.scalar(0.0)
-                    # reset variables at the beginning of the month
-                    if currTimeStep.day == 1: vars(self)[var+'Tot'] = \
-                                              pcr.scalar(0.0)
-                    # accumulating
-                    vars(self)[var+'Tot'] += vars(self)[var]
-                    # reporting at the end of the month:
-                    if currTimeStep.endMonth == True: 
-                        self.netcdfObj.data2NetCDF(str(self.outNCDir)+"/"+ \
-                                     str(var) + "_" + \
-                                     str(self.iniItemsLC['name']) + "_" + \
-                                         "monthTot.nc",\
-                                      var,\
-                          pcr.pcr2numpy(self.__getattribute__(var+'Tot'),vos.MV),\
-                                         timeStamp,currTimeStep.monthIdx-1)
-            # -average
-            if self.outMonthAvgNC[0] != "None":
-                for var in self.outMonthAvgNC:
-                    # only if a accumulator variable has not been defined: 
-                    if var not in self.outMonthTotNC: 
-                        # introduce accumulator variables at the beginning of simulation:
-                        if currTimeStep.timeStepPCR == 1: vars(self)[var+'Tot'] = \
-                                              pcr.scalar(0.0)
-                        # reset variables at the beginning of the month
-                        if currTimeStep.day == 1: vars(self)[var+'Tot'] = \
-                                              pcr.scalar(0.0)
-                        # accumulating
-                        vars(self)[var+'Tot'] += vars(self)[var]
-                    # calculating average and reporting at the end of the month:
-                    if currTimeStep.endMonth == True:
-                        vars(self)[var+'Avg'] = vars(self)[var+'Tot'] /\
-                                                currTimeStep.day  
-                        self.netcdfObj.data2NetCDF(str(self.outNCDir)+"/"+ \
-                                     str(var) + "_" + \
-                                     str(self.iniItemsLC['name']) + "_" + \
-                                         "monthAvg.nc",\
-                                         var,\
-                          pcr.pcr2numpy(self.__getattribute__(var+'Avg'),vos.MV),\
-                                         timeStamp,currTimeStep.monthIdx-1)
-            # -last day of the month
-            if self.outMonthEndNC[0] != "None":
-                for var in self.outMonthEndNC:
-                    # reporting at the end of the month:
-                    if currTimeStep.endMonth == True: 
-                        self.netcdfObj.data2NetCDF(str(self.outNCDir)+"/"+ \
-                                     str(var) + "_" + \
-                                     str(self.iniItemsLC['name']) + "_" + \
-                                         "monthEnd.nc",\
-                                         var,\
-                          pcr.pcr2numpy(self.__getattribute__(var),vos.MV),\
-                                         timeStamp,currTimeStep.monthIdx-1)
+            # ~ # writing monthly output to netcdf files
+            # ~ # -cummulative
+            # ~ if self.outMonthTotNC[0] != "None":
+                # ~ for var in self.outMonthTotNC:
+                    # ~ # introduce variables at the beginning of simulation:
+                    # ~ if currTimeStep.timeStepPCR == 1: vars(self)[var+'Tot'] = \
+                                              # ~ pcr.scalar(0.0)
+                    # ~ # reset variables at the beginning of the month
+                    # ~ if currTimeStep.day == 1: vars(self)[var+'Tot'] = \
+                                              # ~ pcr.scalar(0.0)
+                    # ~ # accumulating
+                    # ~ vars(self)[var+'Tot'] += vars(self)[var]
+                    # ~ # reporting at the end of the month:
+                    # ~ if currTimeStep.endMonth == True: 
+                        # ~ self.netcdfObj.data2NetCDF(str(self.outNCDir)+"/"+ \
+                                     # ~ str(var) + "_" + \
+                                     # ~ str(self.iniItemsLC['name']) + "_" + \
+                                         # ~ "monthTot.nc",\
+                                      # ~ var,\
+                          # ~ pcr.pcr2numpy(self.__getattribute__(var+'Tot'),vos.MV),\
+                                         # ~ timeStamp,currTimeStep.monthIdx-1)
+            # ~ # -average
+            # ~ if self.outMonthAvgNC[0] != "None":
+                # ~ for var in self.outMonthAvgNC:
+                    # ~ # only if a accumulator variable has not been defined: 
+                    # ~ if var not in self.outMonthTotNC: 
+                        # ~ # introduce accumulator variables at the beginning of simulation:
+                        # ~ if currTimeStep.timeStepPCR == 1: vars(self)[var+'Tot'] = \
+                                              # ~ pcr.scalar(0.0)
+                        # ~ # reset variables at the beginning of the month
+                        # ~ if currTimeStep.day == 1: vars(self)[var+'Tot'] = \
+                                              # ~ pcr.scalar(0.0)
+                        # ~ # accumulating
+                        # ~ vars(self)[var+'Tot'] += vars(self)[var]
+                    # ~ # calculating average and reporting at the end of the month:
+                    # ~ if currTimeStep.endMonth == True:
+                        # ~ vars(self)[var+'Avg'] = vars(self)[var+'Tot'] /\
+                                                # ~ currTimeStep.day  
+                        # ~ self.netcdfObj.data2NetCDF(str(self.outNCDir)+"/"+ \
+                                     # ~ str(var) + "_" + \
+                                     # ~ str(self.iniItemsLC['name']) + "_" + \
+                                         # ~ "monthAvg.nc",\
+                                         # ~ var,\
+                          # ~ pcr.pcr2numpy(self.__getattribute__(var+'Avg'),vos.MV),\
+                                         # ~ timeStamp,currTimeStep.monthIdx-1)
+            # ~ # -last day of the month
+            # ~ if self.outMonthEndNC[0] != "None":
+                # ~ for var in self.outMonthEndNC:
+                    # ~ # reporting at the end of the month:
+                    # ~ if currTimeStep.endMonth == True: 
+                        # ~ self.netcdfObj.data2NetCDF(str(self.outNCDir)+"/"+ \
+                                     # ~ str(var) + "_" + \
+                                     # ~ str(self.iniItemsLC['name']) + "_" + \
+                                         # ~ "monthEnd.nc",\
+                                         # ~ var,\
+                          # ~ pcr.pcr2numpy(self.__getattribute__(var),vos.MV),\
+                                         # ~ timeStamp,currTimeStep.monthIdx-1)
 
 
     def getPotET(self, meteo, currTimeStep):
@@ -2898,7 +2898,7 @@ class LandCover(object):
             else:
                 return actBareSoilEvap, actTranspiUpp000005, actTranspiUpp005030, actTranspiLow030150
 
-    def estimateSoilFluxes(self,capRiseFrac,groundwater):
+    def estimateSoilFluxes(self, capRiseFrac, groundwater):
 
         # Given states, we estimate all fluxes.
         ################################################################
@@ -3855,7 +3855,7 @@ class LandCover(object):
         # landSurfaceRunoff (needed for routing)                        
         self.landSurfaceRunoff = self.directRunoff + self.interflowTotal
 
-    def upperSoilUpdate(self, capRiseFrac, currTimeStep, satisfied_irrigation_water_height):
+    def upperSoilUpdate(self, capRiseFrac, currTimeStep, satisfied_irrigation_water_height, groundwater):
 
         if self.debugWaterBalance:
             netLqWaterToSoil = self.netLqWaterToSoil # input            
@@ -3892,7 +3892,7 @@ class LandCover(object):
                    self.estimateTranspirationAndBareSoilEvap()
         
         # estimate percolation and capillary rise, as well as interflow
-        self.estimateSoilFluxes(capRiseFrac,groundwater)
+        self.estimateSoilFluxes(capRiseFrac, groundwater)
 
         # all fluxes are limited to available (source) storage
         if self.name.startswith('irr') and self.includeIrrigation:
