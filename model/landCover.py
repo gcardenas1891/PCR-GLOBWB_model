@@ -2694,12 +2694,12 @@ class LandCover(object):
         
         return directRunoff                                            
 
-    def calculateOpenWaterEvap(self, satisfied_irrigation_water_volume):
+    def calculateOpenWaterEvap(self, satisfied_irrigation_water_height):
 
         # update topWaterLayer (above soil) 
         # - with netLqWaterToSoil and irrGrossDemand
         # ~ self.topWaterLayer += pcr.max(0.,self.netLqWaterToSoil + self.irrGrossDemand)
-        self.topWaterLayer += pcr.max(0., self.netLqWaterToSoil + satisfied_irrigation_water)
+        self.topWaterLayer += pcr.max(0., self.netLqWaterToSoil + satisfied_irrigation_water_height)
 
         # potential evaporation for openWaterEvap
         remainingPotETP = self.potBareSoilEvap + self.potTranspiration   # Edwin's principle: LIMIT = self.potBareSoilEvap +self.potTranspiration 
