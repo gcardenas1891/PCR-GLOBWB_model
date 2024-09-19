@@ -1334,7 +1334,9 @@ class LandSurface(object):
 
         # do the remaining land cover processes
         # - this including applying the 'allocated irrGrossDemand'
-        self.land_surface_hydrology_update(meteo,groundwater,routing,currTimeStep)
+        # - we also need the variable 'reducedCapRise = volRenewGroundwaterAbstraction / self.cellArea' from every land cover type
+        
+        self.land_surface_hydrology_update(meteo, groundwater, routing, currTimeStep)
 
 
         # get the return flow from non irrigation water use
@@ -1425,7 +1427,7 @@ class LandSurface(object):
         for coverType in self.coverTypes:
             
             logger.info("Updating land cover: "+str(coverType))
-            self.landCoverObj[coverType].land_surface_hydrology_update_for_every_lc(self.capRiseFrac, currTimeStep, groundwater, self.satisfied_irrigation_water_height[coverType])
+            self.landCoverObj[coverType].land_surface_hydrology_update_for_every_lc(self.capRiseFrac, currTimeStep, groundwater, self.satisfied_irrigation_water_height[coverType], self.water_management.reducedCapRise)
             
         # first, we set all aggregated values/variables to zero: 
         for var in self.aggrVars: vars(self)[var] = pcr.scalar(0.0)

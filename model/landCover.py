@@ -997,8 +997,11 @@ class LandCover(object):
 
 
 
-    def land_surface_hydrology_update_for_every_lc(self, capRiseFrac, currTimeStep, groundwater, satisfied_irrigation_water_height = 0.0):
+    def land_surface_hydrology_update_for_every_lc(self, capRiseFrac, currTimeStep, groundwater, satisfied_irrigation_water_height = 0.0, reducedCapRise = 0.0):
 
+        # reduced value of capRise (e.g. due to non fossil groundwater abstraction)
+        self.reducedCapRise = reducedCapRise
+        
         
         # calculate qDR & qSF & q23 (and update storages)
         self.upperSoilUpdate(capRiseFrac, currTimeStep, satisfied_irrigation_water_height, groundwater)
