@@ -1054,7 +1054,7 @@ class WaterManagement(object):
                        self.waterAbstractionAndAllocation(
                        water_demand_volume = self.potVolFossilGroundwaterAbstract,\
                        available_water_volume = pcr.max(0.00, readAvlFossilGroundwaterVol),\
-                       allocation_zones = groundwater.allocSegments,\
+                       allocation_zones = self.allocationSegmentsForGroundwaterSource,\
                        zone_area = groundwater.segmentArea,\
                        high_volume_threshold = None,\
                        debug_water_balance = True,\
