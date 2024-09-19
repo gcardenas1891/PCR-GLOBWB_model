@@ -3914,7 +3914,7 @@ class LandCover(object):
         if self.debugWaterBalance:
             #
             vos.waterBalanceCheck([netLqWaterToSoil    ,\
-                                   self.irrGrossDemand ,\
+                                   satisfied_irrigation_water_height,\
                                    self.satExcess     ],\
                                   [self.directRunoff   ,\
                                    self.openWaterEvap  ,\
@@ -3967,7 +3967,7 @@ class LandCover(object):
                 #
                 vos.waterBalanceCheck([netLqWaterToSoil,
                                        self.capRiseLow,
-                                       self.irrGrossDemand],\
+                                       satisfied_irrigation_water_height],\
                                       [self.directRunoff,
                                        self.interflow,
                                        self.percLow,
@@ -4040,7 +4040,7 @@ class LandCover(object):
                 #
                 vos.waterBalanceCheck([netLqWaterToSoil,
                                        self.capRiseLow030150,
-                                       self.irrGrossDemand],\
+                                       satisfied_irrigation_water_height],\
                                       [self.directRunoff,
                                        self.interflow,
                                        self.interflowUpp005030,
