@@ -197,7 +197,7 @@ class WaterManagement(object):
             # The default value is 1.0 such that this threshold value is not used. 
         self.threshold_to_minimize_fossil_groundwater_irrigation = \
          vos.readPCRmapClone(iniItems.waterManagementOptions['threshold_to_minimize_fossil_groundwater_irrigation'],\
-                                 self.cloneMap,self.tmpDir,self.inputDir)
+                                 self.cloneMap, self.tmpDir, self.inputDir)
 
 
         # maximum daily rate of groundwater abstraction (unit: m/day)
@@ -206,6 +206,9 @@ class WaterManagement(object):
             msg += 'This run assumes "0.050 m/day" for this option.'
             logger.warning(msg)
             iniItems.waterManagementOptions['maximumDailyGroundwaterAbstraction'] = "0.050"
+        self.maximumDailyGroundwaterAbstraction = vos.readPCRmapClone(iniItems.waterManagementOptions['maximumDailyGroundwaterAbstraction'],\
+                                                                      self.cloneMap, self.tmpDir, self.inputDir)
+    
         
         # maximum daily rate of fossil groundwater abstraction (unit: m/day)
         if 'maximumDailyFossilGroundwaterAbstraction' not in list(iniItems.waterManagementOptions.keys()):
@@ -789,7 +792,7 @@ class WaterManagement(object):
         # available storGroundwater (non fossil groundwater) that can be accessed (NOTE: All the following variable must have the unit  m3)
         readAvlStorGroundwater = pcr.cover(pcr.max(0.00, groundwater.storGroundwater * self.cellArea), 0.0) 
         # - considering maximum daily groundwater abstraction
-        readAvlStorGroundwater = pcr.min(readAvlStorGroundwater, groundwater.maximumDailyGroundwaterAbstraction * self.cellArea) 
+        readAvlStorGroundwater = pcr.min(readAvlStorGroundwater, self.maximumDailyGroundwaterAbstraction * self.cellArea) 
         # - ignore groundwater storage in non-productive aquifer 
         readAvlStorGroundwater = pcr.ifthenelse(groundwater.productive_aquifer, readAvlStorGroundwater, 0.0)
         # for non-productive aquifer, reduce readAvlStorGroundwater to the current recharge/baseflow rate
@@ -1015,7 +1018,7 @@ class WaterManagement(object):
                 self.fossilGroundwaterAbstrVol = self.potVolFossilGroundwaterAbstract
                 self.fossilGroundwaterAbstrVol = \
                  pcr.min(\
-                 pcr.max(0.0, groundwater.maximumDailyGroundwaterAbstraction * self.cellArea - volRenewGroundwaterAbstraction), self.fossilGroundwaterAbstrVol)
+                 pcr.max(0.0, self.maximumDailyGroundwaterAbstraction * self.cellArea - volRenewGroundwaterAbstraction), self.fossilGroundwaterAbstrVol)
                 
                 # fossil groundwater allocation (unit: m3/day)
                 self.fossilGroundwaterAllocVol = self.fossilGroundwaterAbstrVol
@@ -1033,7 +1036,7 @@ class WaterManagement(object):
                 readAvlFossilGroundwater *= 0.10
                 # - considering maximum daily groundwater abstraction
                 readAvlFossilGroundwater = pcr.min(readAvlFossilGroundwater, groundwater.maximumDailyFossilGroundwaterAbstraction, \
-                                           pcr.max(0.0, groundwater.maximumDailyGroundwaterAbstraction - volRenewGroundwaterAbstraction/self.cellArea))
+                                           pcr.max(0.0, self.maximumDailyGroundwaterAbstraction - volRenewGroundwaterAbstraction/self.cellArea))
                 readAvlFossilGroundwater = pcr.max(pcr.cover(readAvlFossilGroundwater, 0.0), 0.0)                                           
                 
                 # accesible fossil groundwater in the volume unit (unit: m3/day)
@@ -1557,7 +1560,7 @@ class WaterManagement(object):
         # ~ # available storGroundwater (non fossil groundwater) that can be accessed (unit: m)
         # ~ readAvlStorGroundwater = pcr.cover(pcr.max(0.00, groundwater.storGroundwater), 0.0)
         # ~ # - considering maximum daily groundwater abstraction
-        # ~ readAvlStorGroundwater = pcr.min(readAvlStorGroundwater, groundwater.maximumDailyGroundwaterAbstraction)
+        # ~ readAvlStorGroundwater = pcr.min(readAvlStorGroundwater, self.maximumDailyGroundwaterAbstraction)
         # ~ # - ignore groundwater storage in non-productive aquifer 
         # ~ readAvlStorGroundwater = pcr.ifthenelse(groundwater.productive_aquifer, readAvlStorGroundwater, 0.0)
         
@@ -1777,7 +1780,7 @@ class WaterManagement(object):
                 # ~ self.fossilGroundwaterAbstr = self.potFossilGroundwaterAbstract
                 # ~ self.fossilGroundwaterAbstr = \
                  # ~ pcr.min(\
-                 # ~ pcr.max(0.0, groundwater.maximumDailyGroundwaterAbstraction - self.nonFossilGroundwaterAbs), self.fossilGroundwaterAbstr)
+                 # ~ pcr.max(0.0, self.maximumDailyGroundwaterAbstraction - self.nonFossilGroundwaterAbs), self.fossilGroundwaterAbstr)
                 
                 # ~ # fossil groundwater allocation (unit: m/day)
                 # ~ self.fossilGroundwaterAlloc = self.fossilGroundwaterAbstr
@@ -1792,7 +1795,7 @@ class WaterManagement(object):
                 # ~ readAvlFossilGroundwater *= 0.10
                 # ~ # - considering maximum daily groundwater abstraction
                 # ~ readAvlFossilGroundwater = pcr.min(readAvlFossilGroundwater, groundwater.maximumDailyFossilGroundwaterAbstraction, \
-                                           # ~ pcr.max(0.0, groundwater.maximumDailyGroundwaterAbstraction - self.nonFossilGroundwaterAbs))
+                                           # ~ pcr.max(0.0, self.maximumDailyGroundwaterAbstraction - self.nonFossilGroundwaterAbs))
                 # ~ readAvlFossilGroundwater = pcr.max(pcr.cover(readAvlFossilGroundwater, 0.0), 0.0)                                           
                 
                 # ~ if groundwater.usingAllocSegments:
