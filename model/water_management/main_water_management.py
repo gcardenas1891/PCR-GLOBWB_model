@@ -1055,7 +1055,7 @@ class WaterManagement(object):
                        water_demand_volume = self.potVolFossilGroundwaterAbstract,\
                        available_water_volume = pcr.max(0.00, readAvlFossilGroundwaterVol),\
                        allocation_zones = self.allocationSegmentsForGroundwaterSource,\
-                       zone_area = groundwater.segmentArea,\
+                       zone_area = self.allocationSegmentsForGroundwaterSourceAreas,\
                        high_volume_threshold = None,\
                        debug_water_balance = True,\
                        extra_info_for_water_balance_reporting = str(currTimeStep.fulldate),  
