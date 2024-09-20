@@ -158,9 +158,9 @@ class LandSurface(object):
                           'directRunoff',
                           'interflow',
                           'interflowTotal',
-                          # ~ 'irrGrossDemand',
-                          # ~ 'nonIrrGrossDemand',
-                          # ~ 'totalPotentialGrossDemand',
+                          'landSurfaceRunoff',
+                          'satExcess',
+                          'snowMelt',
                           # ~ 'actSurfaceWaterAbstract',
                           # ~ 'allocSurfaceWaterAbstract',
                           # ~ 'desalinationAbstraction',
@@ -169,9 +169,6 @@ class LandSurface(object):
                           # ~ 'allocNonFossilGroundwater',
                           # ~ 'fossilGroundwaterAbstr',
                           # ~ 'fossilGroundwaterAlloc',
-                          'landSurfaceRunoff',
-                          'satExcess',
-                          'snowMelt',
                           # ~ 'totalGroundwaterAbstraction',
                           # ~ 'totalGroundwaterAllocation',
                           # ~ 'totalPotentialMaximumGrossDemand',
@@ -185,7 +182,13 @@ class LandSurface(object):
                           # ~ 'industryWaterWithdrawal',
                           # ~ 'livestockWaterWithdrawal',
                           # ~ 'nonIrrReturnFlow',
-                          'irrigationTranspirationDeficit',
+                          # ~ 'irrigationTranspirationDeficit',
+
+                          # the following variables were abandoned due to developments of new water use and water management modules
+                          # ~ 'irrGrossDemand',
+                          # ~ 'nonIrrGrossDemand',
+                          # ~ 'totalPotentialGrossDemand',
+
                           ]
         #
         # specific variables for 2 and 3 layer soil models:
