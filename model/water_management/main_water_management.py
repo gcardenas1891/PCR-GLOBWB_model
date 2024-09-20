@@ -1085,6 +1085,9 @@ class WaterManagement(object):
         # allocate the "nonrenewable groundwater Abstraction" to each sector - unit: m3/day
         self.allocated_withdrawal_per_sector["nonrenewable_groundwater"] = self.allocate_withdrawal_to_each_sector(totalVolCellWaterAbstraction = volFossilGroundwaterAbstraction, totalVolZoneAbstraction = volZoneFossilGroundwaterAbstraction, cellAllocatedDemandPerSector = self.allocated_demand_per_sector["nonrenewable_groundwater"], allocation_zones = self.allocationSegmentsForGroundwaterSource)
         
+        # make the total non-renewable groundwater abstraction available for other modules, unit m/day
+        self.fossilGroundwaterAbs = volFossilGroundwaterAbstraction / self.cellArea
+
         # update remaining_gross_sectoral_water_demands after the nonrenewable groundwater allocation
         for sector_name in remaining_gross_sectoral_water_demands.keys():
             remaining_gross_sectoral_water_demands[sector_name] = pcr.max(0.0, remaining_gross_sectoral_water_demands[sector_name] - \

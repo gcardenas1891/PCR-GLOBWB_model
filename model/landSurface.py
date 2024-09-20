@@ -1346,6 +1346,8 @@ class LandSurface(object):
         # get the following variables to be passed to other modules
         # - renewable groundwater abstraction, unit m/day
         self.nonFossilGroundwaterAbs = self.water_management.nonFossilGroundwaterAbs
+        # - non-renewable groundwater abstraction, unit m/day
+        self.fossilGroundwaterAbs    = self.water_management.fossilGroundwaterAbs
 
 
         # get the return flow from non irrigation water use
