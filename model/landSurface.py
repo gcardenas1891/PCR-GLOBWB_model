@@ -1349,7 +1349,7 @@ class LandSurface(object):
         self.allocNonFossilGroundwater = self.water_management.allocNonFossilGroundwater
         # - non-renewable groundwater abstraction, unit m/day, total for all sectors
         self.fossilGroundwaterAbstr    = self.water_management.fossilGroundwaterAbstr
-
+        self.fossilGroundwaterAlloc    = self.water_management.fossilGroundwaterAlloc
 
         # get the return flow from non irrigation water use
         #  - get the sectoral return flow fraction, particularly from non irrigation gross demands, the return flow from these sectors will go directly to surface water
