@@ -1347,7 +1347,7 @@ class LandSurface(object):
         # - renewable groundwater abstraction, unit m/day
         self.nonFossilGroundwaterAbs = self.water_management.nonFossilGroundwaterAbs
         # - non-renewable groundwater abstraction, unit m/day
-        self.fossilGroundwaterAbs    = self.water_management.fossilGroundwaterAbs
+        self.fossilGroundwaterAbstr  = self.water_management.fossilGroundwaterAbstr
 
 
         # get the return flow from non irrigation water use
