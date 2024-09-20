@@ -841,8 +841,10 @@ class WaterManagement(object):
         # allocate the "renewable groundwater Abstraction" to each sector - unit: m3/day
         self.allocated_withdrawal_per_sector["renewable_groundwater"] = self.allocate_withdrawal_to_each_sector(totalVolCellWaterAbstraction = volRenewGroundwaterAbstraction, totalVolZoneAbstraction = volZoneRenewGroundwaterAbstraction, cellAllocatedDemandPerSector = self.allocated_demand_per_sector["renewable_groundwater"], allocation_zones = self.allocationSegmentsForGroundwaterSource)
         
-        # make the total renewable groundwater abstraction available for other modules, unit m/day
-        self.nonFossilGroundwaterAbs = volRenewGroundwaterAbstraction / self.cellArea
+        # make the total renewable groundwater Allocation and Abstraction available for other modules, unit m/day
+        self.allocNonFossilGroundwater = volRenewGroundwaterAllocation  / self.cellArea
+        self.nonFossilGroundwaterAbs   = volRenewGroundwaterAbstraction / self.cellArea
+        
         
         # somehow the following is needed for allocating fossil groundwater
         self.satisfiedIrrigationDemandFromNonFossilGroundwater = self.allocated_demand_per_sector["renewable_groundwater"]["irrigation"]
@@ -1085,8 +1087,9 @@ class WaterManagement(object):
         # allocate the "nonrenewable groundwater Abstraction" to each sector - unit: m3/day
         self.allocated_withdrawal_per_sector["nonrenewable_groundwater"] = self.allocate_withdrawal_to_each_sector(totalVolCellWaterAbstraction = volFossilGroundwaterAbstraction, totalVolZoneAbstraction = volZoneFossilGroundwaterAbstraction, cellAllocatedDemandPerSector = self.allocated_demand_per_sector["nonrenewable_groundwater"], allocation_zones = self.allocationSegmentsForGroundwaterSource)
         
-        # make the total non-renewable groundwater abstraction available for other modules, unit m/day
+        # make the total non-renewable groundwater abstraction and allocation available for other modules, unit m/day
         self.fossilGroundwaterAbstr = volFossilGroundwaterAbstraction / self.cellArea
+        self.
 
         # update remaining_gross_sectoral_water_demands after the nonrenewable groundwater allocation
         for sector_name in remaining_gross_sectoral_water_demands.keys():
