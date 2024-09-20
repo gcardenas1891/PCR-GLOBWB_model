@@ -1343,6 +1343,11 @@ class LandSurface(object):
         self.land_surface_hydrology_update(meteo, groundwater, routing, currTimeStep)
 
 
+        # get the following variables to be passed to other modules
+        # - renewable groundwater abstraction, unit m/day
+        self.nonFossilGroundwaterAbs = self.water_management.nonFossilGroundwaterAbs
+
+
         # get the return flow from non irrigation water use
         #  - get the sectoral return flow fraction, particularly from non irrigation gross demands, the return flow from these sectors will go directly to surface water
         return_flow_fraction = {}
@@ -1351,6 +1356,7 @@ class LandSurface(object):
         return_flow_fraction["manufacture"]    = 1.0 - vos.getValDivZero(self.water_demand.water_demand_manufacture.manufactureNettoDemand      , self.water_demand.water_demand_manufacture.manufactureGrossDemand      )
         return_flow_fraction["thermoelectric"] = 1.0 - vos.getValDivZero(self.water_demand.water_demand_thermoelectric.thermoelectricNettoDemand, self.water_demand.water_demand_thermoelectric.thermoelectricGrossDemand)
         return_flow_fraction["livestock"]      = 1.0 - vos.getValDivZero(self.water_demand.water_demand_livestock.livestockNettoDemand          , self.water_demand.water_demand_livestock.livestockGrossDemand          )
+        
         # - TODO: FIX-THIS: calculate the non irrigation return flow
         self.nonIrrReturnFlow = None
 
