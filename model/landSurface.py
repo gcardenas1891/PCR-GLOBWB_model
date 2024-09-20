@@ -1427,6 +1427,12 @@ class LandSurface(object):
         for coverType in self.coverTypes:
             
             logger.info("Updating land cover: "+str(coverType))
+            
+            # note that for calculating irrigation losses, we need information about irrigation efficiency
+            if coverType.startswith('irr') and self.includeIrrigation:
+                self.landCoverObj[coverType].irrigationEfficiencyUsed = self.water_demand.water_demand_irrigation[coverType].irrigationEfficiency
+            
+            # calculate the hydrology model part
             self.landCoverObj[coverType].land_surface_hydrology_update_for_every_lc(self.capRiseFrac, currTimeStep, groundwater, self.satisfied_irrigation_water_height[coverType], self.water_management.reducedCapRise)
             
         # first, we set all aggregated values/variables to zero: 
