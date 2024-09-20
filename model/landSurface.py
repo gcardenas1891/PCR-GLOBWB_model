@@ -1349,7 +1349,8 @@ class LandSurface(object):
 
         # get the following variables to be passed to other modules
         # - surface water abstraction and allocation, unit m/day, total for all sectors 
-        self.actSurfaceWaterAbstract
+        self.allocSurfaceWaterAbstract = self.water_management.allocSurfaceWaterAbstract
+        self.actSurfaceWaterAbstract   = self.water_management.actSurfaceWaterAbstract  
         # - renewable groundwater abstraction and allocation, unit m/day, total for all sectors
         self.nonFossilGroundwaterAbs   = self.water_management.nonFossilGroundwaterAbs
         self.allocNonFossilGroundwater = self.water_management.allocNonFossilGroundwater

@@ -670,6 +670,10 @@ class WaterManagement(object):
         self.allocated_withdrawal_per_sector["surface_water"] = self.allocate_withdrawal_to_each_sector(totalVolCellWaterAbstraction = volSurfaceWaterAbstraction, totalVolZoneAbstraction = volZoneSurfaceWaterAbstraction, cellAllocatedDemandPerSector = self.allocated_demand_per_sector["surface_water"], allocation_zones = self.allocationSegmentsForSurfaceWaterSource)
         
         
+        # make the total surface water Allocation and Abstraction available for other modules, unit m/day
+        self.allocSurfaceWaterAbstract = volSurfaceWaterAllocation  / self.cellArea
+        self.actSurfaceWaterAbstract   = volSurfaceWaterAbstraction / self.cellArea
+
         # remaining surface water that can be extracted - unit: m3
         self.volRemainingSurfaceWater = pcr.max(0.0,  available_surface_water_volume - volSurfaceWaterAbstraction)
         
