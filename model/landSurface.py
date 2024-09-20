@@ -161,10 +161,14 @@ class LandSurface(object):
                           'landSurfaceRunoff',
                           'satExcess',
                           'snowMelt',
-                          # ~ 'actSurfaceWaterAbstract',
-                          # ~ 'allocSurfaceWaterAbstract',
+                          'irrigationTranspirationDeficit',
+
+                          # the following variables are now calculated within the 'new' water demand and water management modules
+
                           # ~ 'desalinationAbstraction',
                           # ~ 'desalinationAllocation',
+                          # ~ 'actSurfaceWaterAbstract',
+                          # ~ 'allocSurfaceWaterAbstract',
                           # ~ 'nonFossilGroundwaterAbs',
                           # ~ 'allocNonFossilGroundwater',
                           # ~ 'fossilGroundwaterAbstr',
@@ -182,9 +186,9 @@ class LandSurface(object):
                           # ~ 'industryWaterWithdrawal',
                           # ~ 'livestockWaterWithdrawal',
                           # ~ 'nonIrrReturnFlow',
-                          # ~ 'irrigationTranspirationDeficit',
 
                           # the following variables were abandoned due to developments of new water use and water management modules
+
                           # ~ 'irrGrossDemand',
                           # ~ 'nonIrrGrossDemand',
                           # ~ 'totalPotentialGrossDemand',
@@ -1344,6 +1348,8 @@ class LandSurface(object):
 
 
         # get the following variables to be passed to other modules
+        # - surface water abstraction and allocation, unit m/day, total for all sectors 
+        self.actSurfaceWaterAbstract
         # - renewable groundwater abstraction and allocation, unit m/day, total for all sectors
         self.nonFossilGroundwaterAbs   = self.water_management.nonFossilGroundwaterAbs
         self.allocNonFossilGroundwater = self.water_management.allocNonFossilGroundwater
