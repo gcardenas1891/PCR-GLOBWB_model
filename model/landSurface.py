@@ -175,6 +175,13 @@ class LandSurface(object):
                           # ~ 'fossilGroundwaterAlloc',
                           # ~ 'totalGroundwaterAbstraction',
                           # ~ 'totalGroundwaterAllocation',
+                          # ~ 'nonIrrReturnFlow',
+
+                          # the following variables were abandoned due to developments of new water use and water management modules
+
+                          # ~ 'irrGrossDemand',
+                          # ~ 'nonIrrGrossDemand',
+                          # ~ 'totalPotentialGrossDemand',
                           # ~ 'totalPotentialMaximumGrossDemand',
                           # ~ 'totalPotentialMaximumIrrGrossDemand',
                           # ~ 'totalPotentialMaximumIrrGrossDemandPaddy',
@@ -185,13 +192,6 @@ class LandSurface(object):
                           # ~ 'domesticWaterWithdrawal',
                           # ~ 'industryWaterWithdrawal',
                           # ~ 'livestockWaterWithdrawal',
-                          # ~ 'nonIrrReturnFlow',
-
-                          # the following variables were abandoned due to developments of new water use and water management modules
-
-                          # ~ 'irrGrossDemand',
-                          # ~ 'nonIrrGrossDemand',
-                          # ~ 'totalPotentialGrossDemand',
 
                           ]
         #
@@ -1348,6 +1348,8 @@ class LandSurface(object):
 
 
         # get the following variables to be passed to other modules
+        # - 
+        # 
         # - surface water abstraction and allocation, unit m/day, total for all sectors 
         self.allocSurfaceWaterAbstract = self.water_management.allocSurfaceWaterAbstract
         self.actSurfaceWaterAbstract   = self.water_management.actSurfaceWaterAbstract  
@@ -1369,6 +1371,21 @@ class LandSurface(object):
         
         # - TODO: FIX-THIS: calculate the non irrigation return flow
         self.nonIrrReturnFlow = None
+
+
+        if self.debugWaterBalance:
+            vos.waterBalanceCheck([self.desalinationAllocation,\
+                                   self.allocSurfaceWaterAbstract, \
+                                   self.allocNonFossilGroundwater, \
+                                   self.fossilGroundwaterAlloc, \
+                                   ],\
+                                  [landSurface.totalPotentialGrossDemand],\
+                                  [pcr.scalar(0.)],\
+                                  [pcr.scalar(0.)],\
+                                  'satisfied demand allocation from different water sources: desalination, surface water, groundwater & unmetDemand. Error here may be due to rounding error.',\
+                                   True,\
+                                   currTimeStep.fulldate,threshold=1e-3)
+
 
 
     def state_transfer_among_land_cover(self, currTimeStep):
