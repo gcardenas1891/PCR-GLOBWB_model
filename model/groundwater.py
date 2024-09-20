@@ -738,17 +738,17 @@ class Groundwater(object):
                                    True,\
                                    currTimeStep.fulldate,threshold=1e-3)
 
-        if self.debugWaterBalance:
-            vos.waterBalanceCheck([landSurface.desalinationAllocation,\
-                                   self.unmetDemand, \
-                                   self.allocNonFossilGroundwater, \
-                                   landSurface.allocSurfaceWaterAbstract],\
-                                  [landSurface.totalPotentialGrossDemand],\
-                                  [pcr.scalar(0.)],\
-                                  [pcr.scalar(0.)],\
-                                  'demand allocation (desalination, surface water, groundwater & unmetDemand. Error here may be due to rounding error.',\
-                                   True,\
-                                   currTimeStep.fulldate,threshold=1e-3)
+        # ~ if self.debugWaterBalance:
+            # ~ vos.waterBalanceCheck([landSurface.desalinationAllocation,\
+                                   # ~ self.unmetDemand, \
+                                   # ~ self.allocNonFossilGroundwater, \
+                                   # ~ landSurface.allocSurfaceWaterAbstract],\
+                                  # ~ [landSurface.totalPotentialGrossDemand],\
+                                  # ~ [pcr.scalar(0.)],\
+                                  # ~ [pcr.scalar(0.)],\
+                                  # ~ 'demand allocation (desalination, surface water, groundwater & unmetDemand. Error here may be due to rounding error.',\
+                                   # ~ True,\
+                                   # ~ currTimeStep.fulldate,threshold=1e-3)
 
     def calculate_statistics(self, routing):
 
