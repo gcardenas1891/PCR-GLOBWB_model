@@ -158,7 +158,7 @@ class LandSurface(object):
                           'directRunoff',
                           'interflow',
                           'interflowTotal',
-                          'irrGrossDemand',
+                          # ~ 'irrGrossDemand',
                           'nonIrrGrossDemand',
                           'totalPotentialGrossDemand',
                           'actSurfaceWaterAbstract',
