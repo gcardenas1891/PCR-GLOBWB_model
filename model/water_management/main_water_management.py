@@ -559,8 +559,8 @@ class WaterManagement(object):
         self.allocated_withdrawal_per_sector["desalinated_water"] = self.allocate_withdrawal_to_each_sector(totalVolCellWaterAbstraction = volDesalinationAbstraction, totalVolZoneAbstraction = volZoneDesalinationAbstraction, cellAllocatedDemandPerSector = self.allocated_demand_per_sector["desalinated_water"], allocation_zones = self.allocationSegmentsForDesalinatedWaterSource)
         
         # make the total desalination Allocation and Abstraction available for other modules, unit m/day
-        self.volDesalinationAllocation  = volDesalinationAllocation  / self.cellArea
-        self.volDesalinationAbstraction = volDesalinationAbstraction / self.cellArea
+        self.desalinationAllocation  = volDesalinationAllocation  / self.cellArea
+        self.desalinationAbstraction = volDesalinationAbstraction / self.cellArea
 
         # remaining desalination water use - unit: m3
         self.volRemainingDesalinationWaterUse = pcr.max(0.0, volDesalinationWaterUse - volDesalinationAbstraction)
