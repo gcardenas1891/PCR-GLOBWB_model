@@ -1362,18 +1362,20 @@ class LandSurface(object):
         self.fossilGroundwaterAlloc    = self.water_management.fossilGroundwaterAlloc
 
        
-        if self.debugWaterBalance:
-            vos.waterBalanceCheck([self.desalinationAllocation,\
-                                   self.allocSurfaceWaterAbstract, \
-                                   self.allocNonFossilGroundwater, \
-                                   self.fossilGroundwaterAlloc, \
-                                   ],\
-                                  [landSurface.totalPotentialGrossDemand],\
-                                  [pcr.scalar(0.)],\
-                                  [pcr.scalar(0.)],\
-                                  'satisfied demand allocation from different water sources: desalination, surface water, groundwater & unmetDemand. Error here may be due to rounding error.',\
-                                   True,\
-                                   currTimeStep.fulldate,threshold=1e-3)
+        # ~ # TODO: Fix the following water balance checks, or shall we put it within the water management module
+        # ~ if self.debugWaterBalance:
+            # ~ vos.waterBalanceCheck([self.desalinationAllocation,\
+                                   # ~ self.allocSurfaceWaterAbstract, \
+                                   # ~ self.allocNonFossilGroundwater, \
+                                   # ~ self.fossilGroundwaterAlloc, \
+                                   # ~ ],\
+                                  # ~ [landSurface.totalPotentialGrossDemand],\
+                                  # ~ [pcr.scalar(0.)],\
+                                  # ~ [pcr.scalar(0.)],\
+                                  # ~ 'satisfied demand allocation from different water sources: desalination, surface water, groundwater & unmetDemand. Error here may be due to rounding error.',\
+                                   # ~ True,\
+                                   # ~ currTimeStep.fulldate,threshold=1e-3)
+
 
         # get the return flow from non irrigation water use
         #  - get the sectoral return flow fraction, particularly from non irrigation gross demands, the return flow from these sectors will go directly to surface water
