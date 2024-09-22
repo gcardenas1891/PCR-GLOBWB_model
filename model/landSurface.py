@@ -1348,7 +1348,7 @@ class LandSurface(object):
 
         # get the following variables to be passed to other modules
         # - desalination water abstraction and allocation, unit m/day, total for all sectors 
-        self.desalinationAbsraction    = self.water_management.desalinationAbsraction   
+        self.desalinationAbstraction   = self.water_management.desalinationAbstraction  
         self.desalinationAllocation    = self.water_management.desalinationAllocation   
         # 
         # - surface water abstraction and allocation, unit m/day, total for all sectors 
