@@ -1343,12 +1343,13 @@ class LandSurface(object):
         # do the remaining land cover processes
         # - this including applying the 'allocated irrGrossDemand'
         # - we also need the variable 'reducedCapRise = volRenewGroundwaterAbstraction / self.cellArea' from every land cover type
-        
         self.land_surface_hydrology_update(meteo, groundwater, routing, currTimeStep)
 
 
         # get the following variables to be passed to other modules
-        # - 
+        # - desalination water abstraction and allocation, unit m/day, total for all sectors 
+        self.desalinationAbsraction    = self.water_management.desalinationAbsraction   
+        self.desalinationAllocation    = self.water_management.desalinationAllocation   
         # 
         # - surface water abstraction and allocation, unit m/day, total for all sectors 
         self.allocSurfaceWaterAbstract = self.water_management.allocSurfaceWaterAbstract
@@ -1360,19 +1361,7 @@ class LandSurface(object):
         self.fossilGroundwaterAbstr    = self.water_management.fossilGroundwaterAbstr
         self.fossilGroundwaterAlloc    = self.water_management.fossilGroundwaterAlloc
 
-        # get the return flow from non irrigation water use
-        #  - get the sectoral return flow fraction, particularly from non irrigation gross demands, the return flow from these sectors will go directly to surface water
-        return_flow_fraction = {}
-        return_flow_fraction["domestic"]       = 1.0 - vos.getValDivZero(self.water_demand.water_demand_domestic.domesticNettoDemand            , self.water_demand.water_demand_domestic.domesticGrossDemand            )
-        return_flow_fraction["industry"]       = 1.0 - vos.getValDivZero(self.water_demand.water_demand_industry.industryNettoDemand            , self.water_demand.water_demand_industry.industryGrossDemand            )
-        return_flow_fraction["manufacture"]    = 1.0 - vos.getValDivZero(self.water_demand.water_demand_manufacture.manufactureNettoDemand      , self.water_demand.water_demand_manufacture.manufactureGrossDemand      )
-        return_flow_fraction["thermoelectric"] = 1.0 - vos.getValDivZero(self.water_demand.water_demand_thermoelectric.thermoelectricNettoDemand, self.water_demand.water_demand_thermoelectric.thermoelectricGrossDemand)
-        return_flow_fraction["livestock"]      = 1.0 - vos.getValDivZero(self.water_demand.water_demand_livestock.livestockNettoDemand          , self.water_demand.water_demand_livestock.livestockGrossDemand          )
-        
-        # - TODO: FIX-THIS: calculate the non irrigation return flow
-        self.nonIrrReturnFlow = None
-
-
+       
         if self.debugWaterBalance:
             vos.waterBalanceCheck([self.desalinationAllocation,\
                                    self.allocSurfaceWaterAbstract, \
@@ -1385,6 +1374,19 @@ class LandSurface(object):
                                   'satisfied demand allocation from different water sources: desalination, surface water, groundwater & unmetDemand. Error here may be due to rounding error.',\
                                    True,\
                                    currTimeStep.fulldate,threshold=1e-3)
+
+        # get the return flow from non irrigation water use
+        #  - get the sectoral return flow fraction, particularly from non irrigation gross demands, the return flow from these sectors will go directly to surface water
+        return_flow_fraction = {}
+        return_flow_fraction["domestic"]       = 1.0 - vos.getValDivZero(self.water_demand.water_demand_domestic.domesticNettoDemand            , self.water_demand.water_demand_domestic.domesticGrossDemand            )
+        return_flow_fraction["industry"]       = 1.0 - vos.getValDivZero(self.water_demand.water_demand_industry.industryNettoDemand            , self.water_demand.water_demand_industry.industryGrossDemand            )
+        return_flow_fraction["manufacture"]    = 1.0 - vos.getValDivZero(self.water_demand.water_demand_manufacture.manufactureNettoDemand      , self.water_demand.water_demand_manufacture.manufactureGrossDemand      )
+        return_flow_fraction["thermoelectric"] = 1.0 - vos.getValDivZero(self.water_demand.water_demand_thermoelectric.thermoelectricNettoDemand, self.water_demand.water_demand_thermoelectric.thermoelectricGrossDemand)
+        return_flow_fraction["livestock"]      = 1.0 - vos.getValDivZero(self.water_demand.water_demand_livestock.livestockNettoDemand          , self.water_demand.water_demand_livestock.livestockGrossDemand          )
+
+        # - TODO: FIX-THIS: calculate the non irrigation return flow
+        self.nonIrrReturnFlow = None
+
 
 
 
