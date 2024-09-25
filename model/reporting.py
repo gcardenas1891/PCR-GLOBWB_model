@@ -977,24 +977,24 @@ class Reporting(object):
         # ~ ######################################################################################################################################################################
                                                          
 
-        ##########################################################################################################################################################################################
-        # Consumptive water use (unit: m3/day) for livestock, domestic and industry 
-        self.livestockWaterConsumptionVolume = self._model.landSurface.livestockReturnFlowFraction * self.livestockWaterWithdrawalVolume 
-        self.domesticWaterConsumptionVolume  = self._model.landSurface.domesticReturnFlowFraction  * self.domesticWaterWithdrawalVolume
-        self.industryWaterConsumptionVolume  = self._model.landSurface.industryReturnFlowFraction  * self.industryWaterWithdrawalVolume
-        ##########################################################################################################################################################################################
+        # ~ ##########################################################################################################################################################################################
+        # ~ # Consumptive water use (unit: m3/day) for livestock, domestic and industry 
+        # ~ self.livestockWaterConsumptionVolume = self._model.landSurface.livestockReturnFlowFraction * self.livestockWaterWithdrawalVolume 
+        # ~ self.domesticWaterConsumptionVolume  = self._model.landSurface.domesticReturnFlowFraction  * self.domesticWaterWithdrawalVolume
+        # ~ self.industryWaterConsumptionVolume  = self._model.landSurface.industryReturnFlowFraction  * self.industryWaterWithdrawalVolume
+        # ~ ##########################################################################################################################################################################################
 
 
-        ######################################################################################################################################################################
-        # For irrigation sector, the net consumptive water use will be calculated using annual values as follows:
-        # irrigation_water_consumption_volume = self.evaporation_from_irrigation_volume * self.irrigationWaterWithdrawal / \
-        #                                                                         (self.precipitation_at_irrigation + self.irrigationWaterWithdrawal)  
-        self.precipitation_at_irrigation_volume = self.precipitation_at_irrigation * self._model.routing.cellArea
-        self.evaporation_from_irrigation_volume = self.evaporation_from_irrigation * self._model.routing.cellArea
-        # - additional values (may be needed) 
-        self.netLqWaterToSoil_at_irrigation_volume = self.netLqWaterToSoil_at_irrigation * self._model.routing.cellArea
-        self.transpiration_from_irrigation_volume  = self.transpiration_from_irrigation  * self._model.routing.cellArea
-        ######################################################################################################################################################################
+        # ~ ######################################################################################################################################################################
+        # ~ # For irrigation sector, the net consumptive water use will be calculated using annual values as follows:
+        # ~ # irrigation_water_consumption_volume = self.evaporation_from_irrigation_volume * self.irrigationWaterWithdrawal / \
+        # ~ #                                                                         (self.precipitation_at_irrigation + self.irrigationWaterWithdrawal)  
+        # ~ self.precipitation_at_irrigation_volume = self.precipitation_at_irrigation * self._model.routing.cellArea
+        # ~ self.evaporation_from_irrigation_volume = self.evaporation_from_irrigation * self._model.routing.cellArea
+        # ~ # - additional values (may be needed) 
+        # ~ self.netLqWaterToSoil_at_irrigation_volume = self.netLqWaterToSoil_at_irrigation * self._model.routing.cellArea
+        # ~ self.transpiration_from_irrigation_volume  = self.transpiration_from_irrigation  * self._model.routing.cellArea
+        # ~ ######################################################################################################################################################################
 
 
         # fluxes from water bodies (lakes and reservoirs) - unit: m3/s
