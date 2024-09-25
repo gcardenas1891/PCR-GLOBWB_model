@@ -111,7 +111,8 @@ class ManufactureWaterDemand(object):
             self.manufactureNettoDemand = pcr.cover(self.manufactureNettoDemand, 0.0)
             self.manufactureNettoDemand = pcr.min(self.manufactureGrossDemand, self.manufactureNettoDemand)  
 
-
+            # return flow fraction
+            self.manufactureReturnFlowFraction = pcr.max(0.0, 1.0 - vos.getValDivZero(self.manufactureNettoDemand, self.manufactureGrossDemand))
 
 
     def calculate_manufacture_water_demand_for_date(self, currTimeStep):
