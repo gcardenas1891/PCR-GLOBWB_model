@@ -440,17 +440,17 @@ class PCRGlobWB(object):
         # for the entire stores from snow + interception + soil + groundwater, but excluding river/routing
         # 
         # - incoming fluxes (unit: m)
-        precipitation   = pcr.ifthen(self.landmask, self.meteo.precipitation)
-        irrGrossDemand  = pcr.ifthen(self.landmask, self.landSurface.irrGrossDemand)
-        surfaceWaterInf = pcr.ifthen(self.landmask, self.groundwater.surfaceWaterInf)
+        precipitation           = pcr.ifthen(self.landmask, self.meteo.precipitation)
+        satisfiedIrrGrossDemand = pcr.ifthen(self.landmask, self.landSurface.water_management.satisfied_gross_sectoral_water_demands["irrigation"] / self.routing.cellArea)
+        surfaceWaterInf         = pcr.ifthen(self.landmask, self.groundwater.surfaceWaterInf)
         # 
         # - outgoing fluxes (unit: m)
         actualET                = pcr.ifthen(self.landmask, self.landSurface.actualET)
         runoff                  = pcr.ifthen(self.landmask, self.routing.runoff)
         nonFossilGroundwaterAbs = pcr.ifthen(self.landmask, self.groundwater.nonFossilGroundwaterAbs)   
         # 
-        vos.waterBalanceCheck([precipitation,surfaceWaterInf,irrGrossDemand],\
-                              [actualET,runoff,nonFossilGroundwaterAbs],\
+        vos.waterBalanceCheck([precipitation, surfaceWaterInf, satisfiedIrrGrossDemand],\
+                              [actualET, runoff, nonFossilGroundwaterAbs],\
                               [storesAtBeginning],\
                               [storesAtEnd],\
                               'all stores (snow + interception + soil + groundwater), but except river/routing',\
