@@ -660,10 +660,10 @@ class Reporting(object):
         self.gwRecharge           = self._model.landSurface.gwRecharge
         self.gwNetCapRise         = pcr.ifthenelse(self._model.landSurface.gwRecharge < 0.0, self.gwRecharge*(-1.0), 0.0)
         
-        # water demand (m)
-        self.irrGrossDemand       = self._model.landSurface.irrGrossDemand    
-        self.nonIrrGrossDemand    = self._model.landSurface.nonIrrGrossDemand
-        self.totalGrossDemand     = self._model.landSurface.totalPotentialGrossDemand
+        # ~ # water demand (m)
+        # ~ self.irrGrossDemand       = self._model.landSurface.irrGrossDemand    
+        # ~ self.nonIrrGrossDemand    = self._model.landSurface.nonIrrGrossDemand
+        # ~ self.totalGrossDemand     = self._model.landSurface.totalPotentialGrossDemand
         
         self.satDegUpp            = self._model.landSurface.satDegUppTotal
         self.satDegLow            = self._model.landSurface.satDegLowTotal

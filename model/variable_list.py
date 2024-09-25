@@ -384,83 +384,71 @@ description[pcrglobwb_variable_name]       = None
 comment[pcrglobwb_variable_name]           = "values (positive) indicating (net) capillary rise from groundater store; only positive values given to the field."
 latex_symbol[pcrglobwb_variable_name]      = None
 
-# totalGroundwaterRecharge                      
-pcrglobwb_variable_name = 'totalGroundwaterRecharge'
-netcdf_short_name[pcrglobwb_variable_name] = 'total_groundwater_recharge'
-netcdf_unit[pcrglobwb_variable_name]       = 'm.day-1'
-netcdf_monthly_total_unit[pcrglobwb_variable_name] = 'm.month-1' 
-netcdf_yearly_total_unit[pcrglobwb_variable_name]  = 'm.year-1'
-netcdf_long_name[pcrglobwb_variable_name]  = None
-description[pcrglobwb_variable_name]       = None
-comment[pcrglobwb_variable_name]           = "nncluding "
-latex_symbol[pcrglobwb_variable_name]      = None
-pcr_short_name[pcrglobwb_variable_name]    = None
+# ~ # irrGrossDemand                  
+# ~ pcrglobwb_variable_name = 'irrGrossDemand'
+# ~ netcdf_short_name[pcrglobwb_variable_name] = 'irrigation_gross_demand'
+# ~ netcdf_unit[pcrglobwb_variable_name]       = 'm.day-1'
+# ~ netcdf_monthly_total_unit[pcrglobwb_variable_name] = 'm.month-1' 
+# ~ netcdf_yearly_total_unit[pcrglobwb_variable_name]  = 'm.year-1'
+# ~ netcdf_long_name[pcrglobwb_variable_name]  = None
+# ~ description[pcrglobwb_variable_name]       = None
+# ~ comment[pcrglobwb_variable_name]           = "not including water consumption for livestock"
+# ~ latex_symbol[pcrglobwb_variable_name]      = None
 
-# irrGrossDemand                  
-pcrglobwb_variable_name = 'irrGrossDemand'
-netcdf_short_name[pcrglobwb_variable_name] = 'irrigation_gross_demand'
-netcdf_unit[pcrglobwb_variable_name]       = 'm.day-1'
-netcdf_monthly_total_unit[pcrglobwb_variable_name] = 'm.month-1' 
-netcdf_yearly_total_unit[pcrglobwb_variable_name]  = 'm.year-1'
-netcdf_long_name[pcrglobwb_variable_name]  = None
-description[pcrglobwb_variable_name]       = None
-comment[pcrglobwb_variable_name]           = "not including water consumption for livestock"
-latex_symbol[pcrglobwb_variable_name]      = None
+# ~ # irrGrossDemandVolume                  
+# ~ pcrglobwb_variable_name = 'irrGrossDemandVolume'
+# ~ netcdf_short_name[pcrglobwb_variable_name] = 'irrigation_gross_demand_volume'
+# ~ netcdf_unit[pcrglobwb_variable_name]       = 'm3.day-1'
+# ~ netcdf_monthly_total_unit[pcrglobwb_variable_name] = 'm3.month-1' 
+# ~ netcdf_yearly_total_unit[pcrglobwb_variable_name]  = 'm3.year-1'
+# ~ netcdf_long_name[pcrglobwb_variable_name]  = None
+# ~ description[pcrglobwb_variable_name]       = None
+# ~ comment[pcrglobwb_variable_name]           = "not including water consumption for livestock"
+# ~ latex_symbol[pcrglobwb_variable_name]      = None
 
-# irrGrossDemandVolume                  
-pcrglobwb_variable_name = 'irrGrossDemandVolume'
-netcdf_short_name[pcrglobwb_variable_name] = 'irrigation_gross_demand_volume'
-netcdf_unit[pcrglobwb_variable_name]       = 'm3.day-1'
-netcdf_monthly_total_unit[pcrglobwb_variable_name] = 'm3.month-1' 
-netcdf_yearly_total_unit[pcrglobwb_variable_name]  = 'm3.year-1'
-netcdf_long_name[pcrglobwb_variable_name]  = None
-description[pcrglobwb_variable_name]       = None
-comment[pcrglobwb_variable_name]           = "not including water consumption for livestock"
-latex_symbol[pcrglobwb_variable_name]      = None
+# ~ # nonIrrGrossDemand                  
+# ~ pcrglobwb_variable_name = 'nonIrrGrossDemand'
+# ~ netcdf_short_name[pcrglobwb_variable_name] = 'non_irrigation_gross_demand'
+# ~ netcdf_unit[pcrglobwb_variable_name]       = 'm.day-1'
+# ~ netcdf_monthly_total_unit[pcrglobwb_variable_name] = 'm.month-1' 
+# ~ netcdf_yearly_total_unit[pcrglobwb_variable_name]  = 'm.year-1'
+# ~ netcdf_long_name[pcrglobwb_variable_name]  = None
+# ~ description[pcrglobwb_variable_name]       = None
+# ~ comment[pcrglobwb_variable_name]           = None
+# ~ latex_symbol[pcrglobwb_variable_name]      = None
 
-# nonIrrGrossDemand                  
-pcrglobwb_variable_name = 'nonIrrGrossDemand'
-netcdf_short_name[pcrglobwb_variable_name] = 'non_irrigation_gross_demand'
-netcdf_unit[pcrglobwb_variable_name]       = 'm.day-1'
-netcdf_monthly_total_unit[pcrglobwb_variable_name] = 'm.month-1' 
-netcdf_yearly_total_unit[pcrglobwb_variable_name]  = 'm.year-1'
-netcdf_long_name[pcrglobwb_variable_name]  = None
-description[pcrglobwb_variable_name]       = None
-comment[pcrglobwb_variable_name]           = None
-latex_symbol[pcrglobwb_variable_name]      = None
+# ~ # nonIrrGrossDemandVolume                  
+# ~ pcrglobwb_variable_name = 'nonIrrGrossDemandVolume'
+# ~ netcdf_short_name[pcrglobwb_variable_name] = 'non_irrigation_gross_demand_volume'
+# ~ netcdf_unit[pcrglobwb_variable_name]       = 'm3.day-1'
+# ~ netcdf_monthly_total_unit[pcrglobwb_variable_name] = 'm3.month-1' 
+# ~ netcdf_yearly_total_unit[pcrglobwb_variable_name]  = 'm3.year-1'
+# ~ netcdf_long_name[pcrglobwb_variable_name]  = None
+# ~ description[pcrglobwb_variable_name]       = None
+# ~ comment[pcrglobwb_variable_name]           = None
+# ~ latex_symbol[pcrglobwb_variable_name]      = None
 
-# nonIrrGrossDemandVolume                  
-pcrglobwb_variable_name = 'nonIrrGrossDemandVolume'
-netcdf_short_name[pcrglobwb_variable_name] = 'non_irrigation_gross_demand_volume'
-netcdf_unit[pcrglobwb_variable_name]       = 'm3.day-1'
-netcdf_monthly_total_unit[pcrglobwb_variable_name] = 'm3.month-1' 
-netcdf_yearly_total_unit[pcrglobwb_variable_name]  = 'm3.year-1'
-netcdf_long_name[pcrglobwb_variable_name]  = None
-description[pcrglobwb_variable_name]       = None
-comment[pcrglobwb_variable_name]           = None
-latex_symbol[pcrglobwb_variable_name]      = None
+# ~ # totalGrossDemand                  
+# ~ pcrglobwb_variable_name = 'totalGrossDemand'
+# ~ netcdf_short_name[pcrglobwb_variable_name] = 'total_gross_demand'
+# ~ netcdf_unit[pcrglobwb_variable_name]       = 'm.day-1'
+# ~ netcdf_monthly_total_unit[pcrglobwb_variable_name] = 'm.month-1' 
+# ~ netcdf_yearly_total_unit[pcrglobwb_variable_name]  = 'm.year-1'
+# ~ netcdf_long_name[pcrglobwb_variable_name]  = None
+# ~ description[pcrglobwb_variable_name]       = None
+# ~ comment[pcrglobwb_variable_name]           = None
+# ~ latex_symbol[pcrglobwb_variable_name]      = None
 
-# totalGrossDemand                  
-pcrglobwb_variable_name = 'totalGrossDemand'
-netcdf_short_name[pcrglobwb_variable_name] = 'total_gross_demand'
-netcdf_unit[pcrglobwb_variable_name]       = 'm.day-1'
-netcdf_monthly_total_unit[pcrglobwb_variable_name] = 'm.month-1' 
-netcdf_yearly_total_unit[pcrglobwb_variable_name]  = 'm.year-1'
-netcdf_long_name[pcrglobwb_variable_name]  = None
-description[pcrglobwb_variable_name]       = None
-comment[pcrglobwb_variable_name]           = None
-latex_symbol[pcrglobwb_variable_name]      = None
-
-# totalGrossDemandVolume                  
-pcrglobwb_variable_name = 'totalGrossDemandVolume'
-netcdf_short_name[pcrglobwb_variable_name] = 'total_gross_demand_volume'
-netcdf_unit[pcrglobwb_variable_name]       = 'm3.day-1'
-netcdf_monthly_total_unit[pcrglobwb_variable_name] = 'm3.month-1' 
-netcdf_yearly_total_unit[pcrglobwb_variable_name]  = 'm3.year-1'
-netcdf_long_name[pcrglobwb_variable_name]  = None
-description[pcrglobwb_variable_name]       = None
-comment[pcrglobwb_variable_name]           = None
-latex_symbol[pcrglobwb_variable_name]      = None
+# ~ # totalGrossDemandVolume                  
+# ~ pcrglobwb_variable_name = 'totalGrossDemandVolume'
+# ~ netcdf_short_name[pcrglobwb_variable_name] = 'total_gross_demand_volume'
+# ~ netcdf_unit[pcrglobwb_variable_name]       = 'm3.day-1'
+# ~ netcdf_monthly_total_unit[pcrglobwb_variable_name] = 'm3.month-1' 
+# ~ netcdf_yearly_total_unit[pcrglobwb_variable_name]  = 'm3.year-1'
+# ~ netcdf_long_name[pcrglobwb_variable_name]  = None
+# ~ description[pcrglobwb_variable_name]       = None
+# ~ comment[pcrglobwb_variable_name]           = None
+# ~ latex_symbol[pcrglobwb_variable_name]      = None
 
 # satDegUpp                       
 pcrglobwb_variable_name = 'satDegUpp'
