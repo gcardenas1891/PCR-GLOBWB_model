@@ -870,7 +870,7 @@ class Reporting(object):
         self.net_liquid_water_to_soil = self._model.landSurface.netLqWaterToSoil
         
         # consumptive water use and return flow from non irrigation water demand (unit: m/day)  
-        self.nonIrrWaterConsumption = self._model.routing.nonIrrWaterConsumption
+        self.nonIrrWaterConsumption = self._model.landSurface.nonIrrWaterConsumption
         self.nonIrrReturnFlow       = self._model.landSurface.nonIrrReturnFlow
         
         # accumulated non irrigation return flow along the drainage network (m3/s)
