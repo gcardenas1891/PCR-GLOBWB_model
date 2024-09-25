@@ -1354,6 +1354,9 @@ class LandSurface(object):
         # - surface water abstraction and allocation, unit m/day, total for all sectors 
         self.allocSurfaceWaterAbstract = self.water_management.allocSurfaceWaterAbstract
         self.actSurfaceWaterAbstract   = self.water_management.actSurfaceWaterAbstract  
+        
+        self.actSurfaceWaterAbstract   = 0.0
+        
         # - renewable groundwater abstraction and allocation, unit m/day, total for all sectors
         self.nonFossilGroundwaterAbs   = self.water_management.nonFossilGroundwaterAbs
         self.allocNonFossilGroundwater = self.water_management.allocNonFossilGroundwater
