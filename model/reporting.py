@@ -798,28 +798,30 @@ class Reporting(object):
                                                                           0.0)
         self.surfaceWaterLevel = pcr.max(0.0, pcr.ifthen(self._model.routing.landmask, self.surfaceWaterLevel)) 
 
-        # Menno's post proccessing: fractions of water sources (allocated for) satisfying water demand in each cell
-        self.fracSurfaceWaterAllocation = pcr.ifthen(self._model.routing.landmask, \
-                                          vos.getValDivZero(\
-                                          self._model.landSurface.allocSurfaceWaterAbstract, self.totalGrossDemand, vos.smallNumber))
-        self.fracSurfaceWaterAllocation = pcr.ifthenelse(self.totalGrossDemand < vos.smallNumber, 1.0, self.fracSurfaceWaterAllocation)
-        #
-        self.fracNonFossilGroundwaterAllocation = pcr.ifthen(self._model.routing.landmask, \
-                                                  vos.getValDivZero(\
-                                                  self._model.groundwater.allocNonFossilGroundwater, self.totalGrossDemand, vos.smallNumber))
-        #
-        self.fracOtherWaterSourceAllocation = pcr.ifthen(self._model.routing.landmask, \
-                                              vos.getValDivZero(\
-                                              self._model.groundwater.unmetDemand, self.totalGrossDemand, vos.smallNumber))
-        #
-        self.fracDesalinatedWaterAllocation = pcr.ifthen(self._model.routing.landmask, \
-                                              vos.getValDivZero(\
-                                              self._model.landSurface.desalinationAllocation, self.totalGrossDemand, vos.smallNumber))
-        #
-        self.totalFracWaterSourceAllocation = self.fracSurfaceWaterAllocation + \
-                                              self.fracNonFossilGroundwaterAllocation + \
-                                              self.fracOtherWaterSourceAllocation + \
-                                              self.fracDesalinatedWaterAllocation
+
+        # ~ # Menno's post proccessing: fractions of water sources (allocated for) satisfying water demand in each cell
+        # ~ self.fracSurfaceWaterAllocation = pcr.ifthen(self._model.routing.landmask, \
+                                          # ~ vos.getValDivZero(\
+                                          # ~ self._model.landSurface.allocSurfaceWaterAbstract, self.totalGrossDemand, vos.smallNumber))
+        # ~ self.fracSurfaceWaterAllocation = pcr.ifthenelse(self.totalGrossDemand < vos.smallNumber, 1.0, self.fracSurfaceWaterAllocation)
+        # ~ #
+        # ~ self.fracNonFossilGroundwaterAllocation = pcr.ifthen(self._model.routing.landmask, \
+                                                  # ~ vos.getValDivZero(\
+                                                  # ~ self._model.groundwater.allocNonFossilGroundwater, self.totalGrossDemand, vos.smallNumber))
+        # ~ #
+        # ~ self.fracOtherWaterSourceAllocation = pcr.ifthen(self._model.routing.landmask, \
+                                              # ~ vos.getValDivZero(\
+                                              # ~ self._model.groundwater.unmetDemand, self.totalGrossDemand, vos.smallNumber))
+        # ~ #
+        # ~ self.fracDesalinatedWaterAllocation = pcr.ifthen(self._model.routing.landmask, \
+                                              # ~ vos.getValDivZero(\
+                                              # ~ self._model.landSurface.desalinationAllocation, self.totalGrossDemand, vos.smallNumber))
+        # ~ #
+        # ~ self.totalFracWaterSourceAllocation = self.fracSurfaceWaterAllocation + \
+                                              # ~ self.fracNonFossilGroundwaterAllocation + \
+                                              # ~ self.fracOtherWaterSourceAllocation + \
+                                              # ~ self.fracDesalinatedWaterAllocation
+
 
         # Stefanie's post processing:
         # -  reporting lake and reservoir storage (unit: m3)
