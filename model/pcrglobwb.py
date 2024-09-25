@@ -255,7 +255,7 @@ class PCRGlobWB(object):
 
         self.waterBalance = \
           (landWaterStoresAtBeginning - landWaterStoresAtEnd +\
-           self.meteo.precipitation + self.landSurface.irrGrossDemand + self.groundwater.surfaceWaterInf -\
+           self.meteo.precipitation + self.landSurface.water_management.satisfied_gross_sectoral_water_demands["irrigation"] / self.routing.cellArea + self.groundwater.surfaceWaterInf -\
            self.landSurface.actualET - self.routing.runoff - self.groundwater.nonFossilGroundwaterAbs)
 
         self.waterBalanceAcc    += self.waterBalance
