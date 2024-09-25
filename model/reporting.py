@@ -945,36 +945,36 @@ class Reporting(object):
                 pcr.cover(self._model.routing.floodInundationVolume, 0.0),
             )
 
-        # water withdrawal for irrigation sectors
-        self.irrPaddyWaterWithdrawal    = pcr.ifthen(self._model.routing.landmask, self._model.landSurface.irrGrossDemandPaddy)
-        self.irrNonPaddyWaterWithdrawal = pcr.ifthen(self._model.routing.landmask, self._model.landSurface.irrGrossDemandNonPaddy)
-        self.irrigationWaterWithdrawal  = self.irrPaddyWaterWithdrawal + self.irrNonPaddyWaterWithdrawal
+        # ~ # water withdrawal for irrigation sectors
+        # ~ self.irrPaddyWaterWithdrawal    = pcr.ifthen(self._model.routing.landmask, self._model.landSurface.irrGrossDemandPaddy)
+        # ~ self.irrNonPaddyWaterWithdrawal = pcr.ifthen(self._model.routing.landmask, self._model.landSurface.irrGrossDemandNonPaddy)
+        # ~ self.irrigationWaterWithdrawal  = self.irrPaddyWaterWithdrawal + self.irrNonPaddyWaterWithdrawal
         
-        # water withdrawal for livestock, industry and domestic water demands
-        self.domesticWaterWithdrawal    = pcr.ifthen(self._model.routing.landmask, self._model.landSurface.domesticWaterWithdrawal)
-        self.industryWaterWithdrawal    = pcr.ifthen(self._model.routing.landmask, self._model.landSurface.industryWaterWithdrawal)
-        self.livestockWaterWithdrawal   = pcr.ifthen(self._model.routing.landmask, self._model.landSurface.livestockWaterWithdrawal)
+        # ~ # water withdrawal for livestock, industry and domestic water demands
+        # ~ self.domesticWaterWithdrawal    = pcr.ifthen(self._model.routing.landmask, self._model.landSurface.domesticWaterWithdrawal)
+        # ~ self.industryWaterWithdrawal    = pcr.ifthen(self._model.routing.landmask, self._model.landSurface.industryWaterWithdrawal)
+        # ~ self.livestockWaterWithdrawal   = pcr.ifthen(self._model.routing.landmask, self._model.landSurface.livestockWaterWithdrawal)
 
         
-        ######################################################################################################################################################################
-        # All water withdrawal variables in volume unit (m3): 
-        waterWithdrawalVariables = [
-                                    'totalGroundwaterAbstraction',\
-                                    'surfaceWaterAbstraction',\
-                                    'desalinationAbstraction',\
-                                    'domesticWaterWithdrawal',\
-                                    'industryWaterWithdrawal',\
-                                    'livestockWaterWithdrawal',\
-                                    'irrigationWaterWithdrawal',\
-                                    'irrGrossDemand',\
-                                    'nonIrrGrossDemand',\
-                                    'totalGrossDemand'\
-                                    ]
-        for var in waterWithdrawalVariables:
-                volVariable = var + 'Volume'
-                vars(self)[volVariable] = None 
-                vars(self)[volVariable] = self._model.routing.cellArea * vars(self)[var]
-        ######################################################################################################################################################################
+        # ~ ######################################################################################################################################################################
+        # ~ # All water withdrawal variables in volume unit (m3): 
+        # ~ waterWithdrawalVariables = [
+                                    # ~ 'totalGroundwaterAbstraction',\
+                                    # ~ 'surfaceWaterAbstraction',\
+                                    # ~ 'desalinationAbstraction',\
+                                    # ~ 'domesticWaterWithdrawal',\
+                                    # ~ 'industryWaterWithdrawal',\
+                                    # ~ 'livestockWaterWithdrawal',\
+                                    # ~ 'irrigationWaterWithdrawal',\
+                                    # ~ 'irrGrossDemand',\
+                                    # ~ 'nonIrrGrossDemand',\
+                                    # ~ 'totalGrossDemand'\
+                                    # ~ ]
+        # ~ for var in waterWithdrawalVariables:
+                # ~ volVariable = var + 'Volume'
+                # ~ vars(self)[volVariable] = None 
+                # ~ vars(self)[volVariable] = self._model.routing.cellArea * vars(self)[var]
+        # ~ ######################################################################################################################################################################
                                                          
 
         ##########################################################################################################################################################################################
