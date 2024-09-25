@@ -262,7 +262,7 @@ class PCRGlobWB(object):
         self.absWaterBalanceAcc += pcr.abs(self.waterBalance)
 
         # consumptive water use for non irrigation demand (m)
-        self.nonIrrigationWaterUseAcc += self.routing.nonIrrWaterConsumption 
+        self.nonIrrigationWaterUseAcc += self.landSurface.nonIrrWaterConsumption 
         
         self.waterBodyEvaporationAcc  += self.routing.waterBodyEvaporation
 

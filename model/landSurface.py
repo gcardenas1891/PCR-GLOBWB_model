@@ -1387,8 +1387,15 @@ class LandSurface(object):
         # - unit m/day
         self.nonIrrReturnFlow  = nonIrrReturnFlowVolume / self.cellArea
 
-
-
+        # calculate the non irrigation consumption
+        # - in the volume unit (m3/day)
+        nonIrrWaterConsumptionVolume = (self.water_management.satisfied_gross_sectoral_water_demands["domestic"] +\
+                                        self.water_management.satisfied_gross_sectoral_water_demands["industry"] +\
+                                        self.water_management.satisfied_gross_sectoral_water_demands["manufacture"] +\
+                                        self.water_management.satisfied_gross_sectoral_water_demands["thermoelectric"] +\
+                                        self.water_management.satisfied_gross_sectoral_water_demands["livestock"]) - nonIrrReturnFlowVolume
+        self.nonIrrWaterConsumption  =  nonIrrWaterConsumptionVolume / self.cellArea
+                                        
 
     def state_transfer_among_land_cover(self, currTimeStep):
 
