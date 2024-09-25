@@ -66,10 +66,12 @@ class LivestockWaterDemand(object):
 
     def update(self, currTimeStep, read_file = True):
 
+        # get the gross and netto demand values (as well as return flow fraction), either by reading input files or calculating them
         if read_file:
             self.read_livestock_water_demand_from_files(currTimeStep)
         else:
             self.calculate_livestock_water_demand_for_date(currTimeStep)
+
 
 
 
@@ -135,6 +137,8 @@ class LivestockWaterDemand(object):
             self.livestockNettoDemand = pcr.cover(self.livestockNettoDemand, 0.0)
             self.livestockNettoDemand = pcr.min(self.livestockGrossDemand, self.livestockNettoDemand)
 
+            # return flow fraction
+            self.livestockReturnFlowFraction = pcr.max(0.0, 1.0 - vos.getValDivZero(self.livestockNettoDemand, self.livestockGrossDemand))
 
 
     def calculate_livestock_water_demand_for_date(self, currTimeStep):

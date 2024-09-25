@@ -110,6 +110,8 @@ class ThermoelectricWaterDemand(object):
             self.thermoelectricNettoDemand = pcr.cover(self.thermoelectricNettoDemand, 0.0)
             self.thermoelectricNettoDemand = pcr.min(self.thermoelectricGrossDemand, self.thermoelectricNettoDemand)  
 
+            # return flow fraction
+            self.thermoelectricReturnFlowFraction = pcr.max(0.0, 1.0 - vos.getValDivZero(self.thermoelectricNettoDemand, self.thermoelectricGrossDemand))
 
 
 

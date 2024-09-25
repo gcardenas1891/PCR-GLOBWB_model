@@ -80,6 +80,7 @@ class WaterDemand(object):
         self.water_demand_manufacture.update(currTimeStep)
         self.water_demand_thermoelectric.update(currTimeStep)
         
+        
         # get irrigation demand (m)
         # - for every irrigation land cover type
         for coverType in self.coverTypes: 

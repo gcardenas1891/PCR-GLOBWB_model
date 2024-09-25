@@ -67,6 +67,7 @@ class ManufactureWaterDemand(object):
 
     def update(self, currTimeStep, read_file = True):
 
+        # get the gross and netto demand values (as well as return flow fraction), either by reading input files or calculating them
         if read_file:
             self.read_manufacture_water_demand_from_files(currTimeStep)
         else:

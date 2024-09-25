@@ -66,6 +66,7 @@ class DomesticWaterDemand(object):
 
     def update(self, currTimeStep, read_file = True):
 
+        # get the gross and netto demand values (as well as return flow fraction), either by reading input files or calculating them
         if read_file:
             self.read_domestic_water_demand_from_files(currTimeStep)
         else:
@@ -74,6 +75,7 @@ class DomesticWaterDemand(object):
 
 
     def read_domestic_water_demand_from_files(self, currTimeStep):
+        
         # read domestic water demand
         if currTimeStep.timeStepPCR == 1 or currTimeStep.day == 1:
             if self.domesticWaterDemandOption:
@@ -136,6 +138,10 @@ class DomesticWaterDemand(object):
             self.domesticGrossDemand = pcr.cover(self.domesticGrossDemand, 0.0)
             self.domesticNettoDemand = pcr.cover(self.domesticNettoDemand, 0.0)
             self.domesticNettoDemand = pcr.min(self.domesticGrossDemand, self.domesticNettoDemand)
+            
+            # return flow fraction
+            self.domesticReturnFlowFraction = pcr.max(0.0, 1.0 - vos.getValDivZero(self.domesticNettoDemand, self.domesticGrossDemand))
+
 
 
 
