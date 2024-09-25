@@ -877,8 +877,8 @@ class Reporting(object):
         if "accuNonIrrReturnFlow" in self.variables_for_report:
             self.accuNonIrrReturnFlow = pcr.catchmenttotal(self.nonIrrReturnFlow * self._model.routing.cellArea, self._model.routing.lddMap) / vos.secondsPerDay()
 
-        # total potential water demand - not considering water availability
-        self.totalPotentialMaximumGrossDemand = self._model.landSurface.totalPotentialMaximumGrossDemand
+        # ~ # total potential water demand - not considering water availability
+        # ~ self.totalPotentialMaximumGrossDemand = self._model.landSurface.totalPotentialMaximumGrossDemand
         
 
         # return flow due to groundwater abstraction (unit: m/day)
