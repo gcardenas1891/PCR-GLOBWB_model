@@ -1667,10 +1667,11 @@ class Routing(object):
         # return flow from (m) non irrigation water demand
         # - calculated in the landSurface.py module: landSurface.nonIrrReturnFlow
 
-        # water consumption for non irrigation water demand (m) - this water is removed from the system/water balance
-        self.nonIrrWaterConsumption = pcr.max(0.0,\
-                                      landSurface.nonIrrGrossDemand - \
-                                      landSurface.nonIrrReturnFlow)
+        # During the new development of water use module, we move the variable nonIrrWaterConsumption outside the routing.py
+        # ~ # water consumption for non irrigation water demand (m) - this water is removed from the system/water balance
+        # ~ self.nonIrrWaterConsumption = pcr.max(0.0,\
+                                      # ~ landSurface.nonIrrGrossDemand - \
+                                      # ~ landSurface.nonIrrReturnFlow)
 
         # runoff from landSurface cells (unit: m/day)                   
         self.runoff = landSurface.landSurfaceRunoff +\
@@ -1942,10 +1943,11 @@ class Routing(object):
         # return flow from (m) non irrigation water demand
         # - calculated in the landSurface.py module: landSurface.nonIrrReturnFlow
 
-        # water consumption for non irrigation water demand (m) - this water is removed from the system/water balance (and may be considered as part of the evaporation)
-        self.nonIrrWaterConsumption = pcr.max(0.0,\
-                                      landSurface.nonIrrGrossDemand - \
-                                      landSurface.nonIrrReturnFlow)
+        # During the new development of water use module, we move the variable nonIrrWaterConsumption outside the routing.py
+        # ~ # water consumption for non irrigation water demand (m) - this water is removed from the system/water balance
+        # ~ self.nonIrrWaterConsumption = pcr.max(0.0,\
+                                      # ~ landSurface.nonIrrGrossDemand - \
+                                      # ~ landSurface.nonIrrReturnFlow)
 
         # runoff from landSurface cells (unit: m/day)                   
         self.runoff = landSurface.landSurfaceRunoff +\
