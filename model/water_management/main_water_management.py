@@ -687,8 +687,8 @@ class WaterManagement(object):
         # pass the estimates in swAbstractionFractionDict for other modules
         self.swAbstractionFractionDict = swAbstractionFractionDict
 
-        pcr.aguila(self.allocSurfaceWaterAbstract)
-        pcr.aguila(self.actSurfaceWaterAbstract  )
+        # ~ pcr.aguila(self.allocSurfaceWaterAbstract)
+        # ~ pcr.aguila(self.actSurfaceWaterAbstract  )
 
     def abstraction_and_allocation_from_groundwater(self, remaining_gross_sectoral_water_demands, routing, groundwater, currTimeStep):
         
@@ -856,6 +856,10 @@ class WaterManagement(object):
         self.allocNonFossilGroundwater = volRenewGroundwaterAllocation  / self.cellArea
         self.nonFossilGroundwaterAbs   = volRenewGroundwaterAbstraction / self.cellArea
         
+
+        pcr.aguila(self.allocNonFossilGroundwater)
+        pcr.aguila(self.nonFossilGroundwaterAbs  )
+
         
         # somehow the following is needed for allocating fossil groundwater
         self.satisfiedIrrigationDemandFromNonFossilGroundwater = self.allocated_demand_per_sector["renewable_groundwater"]["irrigation"]
@@ -1108,6 +1112,8 @@ class WaterManagement(object):
                                                              self.allocated_demand_per_sector["nonrenewable_groundwater"][sector_name])
              
 
+        # ~ pcr.aguila(self.fossilGroundwaterAlloc)
+        # ~ pcr.aguila(self.fossilGroundwaterAbstr)
 
 
         # ~ # NOTE THAT ALL OF THE FOLLOWING LINES MAY NOT BE NEEDED ANYMORE !!!!
