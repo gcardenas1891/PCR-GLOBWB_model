@@ -857,8 +857,8 @@ class WaterManagement(object):
         self.nonFossilGroundwaterAbs   = volRenewGroundwaterAbstraction / self.cellArea
         
 
-        pcr.aguila(self.allocNonFossilGroundwater)
-        pcr.aguila(self.nonFossilGroundwaterAbs  )
+        # ~ pcr.aguila(self.allocNonFossilGroundwater)
+        # ~ pcr.aguila(self.nonFossilGroundwaterAbs  )
 
         
         # somehow the following is needed for allocating fossil groundwater
@@ -1112,8 +1112,8 @@ class WaterManagement(object):
                                                              self.allocated_demand_per_sector["nonrenewable_groundwater"][sector_name])
              
 
-        # ~ pcr.aguila(self.fossilGroundwaterAlloc)
-        # ~ pcr.aguila(self.fossilGroundwaterAbstr)
+        pcr.aguila(self.fossilGroundwaterAlloc)
+        pcr.aguila(self.fossilGroundwaterAbstr)
 
 
         # ~ # NOTE THAT ALL OF THE FOLLOWING LINES MAY NOT BE NEEDED ANYMORE !!!!
