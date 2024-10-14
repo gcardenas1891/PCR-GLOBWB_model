@@ -80,6 +80,7 @@ class WaterDemand(object):
         self.water_demand_manufacture.update(currTimeStep)
         self.water_demand_thermoelectric.update(currTimeStep)
         
+        pcr.aguila(self.water_demand_domestic.domesticGrossDemand)
         
         # get irrigation demand (m)
         # - for every irrigation land cover type
