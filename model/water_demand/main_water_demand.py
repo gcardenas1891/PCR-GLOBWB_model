@@ -80,7 +80,7 @@ class WaterDemand(object):
         self.water_demand_manufacture.update(currTimeStep)
         self.water_demand_thermoelectric.update(currTimeStep)
         
-        pcr.aguila(self.water_demand_domestic.domesticGrossDemand)
+        # ~ pcr.aguila(self.water_demand_domestic.domesticGrossDemand)
         
         # get irrigation demand (m)
         # - for every irrigation land cover type
@@ -95,3 +95,5 @@ class WaterDemand(object):
         for coverType in self.coverTypes: 
             if coverType.startswith("irr"): self.total_vol_irrigation_demand = self.total_vol_irrigation_demand + self.water_demand_irrigation[coverType].irrGrossDemand * routing.cellArea
         
+
+        pcr.aguila(self.total_vol_irrigation_demand)
