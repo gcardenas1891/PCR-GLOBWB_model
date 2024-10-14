@@ -1112,8 +1112,8 @@ class WaterManagement(object):
                                                              self.allocated_demand_per_sector["nonrenewable_groundwater"][sector_name])
              
 
-        pcr.aguila(self.fossilGroundwaterAlloc)
-        pcr.aguila(self.fossilGroundwaterAbstr)
+        # ~ pcr.aguila(self.fossilGroundwaterAlloc)
+        # ~ pcr.aguila(self.fossilGroundwaterAbstr)
 
 
         # ~ # NOTE THAT ALL OF THE FOLLOWING LINES MAY NOT BE NEEDED ANYMORE !!!!
