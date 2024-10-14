@@ -1323,6 +1323,9 @@ class LandSurface(object):
         
         # allocate the satisfied irrigation gross demands to every land cover:
         total_satisfied_irrigation_water_volume = self.water_management.satisfied_gross_sectoral_water_demands['irrigation']
+
+        pcr.aguila(total_satisfied_irrigation_water_volume)
+
         self.satisfied_irrigation_water_volume = {}
         self.satisfied_irrigation_water_height = {}
         for coverType in self.coverTypes: 
@@ -1335,7 +1338,7 @@ class LandSurface(object):
                 # - in water slice/height
                 self.satisfied_irrigation_water_height[coverType] = self.satisfied_irrigation_water_volume[coverType] / (routing.cellArea * self.landCoverObj[coverType].fracVegCover)
 
-                pcr.aguila(self.satisfied_irrigation_water_height[coverType])
+                # ~ pcr.aguila(self.satisfied_irrigation_water_height[coverType])
 
 
             # for non irrigation land cover types
