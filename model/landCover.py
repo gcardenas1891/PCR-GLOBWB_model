@@ -1303,7 +1303,7 @@ class LandCover(object):
                                 pcr.ifthen(self.landmask,\
                                 self.totalPotET - self.potBareSoilEvap))
     
-        pcr.aguila(self.potBareSoilEvap)
+        # ~ pcr.aguila(self.potBareSoilEvap)
         
         if self.debugWaterBalance:
             vos.waterBalanceCheck([self.totalPotET],\
@@ -1603,6 +1603,9 @@ class LandCover(object):
 
         # update actual evaporation (after evaporation from snowFreeWater) 
         self.actualET += self.actSnowFreeWaterEvap                      # EACT_L[TYPE]= EACT_L[TYPE]+ES_a[TYPE];
+
+        pcr.aguila(self.snowFreeWater)
+        pcr.aguila(self.actualET)
 
         if self.debugWaterBalance:
             vos.waterBalanceCheck([self.snowfall, self.liquidPrecip],
