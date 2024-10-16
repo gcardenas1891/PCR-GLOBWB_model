@@ -297,11 +297,14 @@ class PCRGlobWB(object):
                             'runoff',
                             'unmetDemand']
             variableList += self.landSurface.fluxVars
-            variableList += ['waterBalance','absWaterBalance','irrigationEvaporationWaterUse','nonIrrigationWaterUse']                
 
-            # consumptive water use for irrigation (unit: m)
-            self.irrigationEvaporationWaterUseAcc = vos.getValDivZero(self.irrGrossDemandAcc,\
-                                                           self.precipitationAcc + self.irrGrossDemandAcc) * self.actualETAcc
+            # ~ variableList += ['waterBalance','absWaterBalance','irrigationEvaporationWaterUse','nonIrrigationWaterUse']                
+            # ~ # FIXME: During the development of new water use module, we disactivated the total accumulation value for 'irrigationEvaporationWaterUse'
+            variableList += ['waterBalance','absWaterBalance','nonIrrigationWaterUse']                
+
+            # ~ # consumptive water use for irrigation (unit: m)
+            # ~ self.irrigationEvaporationWaterUseAcc = vos.getValDivZero(self.irrGrossDemandAcc,\
+                                                           # ~ self.precipitationAcc + self.irrGrossDemandAcc) * self.actualETAcc
 
             for var in variableList:
                 volume = vos.getMapVolume(\

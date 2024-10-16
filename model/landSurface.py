@@ -1330,27 +1330,32 @@ class LandSurface(object):
         self.satisfied_irrigation_water_height = {}
         for coverType in self.coverTypes: 
             
+            # calculate the total fraction of irrigated areas within the cell
+            total_cell_fraction_of_irrigated_areas = pcr.ifthen(self.landmask, pcr.scalar(0.0))
+            if coverType.startswith("irr"):
+                total_cell_fraction_of_irrigated_areas = total_cell_fraction_of_irrigated_areas + self.landCoverObj[coverType].fracVegCover
+            
             # for irrigation land cover types
             if coverType.startswith("irr"):
                 
-                # ~ pcr.aguila(self.landCoverObj[coverType].fracVegCover)
+                # - in volume (m3)
+                self.satisfied_irrigation_water_volume[coverType] = pcr.ifthenelse(total_cell_fraction_of_irrigated_areas > 0, total_satisfied_irrigation_water_volume * self.landCoverObj[coverType].fracVegCover / total_cell_fraction_of_irrigated_areas,\
+                                                                                                                               pcr.scalar(0.0))
                 
-                # - in volume
-                self.satisfied_irrigation_water_volume[coverType] = total_satisfied_irrigation_water_volume *\
-                                                                                            vos.getValDivZero( self.water_demand.water_demand_irrigation[coverType].irrGrossDemand * routing.cellArea * self.landCoverObj[coverType].fracVegCover, vol_gross_sectoral_water_demands["irrigation"])
-                # - in water slice/height
-                self.satisfied_irrigation_water_height[coverType] = self.satisfied_irrigation_water_volume[coverType] / (routing.cellArea * self.landCoverObj[coverType].fracVegCover)
+                # - in water slice/height (m)
+                self.satisfied_irrigation_water_height[coverType] = self.satisfied_irrigation_water_volume[coverType] / (routing.cellArea)
 
                 # ~ pcr.aguila(self.satisfied_irrigation_water_height[coverType])
                 
-                self.satisfied_irrigation_water_volume[coverType] = pcr.cover(self.satisfied_irrigation_water_volume[coverType], 0.0)
-                self.satisfied_irrigation_water_height[coverType] = pcr.cover(self.satisfied_irrigation_water_height[coverType], 0.0)
+                # ~ self.satisfied_irrigation_water_volume[coverType] = pcr.cover(self.satisfied_irrigation_water_volume[coverType], 0.0)
+                # ~ self.satisfied_irrigation_water_height[coverType] = pcr.cover(self.satisfied_irrigation_water_height[coverType], 0.0)
 
 
             # for non irrigation land cover types
             else:
-                self.satisfied_irrigation_water_volume[coverType] = 0.0
-                self.satisfied_irrigation_water_height[coverType] = 0.0
+
+                self.satisfied_irrigation_water_volume[coverType] = pcr.ifthen(self.landmask, pcr.scalar(0.0))
+                self.satisfied_irrigation_water_height[coverType] = pcr.ifthen(self.landmask, pcr.scalar(0.0))
                 
 
         # do the remaining land cover processes
