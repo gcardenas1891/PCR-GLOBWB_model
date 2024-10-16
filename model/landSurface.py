@@ -1333,7 +1333,7 @@ class LandSurface(object):
             # for irrigation land cover types
             if coverType.startswith("irr"):
                 
-                pcr.aguila(self.landCoverObj[coverType].fracVegCover)
+                # ~ pcr.aguila(self.landCoverObj[coverType].fracVegCover)
                 
                 # - in volume
                 self.satisfied_irrigation_water_volume[coverType] = total_satisfied_irrigation_water_volume *\
@@ -1342,6 +1342,9 @@ class LandSurface(object):
                 self.satisfied_irrigation_water_height[coverType] = self.satisfied_irrigation_water_volume[coverType] / (routing.cellArea * self.landCoverObj[coverType].fracVegCover)
 
                 # ~ pcr.aguila(self.satisfied_irrigation_water_height[coverType])
+                
+                self.satisfied_irrigation_water_volume[coverType] = pcr.cover(self.satisfied_irrigation_water_volume[coverType], 0.0)
+                self.satisfied_irrigation_water_height[coverType] = pcr.cover(self.satisfied_irrigation_water_height[coverType], 0.0)
 
 
             # for non irrigation land cover types
