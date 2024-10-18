@@ -1312,6 +1312,8 @@ class LandSurface(object):
         for coverType in self.coverTypes: 
             if coverType.startswith("irr"): vol_gross_sectoral_water_demands["irrigation"] += self.water_demand.water_demand_irrigation[coverType].irrGrossDemand * routing.cellArea * self.landCoverObj[coverType].fracVegCover 
         
+        self.check_irrigation_water_demand_volume = vol_gross_sectoral_water_demands["irrigation"] 
+        
         # pool the demands and do the allocation on the available storages at the land surface level / water allocation model and then pass the withdrawals to the surface and groundwater
         # - input: - sectoral water demands (calculated in "self.water_demand.update")
         #          - water availabilities (from previous time step: surface water and groundwater; from the current time step: desalination)
@@ -1417,6 +1419,10 @@ class LandSurface(object):
                                         self.water_management.satisfied_gross_sectoral_water_demands["livestock"]) - nonIrrReturnFlowVolume
         self.nonIrrWaterConsumption  =  nonIrrWaterConsumptionVolume / self.cellArea
                                         
+
+        # old-style reporting (this is useful for debugging)                            
+        self.old_style_land_surface_reporting(currTimeStep)
+
 
     def state_transfer_among_land_cover(self, currTimeStep):
 
