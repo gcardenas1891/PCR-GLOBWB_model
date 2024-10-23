@@ -465,6 +465,22 @@ class WaterManagement(object):
                                                            currTimeStep                         = currTimeStep)
 
 
+        # update the following after abstraction and allocation of renewable_groundwater
+        #   - the updated self.remaining_gross_sectoral_water_demands
+        #   - the updated self.satisfied_gross_sectoral_water_demands
+        for sector_name in vol_gross_sectoral_water_demands.keys():
+             self.satisfied_gross_sectoral_water_demands[sector_name] += self.allocated_demand_per_sector["renewable_groundwater"][sector_name]  
+             self.remaining_gross_sectoral_water_demands[sector_name] -= self.allocated_demand_per_sector["renewable_groundwater"][sector_name]
+             self.remaining_gross_sectoral_water_demands[sector_name]  = pcr.max(0.0, self.remaining_gross_sectoral_water_demands[sector_name])
+
+
+        # update the following after abstraction and allocation of nonrenewable_groundwater
+        #   - the updated self.remaining_gross_sectoral_water_demands
+        #   - the updated self.satisfied_gross_sectoral_water_demands
+        for sector_name in vol_gross_sectoral_water_demands.keys():
+             self.satisfied_gross_sectoral_water_demands[sector_name] += self.allocated_demand_per_sector["nonrenewable_groundwater"][sector_name]  
+             self.remaining_gross_sectoral_water_demands[sector_name] -= self.allocated_demand_per_sector["nonrenewable_groundwater"][sector_name]
+             self.remaining_gross_sectoral_water_demands[sector_name]  = pcr.max(0.0, self.remaining_gross_sectoral_water_demands[sector_name])
 
 
         #   - the updated self.available_renewable_groundwater   
