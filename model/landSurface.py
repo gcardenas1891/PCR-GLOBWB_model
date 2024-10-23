@@ -1348,7 +1348,7 @@ class LandSurface(object):
                                                                                                                                pcr.scalar(0.0))
                 
                 # - in water slice/height (m)
-                self.satisfied_irrigation_water_height[coverType] = pcr.ifthenelse(self.landCoverObj[coverType].fracVegCover > 0.0, self.satisfied_irrigation_water_volume[coverType] / (routing.cellArea * self.landCoverObj[coverType].fracVegCover, pcr.scalar(0.0)))
+                self.satisfied_irrigation_water_height[coverType] = pcr.ifthenelse(self.landCoverObj[coverType].fracVegCover > 0.0, self.satisfied_irrigation_water_volume[coverType] / (routing.cellArea * self.landCoverObj[coverType].fracVegCover), pcr.scalar(0.0))
 
                 # ~ pcr.aguila(self.satisfied_irrigation_water_height[coverType])
                 
