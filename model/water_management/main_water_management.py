@@ -473,7 +473,8 @@ class WaterManagement(object):
 
         allocated_demand_per_sector = {}
         for sector_name in self.sector_names:
-            allocated_demand_per_sector[sector_name] = vos.getValDivZero(sectoral_remaining_demand_volume[sector_name], total_remaining_demand_volume) * totalVolWaterAllocation
+            allocated_demand_per_sector[sector_name] = pcr.ifthenelse(total_remaining_demand_volume > 0.0, \
+            vos.getValDivZero(sectoral_remaining_demand_volume[sector_name], total_remaining_demand_volume) * totalVolWaterAllocation, 0.0)
             
         return allocated_demand_per_sector    
 
@@ -597,16 +598,16 @@ class WaterManagement(object):
                 remainingIndustrialDomestic  += remaining_gross_sectoral_water_demands[sector_name]
             else:
                 remainingIrrigationLivestock += remaining_gross_sectoral_water_demands[sector_name]
-        # - total remaining demand, from all sectors
+        # - total remaining demand, from all sectors - unit: m3/day
         remainingTotalDemand = remainingIndustrialDomestic + remainingIndustrialDomestic        
        
-        # - surface water demand estimate (so far, only from sectors outside irrigation and livestock) 
+        # - surface water demand estimate (so far, only from sectors outside irrigation and livestock) - unit: m3/day
         surface_water_demand_estimate = swAbstractionFraction_industrial_domestic * remainingIndustrialDomestic
         
-        # - for irrigation and livestock 
+        # - for irrigation and livestock - unit: m3/day
         surface_water_irrigation_demand_estimate = swAbstractionFractionDict['irrigation'] * remainingIrrigationLivestock
 
-        # - surface water source as priority if groundwater irrigation fraction is relatively low  
+        # - surface water source as priority if groundwater irrigation fraction is relatively low  - unit: m3/day 
         surface_water_irrigation_demand_estimate = \
            pcr.ifthenelse(swAbstractionFractionDict['irrigation'] >= swAbstractionFractionDict['threshold_to_maximize_irrigation_surface_water'],\
            remainingIrrigationLivestock, surface_water_irrigation_demand_estimate)
@@ -644,7 +645,7 @@ class WaterManagement(object):
         # - surface water to satisfy water demand
         if self.using_allocationSegmentsForSurfaceWaterSource:
         #  
-            logger.debug("Allocation of supply from surfacen water.")
+            logger.debug("Allocation of supply from surface water.")
         #  
             volSurfaceWaterAbstraction, volSurfaceWaterAllocation, volZoneSurfaceWaterAbstraction = \
               self.waterAbstractionAndAllocation(
