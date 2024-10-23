@@ -1323,8 +1323,11 @@ class LandSurface(object):
         self.water_management.update(vol_gross_sectoral_water_demands = vol_gross_sectoral_water_demands, groundwater = groundwater, routing = routing, currTimeStep = currTimeStep)
         # - This will be replaced by pcrLite
         
+
         # allocate the satisfied irrigation gross demands to every land cover:
         total_satisfied_irrigation_water_volume = self.water_management.satisfied_gross_sectoral_water_demands['irrigation']
+
+        self.check_satisfied_irrigation_water_demand_volume = total_satisfied_irrigation_water_volume 
 
         # ~ pcr.aguila(total_satisfied_irrigation_water_volume)
 

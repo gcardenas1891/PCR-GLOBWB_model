@@ -400,6 +400,7 @@ class WaterManagement(object):
     def update(self, vol_gross_sectoral_water_demands, groundwater, routing, currTimeStep):
 
         # total volume of irrigation and livestock demand (not limited by available water) - somehow this is needed while allocating groundwater use
+        # - unit: m3
         self.volTotalIrrigationLivestockDemand = vol_gross_sectoral_water_demands["irrigation"] +\
                                                  vol_gross_sectoral_water_demands["livestock"]
         
