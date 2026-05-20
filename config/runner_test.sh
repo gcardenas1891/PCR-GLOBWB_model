@@ -2,8 +2,8 @@
 #SBATCH -N 1
 #SBATCH -n 192
 #SBATCH -p genoa
-#SBATCH -t 15:00:00
-#SBATCH -J wqFalse
+#SBATCH -t 120:00:00
+#SBATCH -J fullcoup
 #SBATCH --mail-type=END
 #SBATCH --mail-user=gcardenas1891@gmail.com
 
@@ -47,7 +47,7 @@ SCRIPT_CONFIG_FILE_QUALLOC="/gpfs/home6/gcardenas/github/qualloc/PCR-GLOBWB_mode
 QUALLOC_INITIAL_STATE_FOLDER="/gpfs/work3/0/prjs1311/qualloc/data/initial/historic/qualloc"
 
 # water quality flag to consider sectoral water quality requirements (True or False)
-WQ_FLAG="False"
+WQ_FLAG=$2
 
 # directory where grid description is stored
 GRIDDES="/gpfs/home6/gcardenas/github/qualloc/PCR-GLOBWB_model/model/water_management_qualloc/griddes_05arcmin_ldd.txt"
@@ -180,5 +180,5 @@ wait
 
 # submit next year .....................................................
 if [ "$YEAR" -le 2018 ]; then
-  sbatch "/gpfs/home6/gcardenas/github/qualloc/PCR-GLOBWB_model/config/full_coupling/pcrdynlloc_historic_yby_wqFalse.sh" "$((YEAR + 1))"
+  sbatch "/gpfs/home6/gcardenas/github/qualloc/PCR-GLOBWB_model/config/full_coupling/pcrdynlloc_historic_yby.sh" "$((YEAR + 1))" "${WQ_FLAG}"
 fi
