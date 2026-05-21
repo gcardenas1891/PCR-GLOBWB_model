@@ -1110,8 +1110,8 @@ class Routing(object):
         # - estimated based on the initial or latest sub-time step discharge (unit: m3/s)
         # 
         length_of_sub_time_step = pcr.ifthenelse(self.subDischarge > 0.0, 
-                                  self.water_height * self.dynamicFracWat * self.cellArea / \
-                                  self.subDischarge, vos.secondsPerDay())
+                                                 self.water_height * self.dynamicFracWat * self.cellArea / self.subDischarge, \
+                                                 vos.secondsPerDay())
         
         # determine the number of sub time steps (based on Rens van Beek's method)
         critical_condition = (length_of_sub_time_step < vos.secondsPerDay())  & \
