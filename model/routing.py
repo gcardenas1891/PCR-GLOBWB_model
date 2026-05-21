@@ -1096,9 +1096,12 @@ class Routing(object):
         
         # quality routing
         if self.quality:
+            # length of sub-time step is equal to the simulation time-step (unit: s):
+            length_of_sub_time_step, number_of_loops = 86400.0, 1
+            # routing variables for quality estimation
             self.channelStorageNow = pcr.max(0.0, self.channelStorage)
-        #    self.qualityRouting(length_of_sub_time_step)
-        #    self.channelStorageTimeBefore = pcr.max(0.0, self.channelStorageNow)
+            self.qualityRouting(length_of_sub_time_step)
+            self.channelStorageTimeBefore = pcr.max(0.0, self.channelStorageNow)
 
     def estimate_length_of_sub_time_step(self): 
 
@@ -1158,9 +1161,6 @@ class Routing(object):
         
         # estimate the length of sub-time step (unit: s):
         length_of_sub_time_step, number_of_loops = self.estimate_length_of_sub_time_step()
-        
-        print(length_of_sub_time_step, number_of_loops)
-        pietje
         
         for i_loop in range(number_of_loops):
             
