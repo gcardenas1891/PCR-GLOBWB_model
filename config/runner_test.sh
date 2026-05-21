@@ -16,3 +16,4 @@ unset PCRASTER_NR_WORKER_THREADS
 export OPENBLAS_NUM_THREADS=1
 
 python /gpfs/home6/gcardenas/github/qualloc/PCR-GLOBWB_model/model/deterministic_runner.py /gpfs/home6/gcardenas/github/qualloc/PCR-GLOBWB_model/config/setup_05min_2w_Rhine_kinematicwave.ini debug
+python /gpfs/home6/gcardenas/github/qualloc/PCR-GLOBWB_model/model/deterministic_runner.py /gpfs/home6/gcardenas/github/qualloc/PCR-GLOBWB_model/config/setup_05min_2w_Rhine_accutraveltime.ini debug

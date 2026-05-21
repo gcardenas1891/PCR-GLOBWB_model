@@ -1067,7 +1067,7 @@ class Routing(object):
         # channelStorage that will be given to the ROUTING operation:
         channelStorageForAccuTravelTime = pcr.max(0.0, self.channelStorage)
         channelStorageForAccuTravelTime = pcr.cover(channelStorageForAccuTravelTime,0.0)       # TODO: check why do we have to use the "cover" operation?
-        
+
         characteristicDistance = self.getCharacteristicDistance(self.yMean, self.wMean)
 
         # estimating channel discharge (m3/day)
@@ -1080,25 +1080,20 @@ class Routing(object):
         #      http://karssenberg.geo.uu.nl/tt/TravelTimeSpecification.htm
         #
         # and make sure that no negative discharge
-        self.Q = pcr.max(0.0, self.Q)                                   # unit: m3/day        
+        self.Q = pcr.max(0.0, self.Q)                                    # unit: m3/day        
 
         # updating channelStorage (after routing)
         self.channelStorage = pcr.accutraveltimestate(self.lddMap,\
                               channelStorageForAccuTravelTime,\
-                              pcr.max(0.0, characteristicDistance))     # unit: m3
-        
+                              pcr.max(0.0, characteristicDistance)) # unit: m3
+
         # return channelStorageThatWillNotMove to channelStorage:
-        self.channelStorage += channelStorageThatWillNotMove            # unit: m3
+        self.channelStorage += channelStorageThatWillNotMove             # unit: m3
 
         # for non kinematic wave approaches, set subDishcarge Q in m3/s
         self.subDischarge = self.Q / vos.secondsPerDay()
         self.subDischarge = pcr.ifthen(self.landmask, self.subDischarge)
-        
-        # quality routing
-        if self.quality:
-            self.channelStorageNow = pcr.max(0.0, self.channelStorage)
-        #    self.qualityRouting(length_of_sub_time_step)
-        #    self.channelStorageTimeBefore = pcr.max(0.0, self.channelStorageNow)
+         
 
     def estimate_length_of_sub_time_step(self): 
 
@@ -1111,6 +1106,7 @@ class Routing(object):
                                   self.subDischarge, vos.secondsPerDay())
         
         # determine the number of sub time steps (based on Rens van Beek's method)
+        #
         critical_condition = (length_of_sub_time_step < vos.secondsPerDay())  & \
                              (self.water_height > self.critical_water_height) & \
                              (self.lddMap != pcr.ldd(5))
@@ -1129,8 +1125,8 @@ class Routing(object):
         
         # actual length of sub-time step (s)
         length_of_sub_time_step = vos.secondsPerDay() / number_of_loops
-        
-        return (length_of_sub_time_step, number_of_loops)
+
+        return (length_of_sub_time_step, number_of_loops)                               
 
     def simplifiedKinematicWave(self, meteo, landSurface, groundwater): 
         """
@@ -1155,13 +1151,10 @@ class Routing(object):
         self.water_height = pcr.min(self.max_water_height, \
                                     channelStorageForRouting /\
                                     (pcr.max(self.min_fracwat_for_water_height, self.dynamicFracWat) * self.cellArea))
-        
+       
         # estimate the length of sub-time step (unit: s):
         length_of_sub_time_step, number_of_loops = self.estimate_length_of_sub_time_step()
-        
-        print(length_of_sub_time_step, number_of_loops)
-        pietje
-        
+
         for i_loop in range(number_of_loops):
             
             #msg = "sub-daily time step "+str(i_loop+1)+" from "+str(number_of_loops)
@@ -1178,7 +1171,7 @@ class Routing(object):
                                                                                      self.water_height, \
                                                                                      self.innundatedFraction, self.floodDepth)
             
-            # at the lake/reservoir outlets, use the discharge of water body outflow
+            # at the lake/reservoir outlets, use the discharge of water bofy outflow
             waterBodyOutflowInM3PerSec = pcr.cover(
                                          pcr.ifthen(\
                                          self.WaterBodies.waterBodyOut,\
@@ -1186,8 +1179,8 @@ class Routing(object):
             waterBodyOutflowInM3PerSec = pcr.ifthen(\
                                          pcr.scalar(self.WaterBodies.waterBodyIds) > 0.0, \
                                          waterBodyOutflowInM3PerSec)
-            dischargeInitial = pcr.cover(waterBodyOutflowInM3PerSec, dischargeInitial)
-            
+            dischargeInitial = pcr.cover(waterBodyOutflowInM3PerSec, dischargeInitial)                             
+
             # discharge (m3/s) based on kinematic wave approximation
             self.subDischarge = pcr.kinematic(self.lddMap, dischargeInitial, 0.0, 
                                               alpha, self.beta, \
@@ -1237,7 +1230,7 @@ class Routing(object):
             if self.quality:
                 self.channelStorageNow = pcr.max(0.0, channelStorageForRouting)
                 self.qualityRouting(length_of_sub_time_step)
-                self.channelStorageTimeBefore = pcr.max(0.0, self.channelStorageNow)
+                self.channelStorageTimeBefore = pcr.max(0.0, self.channelStorageNow)                                  
         
         # channel discharge (m3/day) = self.Q
         self.Q = discharge_volume
@@ -3364,9 +3357,9 @@ class Routing(object):
         energyAverageLakeCell = cover(energyTotal * self.cellArea \
           /pcr.areatotal(pcr.cover(self.cellArea, 0.0),pcr.ifthen(self.landmask,self.WaterBodies.waterBodyIds)), energyTotal)
         self.totEW = cover(energyAverageLakeCell /(self.dynamicFracWat * self.cellArea), 1e-16)
-        
+            
         self.temp_water_height = self.return_water_body_storage_to_channel(self.channelStorageNow)/(self.dynamicFracWat * self.cellArea)
-        
+      
         iceReductionFactor = ifthen(self.landmask, cover(self.dynamicFracWatBeforeRouting/self.dynamicFracWat,1.0))
         
         self.deltaIceThickness = iceReductionFactor * self.deltaIceThickness
