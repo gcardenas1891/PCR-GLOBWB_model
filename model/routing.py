@@ -1701,9 +1701,10 @@ class Routing(object):
             self.channelStorageTimeBefore = pcr.max(0.0, self.channelStorage)
             self.qualityLocal(meteo, landSurface, groundwater, currTimeStep)
             pcr.aguila(self.waterTemp)             # <-------------- deleteme!
-            pcr.aguila(self.self.dynamicFracWat)   # <-------------- deleteme!
-            pietje                                 # <-------------- deleteme!
+            pcr.aguila(self.dynamicFracWat)        # <-------------- deleteme!
             self.qualityWaterBody()
+            pcr.aguila(self.waterTemp)             # <-------------- deleteme!
+            pietje                                 # <-------------- deleteme!
         
         # ROUTING OPERATION:
         ##########################################################################################################################
