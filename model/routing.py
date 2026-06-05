@@ -1700,6 +1700,8 @@ class Routing(object):
             
             self.channelStorageTimeBefore = pcr.max(0.0, self.channelStorage)
             self.qualityLocal(meteo, landSurface, groundwater, currTimeStep)
+            pcr.aguila(self.waterTemp)   # deleteme!
+            pietje
             self.qualityWaterBody()
         
         # ROUTING OPERATION:
