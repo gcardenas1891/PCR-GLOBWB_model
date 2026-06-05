@@ -1702,6 +1702,7 @@ class Routing(object):
             self.qualityLocal(meteo, landSurface, groundwater, currTimeStep)
             self.qualityWaterBody()
             pcr.aguila(self.waterTemp)             # <-------------- deleteme!
+            pietje                                 # <-------------- deleteme!
         
         # ROUTING OPERATION:
         ##########################################################################################################################
@@ -1724,13 +1725,8 @@ class Routing(object):
         #
         ##########################################################################################################################
         
-        pcr.aguila(self.waterTemp)             # <-------------- deleteme!
-        
         if self.quality:
             self.qualityWaterBodyAverage(currTimeStep)
-        
-        pcr.aguila(self.waterTemp)             # <-------------- deleteme!
-        pietje                                 # <-------------- deleteme!
         
         # return waterBodyStorage to channelStorage  
         self.channelStorage = self.return_water_body_storage_to_channel(self.channelStorage)
@@ -3129,14 +3125,21 @@ class Routing(object):
         self.temp_water_height = pcr.max(1e-16, totStorLoc + dtotStorLoc)
         self.totEW = pcr.max(0, self.totEW + dtotEWLoc + dtotEWAdv)
         
+        pcr.aguila(self.waterTemp)             # <-------------- deleteme!
+        
         if currTimeStep.timeStepPCR != 1: #temporary fix for error in water temperature simulation in first timestep.
             self.waterTemp = pcr.ifthenelse(
                 self.temp_water_height > self.critical_water_height,
                 self.totEW / self.temp_water_height / (self.specificHeatWater * self.densityWater),
                 self.temperatureKelvin
             )
+        
+        pcr.aguila(self.waterTemp)             # <-------------- deleteme!
+        
         self.waterTemp = min(pcr.ifthenelse(self.waterTemp < self.iceThresTemp + 0.1, self.iceThresTemp + 0.1, self.waterTemp),self.maxThresTemp)               
         self.waterTemp_C = self.waterTemp - pcr.scalar(273.15)   #water temperature in gridcell in C
+        
+        pcr.aguila(self.waterTemp)             # <-------------- deleteme!
         
         ###BOD (non-conservative; function of water temperature only)
         #---Temperature dependent decay parameters
