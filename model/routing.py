@@ -730,6 +730,8 @@ class Routing(object):
             self.routedBOD = pcr.ifthen(self.landmask, pcr.cover(self.routedBOD, 0.0))
             self.routedFC = pcr.ifthen(self.landmask, pcr.cover(self.routedFC,  0.0))
             
+            pcr.aguila(self.waterTemp)   # <------------ deleteme
+            
             #Per water quality sector
             if self.calculateLoads and self.offlineRun == False: 
                 self.avg_irrGrossDemand   = pcr.ifthen(self.landmask, pcr.cover(self.avg_irrGrossDemand, 0.0))
@@ -3133,13 +3135,8 @@ class Routing(object):
                 self.totEW / self.temp_water_height / (self.specificHeatWater * self.densityWater),
                 self.temperatureKelvin
             )
-        
-        pcr.aguila(self.waterTemp)             # <-------------- deleteme!
-        
         self.waterTemp = min(pcr.ifthenelse(self.waterTemp < self.iceThresTemp + 0.1, self.iceThresTemp + 0.1, self.waterTemp),self.maxThresTemp)               
         self.waterTemp_C = self.waterTemp - pcr.scalar(273.15)   #water temperature in gridcell in C
-        
-        pcr.aguila(self.waterTemp)             # <-------------- deleteme!
         
         ###BOD (non-conservative; function of water temperature only)
         #---Temperature dependent decay parameters
